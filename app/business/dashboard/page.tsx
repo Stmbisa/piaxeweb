@@ -2,6 +2,8 @@
 
 import { useAuth } from "@/lib/auth/context"
 import { BusinessProtectedRoute } from "@/components/auth/business-protected-route"
+import { BusinessDashboardOverview } from "@/components/business/dashboard-overview"
+import { BusinessSidebar } from "@/components/business/sidebar"
 
 export default function BusinessDashboard() {
     const { user } = useAuth()
@@ -9,11 +11,11 @@ export default function BusinessDashboard() {
 
     return (
         <BusinessProtectedRoute>
-            <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white">
-                <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-3xl font-bold mb-4">Business Dashboard</h1>
-                    <p>Welcome back, {businessProfile?.business_name}</p>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-purple-50/30 to-white flex">
+                <BusinessSidebar />
+                <main className="flex-1 overflow-auto">
+                    <BusinessDashboardOverview />
+                </main>
             </div>
         </BusinessProtectedRoute>
     )
