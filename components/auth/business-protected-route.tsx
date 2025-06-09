@@ -4,12 +4,12 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/context'
 
-interface MerchantProtectedRouteProps {
+interface BusinessProtectedRouteProps {
   children: React.ReactNode
   fallback?: React.ReactNode
 }
 
-export function MerchantProtectedRoute({ children, fallback }: MerchantProtectedRouteProps) {
+export function BusinessProtectedRoute({ children, fallback }: BusinessProtectedRouteProps) {
   const { isAuthenticated, isBusiness, isLoading } = useAuth()
   const router = useRouter()
 

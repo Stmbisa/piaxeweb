@@ -7,8 +7,14 @@ interface TargetSectionProps {
   title: string
   description: string
   features: string[]
-  buttonText: string
-  buttonLink: string
+  buttonText?: string
+  buttonLink?: string
+  buttons?: Array<{
+    text: string
+    link: string
+    variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive"
+    external?: boolean
+  }>
   imageSrc: string
   imageAlt: string
   imageRight?: boolean
@@ -21,33 +27,53 @@ export function TargetSection({
   features,
   buttonText,
   buttonLink,
+  buttons,
   imageSrc,
   imageAlt,
   imageRight = false,
 }: TargetSectionProps) {
+  // Use either the new buttons array or the legacy single button
+  const buttonsToRender = buttons || (buttonText && buttonLink ? [{ text: buttonText, link: buttonLink }] : [])
+
   return (
-    <section id={id} className="py-10">
+    <section id={id} className="py-6 sm:py-10">
       <div
-        className={cn("grid gap-8 items-center", imageRight ? "lg:grid-cols-[1fr,1.2fr]" : "lg:grid-cols-[1.2fr,1fr]")}
+        className={cn("grid gap-4 sm:gap-8 items-center", imageRight ? "lg:grid-cols-[1fr,1.2fr]" : "lg:grid-cols-[1.2fr,1fr]")}
       >
-        <div className={cn("space-y-6", imageRight && "lg:order-2")}>
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">{description}</p>
+        <div className={cn("space-y-4 sm:space-y-6", imageRight && "lg:order-2")}>
+          <div className="space-y-3 sm:space-y-4">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h2>
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">{description}</p>
           </div>
-          <ul className="space-y-3">
+          <ul className="space-y-2 sm:space-y-3">
             {features.map((feature) => (
-              <li key={feature} className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-muted-foreground">{feature}</span>
+              <li key={feature} className="flex items-start gap-2 sm:gap-3">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+                <span className="text-sm sm:text-base text-muted-foreground">{feature}</span>
               </li>
             ))}
           </ul>
-          <div className="pt-4">
-            <Button asChild size="lg" className="rounded-full px-8">
-              <a href={buttonLink}>{buttonText}</a>
-            </Button>
-          </div>
+          {buttonsToRender.length > 0 && (
+            <div className="pt-3 sm:pt-4 flex flex-wrap gap-3">
+              {buttonsToRender.map((button, index) => (
+                <Button
+                  key={index}
+                  asChild
+                  size="lg"
+                  variant={button.variant || "default"}
+                  className="rounded-full px-6 sm:px-8"
+                >
+                  {button.external ? (
+                    <a href={button.link} target="_blank" rel="noopener noreferrer">
+                      {button.text}
+                    </a>
+                  ) : (
+                    <a href={button.link}>{button.text}</a>
+                  )}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         <div className={cn("aspect-video bg-muted rounded-2xl overflow-hidden", imageRight ? "lg:order-1" : "")}>
           <img

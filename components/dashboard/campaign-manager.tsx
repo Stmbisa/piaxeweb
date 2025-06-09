@@ -1,18 +1,21 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Megaphone, 
-  Plus, 
-  Eye, 
-  Edit2, 
-  Trash2, 
-  Target, 
-  TrendingUp, 
+import { useToast } from '@/hooks/use-toast'
+import { crmAPI, type Campaign as APICampaign } from '@/lib/api/crm'
+import { useAuth } from '@/lib/auth/context'
+import {
+  Megaphone,
+  Plus,
+  Eye,
+  Edit2,
+  Trash2,
+  Target,
+  TrendingUp,
   DollarSign,
   Users,
   Calendar,
@@ -36,66 +39,58 @@ interface Campaign {
   description: string
 }
 
-const mockCampaigns: Campaign[] = [
-  {
-    id: '1',
-    name: 'New Year Coffee Sale',
-    type: 'discount',
-    status: 'active',
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
-    budget: 100000,
-    spent: 45000,
-    reach: 1250,
-    conversions: 89,
-    description: '20% off all coffee products for New Year'
-  },
-  {
-    id: '2',
-    name: 'Social Media Craft Promotion',
-    type: 'social',
-    status: 'active',
-    startDate: '2024-01-10',
-    endDate: '2024-01-20',
-    budget: 75000,
-    spent: 32000,
-    reach: 890,
-    conversions: 34,
-    description: 'Handwoven baskets featured on social platforms'
-  },
-  {
-    id: '3',
-    name: 'Valentine\'s Day Special',
-    type: 'email',
-    status: 'scheduled',
-    startDate: '2024-02-10',
-    endDate: '2024-02-14',
-    budget: 50000,
-    spent: 0,
-    reach: 0,
-    conversions: 0,
-    description: 'Valentine themed products and special offers'
-  },
-  {
-    id: '4',
-    name: 'Referral Rewards Program',
-    type: 'referral',
-    status: 'completed',
-    startDate: '2023-12-01',
-    endDate: '2023-12-31',
-    budget: 200000,
-    spent: 180000,
-    reach: 2500,
-    conversions: 156,
-    description: 'Reward customers for bringing new customers'
-  }
-]
-
 export function CampaignManager() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns)
+  const [campaigns, setCampaigns] = useState<APICampaign[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const { user, token } = useAuth()
+  const { toast } = useToast()
 
-  const getStatusColor = (status: Campaign['status']) => {
+  // Load campaigns on component mount
+  useEffect(() => {
+    loadCampaigns()
+  }, [])
+
+  const loadCampaigns = async () => {
+    if (!token) return
+
+    try {
+      setLoading(true)
+      const campaignsResponse = await crmAPI.getCampaigns(token)
+      setCampaigns(campaignsResponse.campaigns)
+    } catch (error) {
+      console.error('Error loading campaigns:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load campaigns",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteCampaign = async (campaignId: string) => {
+    if (!token) return
+
+    try {
+      await crmAPI.deleteCampaign(token, campaignId)
+      setCampaigns(campaigns.filter(c => c.id !== campaignId))
+      toast({
+        title: "Success",
+        description: "Campaign deleted successfully",
+      })
+    } catch (error) {
+      console.error('Error deleting campaign:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete campaign",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-700 border-green-200'
@@ -110,7 +105,7 @@ export function CampaignManager() {
     }
   }
 
-  const getTypeIcon = (type: Campaign['type']) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case 'discount':
         return <Percent className="w-4 h-4" />
@@ -118,18 +113,31 @@ export function CampaignManager() {
         return <Users className="w-4 h-4" />
       case 'email':
         return <Send className="w-4 h-4" />
-      case 'referral':
-        return <Gift className="w-4 h-4" />
+      case 'sms':
+        return <Send className="w-4 h-4" />
+      case 'notification':
+        return <Megaphone className="w-4 h-4" />
       default:
         return <Megaphone className="w-4 h-4" />
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading campaigns...</p>
+        </div>
+      </div>
+    )
+  }
+
   const activeCampaigns = campaigns.filter(c => c.status === 'active').length
-  const totalBudget = campaigns.reduce((sum, c) => sum + c.budget, 0)
-  const totalSpent = campaigns.reduce((sum, c) => sum + c.spent, 0)
-  const totalReach = campaigns.reduce((sum, c) => sum + c.reach, 0)
-  const totalConversions = campaigns.reduce((sum, c) => sum + c.conversions, 0)
+  const totalSent = campaigns.reduce((sum, c) => sum + c.metrics.sent_count, 0)
+  const totalDelivered = campaigns.reduce((sum, c) => sum + c.metrics.delivered_count, 0)
+  const totalOpened = campaigns.reduce((sum, c) => sum + c.metrics.opened_count, 0)
+  const totalConversions = campaigns.reduce((sum, c) => sum + c.metrics.conversion_count, 0)
 
   return (
     <div className="space-y-6">
@@ -151,8 +159,8 @@ export function CampaignManager() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Reach</p>
-                <p className="text-2xl font-bold">{totalReach.toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Sent</p>
+                <p className="text-2xl font-bold">{totalSent.toLocaleString()}</p>
               </div>
               <Target className="w-8 h-8 text-blue-600" />
             </div>
@@ -175,9 +183,13 @@ export function CampaignManager() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Budget Used</p>
-                <p className="text-2xl font-bold">UGX {totalSpent.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">of {totalBudget.toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">Open Rate</p>
+                <p className="text-2xl font-bold">
+                  {totalSent > 0 ? Math.round((totalOpened / totalSent) * 100) : 0}%
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {totalOpened.toLocaleString()} opened
+                </p>
               </div>
               <DollarSign className="w-8 h-8 text-primary" />
             </div>
@@ -191,7 +203,7 @@ export function CampaignManager() {
           <h2 className="text-2xl font-bold">Marketing Campaigns</h2>
           <p className="text-muted-foreground">Create and manage your marketing campaigns</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setShowCreateForm(true)}
           className="flex items-center gap-2"
         >
@@ -221,11 +233,15 @@ export function CampaignManager() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg">{campaign.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">{campaign.description}</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {campaign.content.message.length > 100
+                            ? campaign.content.message.substring(0, 100) + '...'
+                            : campaign.content.message}
+                        </p>
                         <div className="flex items-center gap-4 text-sm">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {campaign.startDate} - {campaign.endDate}
+                            Created: {new Date(campaign.created_at).toLocaleDateString()}
                           </span>
                           <Badge className={getStatusColor(campaign.status)}>
                             {campaign.status}
@@ -236,17 +252,19 @@ export function CampaignManager() {
 
                     <div className="flex items-center gap-8">
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Budget</p>
-                        <p className="font-semibold">UGX {campaign.budget.toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">Audience</p>
+                        <p className="font-semibold">
+                          {campaign.target_audience.customer_segments.length} segments
+                        </p>
                         <p className="text-sm text-muted-foreground">
-                          Spent: UGX {campaign.spent.toLocaleString()}
+                          {campaign.target_audience.tags.length} tags
                         </p>
                       </div>
 
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">Performance</p>
-                        <p className="font-semibold">{campaign.reach} reach</p>
-                        <p className="text-sm text-green-600">{campaign.conversions} conversions</p>
+                        <p className="font-semibold">{campaign.metrics.sent_count} sent</p>
+                        <p className="text-sm text-green-600">{campaign.metrics.conversion_count} conversions</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -256,7 +274,12 @@ export function CampaignManager() {
                         <Button variant="ghost" size="sm">
                           <Edit2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleDeleteCampaign(campaign.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -266,13 +289,21 @@ export function CampaignManager() {
                   {/* Progress Bar */}
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span>Budget Progress</span>
-                      <span>{Math.round((campaign.spent / campaign.budget) * 100)}%</span>
+                      <span>Delivery Progress</span>
+                      <span>
+                        {campaign.metrics.sent_count > 0
+                          ? Math.round((campaign.metrics.delivered_count / campaign.metrics.sent_count) * 100)
+                          : 0}%
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min((campaign.spent / campaign.budget) * 100, 100)}%` }}
+                        style={{
+                          width: `${campaign.metrics.sent_count > 0
+                            ? Math.min((campaign.metrics.delivered_count / campaign.metrics.sent_count) * 100, 100)
+                            : 0}%`
+                        }}
                       ></div>
                     </div>
                   </div>

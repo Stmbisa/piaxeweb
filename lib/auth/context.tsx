@@ -1,20 +1,23 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, AuthResponse, LoginCredentials, RegisterData, authAPI } from './api'
+import { User, AuthResponse, LoginCredentials, RegisterData, authAPI } from './api';
+import { MerchantRegistrationData } from './merchant-api';
 
 interface AuthContextType {
     user: User | null
     token: string | null
     isLoading: boolean
     isAuthenticated: boolean
-    isMerchant: boolean
+    isDeveloper: boolean
+    isBusiness: boolean
     login: (credentials: LoginCredentials) => Promise<void>
     register: (data: RegisterData) => Promise<void>
     logout: () => Promise<void>
     refreshAuth: () => Promise<void>
-    createMerchantAccount: (merchantData: any) => Promise<void>
-    refreshMerchantStatus: () => Promise<void>
+    createDeveloperAccount: (developerData: MerchantRegistrationData) => Promise<void>
+    createBusinessAccount: (businessData: any) => Promise<void>
+    refreshProfileStatus: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,7 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true)
 
     const isAuthenticated = !!user && !!token
-    const isMerchant = !!user?.merchant_profile
+    const isDeveloper = !!user?.developer_profile
+    const isBusiness = !!user?.business_profile
 
     // Load auth data from localStorage on mount
     useEffect(() => {
@@ -141,25 +145,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const createMerchantAccount = async (merchantData: any) => {
+    const createDeveloperAccount = async (developerData: MerchantRegistrationData) => {
         if (!token) {
-            throw new Error('Must be logged in to create merchant account')
+            throw new Error('Must be logged in to create developer account')
         }
 
         try {
             setIsLoading(true)
-            await authAPI.createMerchantAccount(token, merchantData)
-            // Refresh user profile to get updated merchant info
-            await refreshMerchantStatus()
+            await authAPI.createDeveloperAccount(token, developerData)
+            // Refresh user profile to get updated developer info
+            await refreshProfileStatus()
         } catch (error) {
-            console.error('Merchant account creation failed:', error)
+            console.error('Developer account creation failed:', error)
             throw error
         } finally {
             setIsLoading(false)
         }
     }
 
-    const refreshMerchantStatus = async () => {
+    const createBusinessAccount = async (businessData: any) => {
+        if (!token) {
+            throw new Error('Must be logged in to create business account')
+        }
+
+        try {
+            setIsLoading(true)
+            await authAPI.createBusinessAccount(token, businessData)
+            // Refresh user profile to get updated business info
+            await refreshProfileStatus()
+        } catch (error) {
+            console.error('Business account creation failed:', error)
+            throw error
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const refreshProfileStatus = async () => {
         if (!token) return
 
         try {
@@ -167,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(profile)
             localStorage.setItem(USER_KEY, JSON.stringify(profile))
         } catch (error) {
-            console.error('Failed to refresh merchant status:', error)
+            console.error('Failed to refresh profile status:', error)
             throw error
         }
     }
@@ -192,13 +214,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         isLoading,
         isAuthenticated,
-        isMerchant,
+        isDeveloper,
+        isBusiness,
         login,
         register,
         logout,
         refreshAuth,
-        createMerchantAccount,
-        refreshMerchantStatus,
+        createDeveloperAccount,
+        createBusinessAccount,
+        refreshProfileStatus,
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

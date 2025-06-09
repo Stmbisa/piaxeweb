@@ -1,19 +1,22 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-  Plus, 
-  Search, 
-  Edit2, 
-  Trash2, 
-  Package, 
-  AlertTriangle, 
+import { useToast } from '@/hooks/use-toast'
+import { shoppingInventoryAPI, type Product as APIProduct, type Store } from '@/lib/api/shopping-inventory'
+import { useAuth } from '@/lib/auth/context'
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  Package,
+  AlertTriangle,
   TrendingUp,
   TrendingDown,
   Minus
@@ -30,56 +33,104 @@ interface Product {
   image?: string
 }
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Ugandan Coffee Beans (Premium)',
-    category: 'Food & Beverages',
-    price: 25000,
-    stock: 45,
-    status: 'in-stock',
-    sales: 234
-  },
-  {
-    id: '2',
-    name: 'Handwoven Basket',
-    category: 'Crafts',
-    price: 18000,
-    stock: 3,
-    status: 'low-stock',
-    sales: 89
-  },
-  {
-    id: '3',
-    name: 'Solar Phone Charger',
-    category: 'Electronics',
-    price: 75000,
-    stock: 0,
-    status: 'out-of-stock',
-    sales: 156
-  },
-  {
-    id: '4',
-    name: 'Organic Honey (500ml)',
-    category: 'Food & Beverages',
-    price: 12000,
-    stock: 28,
-    status: 'in-stock',
-    sales: 312
-  }
-]
-
 export function InventoryManager() {
-  const [products, setProducts] = useState<Product[]>(mockProducts)
+  const [products, setProducts] = useState<APIProduct[]>([])
+  const [stores, setStores] = useState<Store[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [selectedStore, setSelectedStore] = useState<string>('')
+  const { user, token } = useAuth()
+  const { toast } = useToast()
+
+  // Load stores and products on component mount
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    if (!token) return
+
+    try {
+      setLoading(true)
+
+      // Load stores first
+      const storesData = await shoppingInventoryAPI.getStores(token)
+      setStores(storesData)
+
+      // Load products for the first store if available
+      if (storesData.length > 0) {
+        const firstStoreId = storesData[0].id
+        setSelectedStore(firstStoreId)
+        const productsResponse = await shoppingInventoryAPI.getProducts(token, firstStoreId)
+        setProducts(productsResponse.products)
+      }
+    } catch (error) {
+      console.error('Error loading data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load inventory data",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load products when store changes
+  const handleStoreChange = async (storeId: string) => {
+    if (!token) return
+
+    try {
+      setSelectedStore(storeId)
+      setLoading(true)
+      const productsResponse = await shoppingInventoryAPI.getProducts(token, storeId)
+      setProducts(productsResponse.products)
+    } catch (error) {
+      console.error('Error loading products:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load products",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!token || !selectedStore) return
+
+    try {
+      await shoppingInventoryAPI.deleteProduct(token, selectedStore, productId)
+      setProducts(products.filter(p => p.id !== productId))
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      })
+    } catch (error) {
+      console.error('Error deleting product:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive",
+      })
+    }
+  }
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.category.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const getStatusColor = (status: Product['status']) => {
+  const getStockStatus = (stock: number): 'in-stock' | 'low-stock' | 'out-of-stock' => {
+    if (stock === 0) return 'out-of-stock'
+    if (stock <= 5) return 'low-stock'
+    return 'in-stock'
+  }
+
+  const getStatusColor = (stock: number) => {
+    const status = getStockStatus(stock)
     switch (status) {
       case 'in-stock':
         return 'bg-green-100 text-green-700 border-green-200'
@@ -93,162 +144,199 @@ export function InventoryManager() {
   }
 
   const totalProducts = products.length
-  const lowStockProducts = products.filter(p => p.status === 'low-stock').length
-  const outOfStockProducts = products.filter(p => p.status === 'out-of-stock').length
-  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0)
+  const lowStockProducts = products.filter(p => getStockStatus(p.stock_quantity) === 'low-stock').length
+  const outOfStockProducts = products.filter(p => getStockStatus(p.stock_quantity) === 'out-of-stock').length
+  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock_quantity), 0)
 
   return (
     <div className="space-y-6">
-      {/* Inventory Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Products</p>
-                <p className="text-2xl font-bold">{totalProducts}</p>
-              </div>
-              <Package className="w-8 h-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Low Stock</p>
-                <p className="text-2xl font-bold text-yellow-600">{lowStockProducts}</p>
-              </div>
-              <AlertTriangle className="w-8 h-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
-                <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
-              </div>
-              <Minus className="w-8 h-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Inventory Value</p>
-                <p className="text-2xl font-bold">UGX {totalValue.toLocaleString()}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Inventory Actions */}
-      <div className="flex justify-between items-center">
+      {/* Store Selection */}
+      {stores.length > 0 && (
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
-            />
+          <Label htmlFor="store-select">Select Store:</Label>
+          <select
+            id="store-select"
+            value={selectedStore}
+            onChange={(e) => handleStoreChange(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-2"
+          >
+            {stores.map((store) => (
+              <option key={store.id} value={store.id}>
+                {store.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-muted-foreground">Loading inventory...</p>
           </div>
         </div>
-        <Button 
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Product
-        </Button>
-      </div>
-
-      {/* Products List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Products Inventory</CardTitle>
-          <CardDescription>
-            Manage your product catalog and stock levels
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                    <Package className="w-6 h-6 text-muted-foreground" />
-                  </div>
+      ) : (
+        <>
+          {/* Inventory Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold">{product.name}</h4>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Total Products</p>
+                    <p className="text-2xl font-bold">{totalProducts}</p>
                   </div>
+                  <Package className="w-8 h-8 text-primary" />
                 </div>
+              </CardContent>
+            </Card>
 
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <p className="font-semibold">UGX {product.price.toLocaleString()}</p>
-                    <p className="text-sm text-muted-foreground">{product.sales} sold</p>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Low Stock</p>
+                    <p className="text-2xl font-bold text-yellow-600">{lowStockProducts}</p>
                   </div>
-
-                  <div className="text-right">
-                    <p className="font-semibold">{product.stock} units</p>
-                    <Badge className={getStatusColor(product.status)}>
-                      {product.status.replace('-', ' ')}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm">
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <AlertTriangle className="w-8 h-8 text-yellow-600" />
                 </div>
-              </div>
-            ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
+                    <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
+                  </div>
+                  <Minus className="w-8 h-8 text-red-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Inventory Value</p>
+                    <p className="text-2xl font-bold">UGX {totalValue.toLocaleString()}</p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Quick Stock Alerts */}
-      {(lowStockProducts > 0 || outOfStockProducts > 0) && (
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-yellow-700">
-              <AlertTriangle className="w-5 h-5" />
-              Stock Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {lowStockProducts > 0 && (
-                <p className="text-sm text-yellow-700">
-                  {lowStockProducts} product(s) are running low on stock
-                </p>
-              )}
-              {outOfStockProducts > 0 && (
-                <p className="text-sm text-red-700">
-                  {outOfStockProducts} product(s) are out of stock
-                </p>
-              )}
-              <Button variant="outline" size="sm" className="mt-2">
-                Review Stock Levels
-              </Button>
+          {/* Inventory Actions */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+            <Button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Product
+            </Button>
+          </div>
+
+          {/* Products List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Products Inventory</CardTitle>
+              <CardDescription>
+                Manage your product catalog and stock levels
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                        <Package className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{product.name}</h4>
+                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="font-semibold">UGX {product.price.toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {product.sku ? `SKU: ${product.sku}` : 'No SKU'}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="font-semibold">{product.stock_quantity} units</p>
+                        <Badge className={getStatusColor(product.stock_quantity)}>
+                          {getStockStatus(product.stock_quantity).replace('-', ' ')}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm">
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleDeleteProduct(product.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Stock Alerts */}
+          {(lowStockProducts > 0 || outOfStockProducts > 0) && (
+            <Card className="border-yellow-200 bg-yellow-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-yellow-700">
+                  <AlertTriangle className="w-5 h-5" />
+                  Stock Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {lowStockProducts > 0 && (
+                    <p className="text-sm text-yellow-700">
+                      {lowStockProducts} product(s) are running low on stock
+                    </p>
+                  )}
+                  {outOfStockProducts > 0 && (
+                    <p className="text-sm text-red-700">
+                      {outOfStockProducts} product(s) are out of stock
+                    </p>
+                  )}
+                  <Button variant="outline" size="sm" className="mt-2">
+                    Review Stock Levels
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,19 +23,21 @@ export function MerchantApiKeyResetForm() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const router = useRouter()
-    const { token, isAuthenticated, isMerchant } = useAuth()
+    const { token, isAuthenticated, isDeveloper } = useAuth()
     const { toast } = useToast()
 
-    // Redirect if not authenticated or not a merchant
-    if (!isAuthenticated) {
-        router.push('/auth/login?redirect=merchant-api-key-reset')
-        return null
-    }
+    // Handle redirects in useEffect to prevent SSR issues
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/auth/login?redirect=developer-api-key-reset')
+            return
+        }
 
-    if (!isMerchant) {
-        router.push('/auth/merchant-register')
-        return null
-    }
+        if (!isDeveloper) {
+            router.push('/auth/developer-register')
+            return
+        }
+    }, [isAuthenticated, isDeveloper, router])
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -59,7 +61,7 @@ export function MerchantApiKeyResetForm() {
         setError("")
 
         try {
-            const response = await authAPI.resetMerchantApiKey(token)
+            const response = await authAPI.resetDeveloperApiKey(token)
             setRequestId(response.request_id)
             setStep('confirm')
             toast({
@@ -90,7 +92,7 @@ export function MerchantApiKeyResetForm() {
         setError("")
 
         try {
-            const response = await authAPI.confirmApiKeyReset(token, requestId, formData.confirmation_code)
+            const response = await authAPI.confirmDeveloperApiKeyReset(token, requestId, formData.confirmation_code)
             setNewApiKey(response.api_key)
             setStep('success')
             toast({
@@ -132,7 +134,7 @@ export function MerchantApiKeyResetForm() {
                         </div>
                         <div className="space-y-2">
                             <Button asChild className="w-full">
-                                <Link href="/dashboard/store">Go to Dashboard</Link>
+                                <Link href="/developer/dashboard">Go to Dashboard</Link>
                             </Button>
                             <Button variant="outline" asChild className="w-full">
                                 <Link href="/developers">View API Documentation</Link>
@@ -208,7 +210,7 @@ export function MerchantApiKeyResetForm() {
                     Reset API Key
                 </CardTitle>
                 <CardDescription>
-                    Generate a new API key for your merchant account
+                    Generate a new API key for your developer account
                 </CardDescription>
             </CardHeader>
 

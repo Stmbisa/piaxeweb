@@ -1,83 +1,100 @@
 "use client"
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  ShoppingBag, 
-  Users, 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/lib/auth/context'
+import { analyticsAPI, type StoreAnalytics } from '@/lib/api/analytics'
+import { shoppingInventoryAPI, type Store } from '@/lib/api/shopping-inventory'
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  ShoppingBag,
+  Users,
   Eye,
   Calendar,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Package,
+  AlertTriangle
 } from 'lucide-react'
 
-interface AnalyticsData {
-  revenue: {
-    total: number
-    growth: number
-    trend: 'up' | 'down'
-  }
-  orders: {
-    total: number
-    growth: number
-    trend: 'up' | 'down'
-  }
-  customers: {
-    total: number
-    growth: number
-    trend: 'up' | 'down'
-  }
-  conversion: {
-    rate: number
-    growth: number
-    trend: 'up' | 'down'
-  }
-}
-
-const mockAnalytics: AnalyticsData = {
-  revenue: {
-    total: 2450000,
-    growth: 12.5,
-    trend: 'up'
-  },
-  orders: {
-    total: 156,
-    growth: 8.3,
-    trend: 'up'
-  },
-  customers: {
-    total: 89,
-    growth: -2.1,
-    trend: 'down'
-  },
-  conversion: {
-    rate: 3.2,
-    growth: 5.8,
-    trend: 'up'
-  }
-}
-
-const recentOrders = [
-  { id: 'ORD-001', customer: 'Sarah Nakamura', amount: 45000, status: 'completed', time: '2 hours ago' },
-  { id: 'ORD-002', customer: 'John Mukasa', amount: 28000, status: 'processing', time: '4 hours ago' },
-  { id: 'ORD-003', customer: 'Grace Achieng', amount: 67000, status: 'completed', time: '6 hours ago' },
-  { id: 'ORD-004', customer: 'David Ssebunya', amount: 23000, status: 'pending', time: '1 day ago' },
-]
-
-const topProducts = [
-  { name: 'Ugandan Coffee Beans', sales: 234, revenue: 5850000, growth: 15.2 },
-  { name: 'Organic Honey', sales: 189, revenue: 2268000, growth: 8.7 },
-  { name: 'Solar Phone Charger', sales: 156, revenue: 11700000, growth: 22.1 },
-  { name: 'Handwoven Basket', sales: 89, revenue: 1602000, growth: -3.2 },
-]
-
 export function StoreAnalytics() {
+  const [analytics, setAnalytics] = useState<StoreAnalytics | null>(null)
+  const [stores, setStores] = useState<Store[]>([])
+  const [selectedStore, setSelectedStore] = useState<string>('')
+  const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month')
+  const [loading, setLoading] = useState(true)
+  const { user, token } = useAuth()
+  const { toast } = useToast()
+
+  // Load stores and analytics on component mount
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  // Load analytics when store or period changes
+  useEffect(() => {
+    if (selectedStore) {
+      loadAnalytics()
+    }
+  }, [selectedStore, selectedPeriod])
+
+  const loadData = async () => {
+    if (!token) return
+
+    try {
+      setLoading(true)
+
+      // Load stores first
+      const storesData = await shoppingInventoryAPI.getStores(token)
+      setStores(storesData)
+
+      // Load analytics for the first store if available
+      if (storesData.length > 0) {
+        const firstStoreId = storesData[0].id
+        setSelectedStore(firstStoreId)
+        // Analytics will be loaded by useEffect above
+      }
+    } catch (error) {
+      console.error('Error loading data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load store data",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadAnalytics = async () => {
+    if (!token || !selectedStore) return
+
+    try {
+      setLoading(true)
+      const analyticsData = await analyticsAPI.getStoreAnalytics(token, selectedStore, {
+        period: selectedPeriod
+      })
+      setAnalytics(analyticsData)
+    } catch (error) {
+      console.error('Error loading analytics:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load analytics data",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const TrendIcon = ({ trend, growth }: { trend: 'up' | 'down', growth: number }) => {
     if (trend === 'up') {
       return <ArrowUpRight className="w-4 h-4 text-green-600" />
@@ -89,8 +106,86 @@ export function StoreAnalytics() {
     return growth >= 0 ? 'text-green-600' : 'text-red-600'
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-700 border-green-200'
+      case 'processing':
+        return 'bg-blue-100 text-blue-700 border-blue-200'
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200'
+      case 'cancelled':
+        return 'bg-red-100 text-red-700 border-red-200'
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200'
+    }
+  }
+
+  const formatCurrency = (amount: number) => {
+    return `UGX ${amount.toLocaleString()}`
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString()
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!analytics) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No analytics data available</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
+      {/* Store and Period Selection */}
+      {stores.length > 0 && (
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label htmlFor="store-select" className="text-sm font-medium">Store:</label>
+            <Select value={selectedStore} onValueChange={setSelectedStore}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select store" />
+              </SelectTrigger>
+              <SelectContent>
+                {stores.map((store) => (
+                  <SelectItem key={store.id} value={store.id}>
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="period-select" className="text-sm font-medium">Period:</label>
+            <Select value={selectedPeriod} onValueChange={(value: 'day' | 'week' | 'month' | 'year') => setSelectedPeriod(value)}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -98,13 +193,13 @@ export function StoreAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">UGX {mockAnalytics.revenue.total.toLocaleString()}</p>
+                <p className="text-2xl font-bold">{formatCurrency(analytics.revenue.total)}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <TrendIcon trend={mockAnalytics.revenue.trend} growth={mockAnalytics.revenue.growth} />
-                  <span className={`text-sm font-medium ${getGrowthColor(mockAnalytics.revenue.growth)}`}>
-                    {mockAnalytics.revenue.growth > 0 ? '+' : ''}{mockAnalytics.revenue.growth}%
+                  <TrendIcon trend={analytics.revenue.trend} growth={analytics.revenue.growth} />
+                  <span className={`text-sm font-medium ${getGrowthColor(analytics.revenue.growth)}`}>
+                    {analytics.revenue.growth > 0 ? '+' : ''}{analytics.revenue.growth}%
                   </span>
-                  <span className="text-sm text-muted-foreground">vs last month</span>
+                  <span className="text-sm text-muted-foreground">vs last period</span>
                 </div>
               </div>
               <DollarSign className="w-8 h-8 text-primary" />
@@ -117,13 +212,13 @@ export function StoreAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-                <p className="text-2xl font-bold">{mockAnalytics.orders.total}</p>
+                <p className="text-2xl font-bold">{analytics.orders.total}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <TrendIcon trend={mockAnalytics.orders.trend} growth={mockAnalytics.orders.growth} />
-                  <span className={`text-sm font-medium ${getGrowthColor(mockAnalytics.orders.growth)}`}>
-                    {mockAnalytics.orders.growth > 0 ? '+' : ''}{mockAnalytics.orders.growth}%
+                  <TrendIcon trend={analytics.orders.trend} growth={analytics.orders.growth} />
+                  <span className={`text-sm font-medium ${getGrowthColor(analytics.orders.growth)}`}>
+                    {analytics.orders.growth > 0 ? '+' : ''}{analytics.orders.growth}%
                   </span>
-                  <span className="text-sm text-muted-foreground">vs last month</span>
+                  <span className="text-sm text-muted-foreground">vs last period</span>
                 </div>
               </div>
               <ShoppingBag className="w-8 h-8 text-blue-600" />
@@ -136,13 +231,13 @@ export function StoreAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Active Customers</p>
-                <p className="text-2xl font-bold">{mockAnalytics.customers.total}</p>
+                <p className="text-2xl font-bold">{analytics.customers.total}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <TrendIcon trend={mockAnalytics.customers.trend} growth={mockAnalytics.customers.growth} />
-                  <span className={`text-sm font-medium ${getGrowthColor(mockAnalytics.customers.growth)}`}>
-                    {mockAnalytics.customers.growth > 0 ? '+' : ''}{mockAnalytics.customers.growth}%
+                  <TrendIcon trend={analytics.customers.trend} growth={analytics.customers.growth} />
+                  <span className={`text-sm font-medium ${getGrowthColor(analytics.customers.growth)}`}>
+                    {analytics.customers.growth > 0 ? '+' : ''}{analytics.customers.growth}%
                   </span>
-                  <span className="text-sm text-muted-foreground">vs last month</span>
+                  <span className="text-sm text-muted-foreground">vs last period</span>
                 </div>
               </div>
               <Users className="w-8 h-8 text-green-600" />
@@ -155,16 +250,55 @@ export function StoreAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-                <p className="text-2xl font-bold">{mockAnalytics.conversion.rate}%</p>
+                <p className="text-2xl font-bold">{analytics.conversion.rate}%</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <TrendIcon trend={mockAnalytics.conversion.trend} growth={mockAnalytics.conversion.growth} />
-                  <span className={`text-sm font-medium ${getGrowthColor(mockAnalytics.conversion.growth)}`}>
-                    {mockAnalytics.conversion.growth > 0 ? '+' : ''}{mockAnalytics.conversion.growth}%
+                  <TrendIcon trend={analytics.conversion.trend} growth={analytics.conversion.growth} />
+                  <span className={`text-sm font-medium ${getGrowthColor(analytics.conversion.growth)}`}>
+                    {analytics.conversion.growth > 0 ? '+' : ''}{analytics.conversion.growth}%
                   </span>
-                  <span className="text-sm text-muted-foreground">vs last month</span>
+                  <span className="text-sm text-muted-foreground">vs last period</span>
                 </div>
               </div>
               <TrendingUp className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Inventory Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Products</p>
+                <p className="text-2xl font-bold">{analytics.inventory.total_products}</p>
+              </div>
+              <Package className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Low Stock Items</p>
+                <p className="text-2xl font-bold text-yellow-600">{analytics.inventory.low_stock_count}</p>
+              </div>
+              <AlertTriangle className="w-8 h-8 text-yellow-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Inventory Value</p>
+                <p className="text-2xl font-bold">{formatCurrency(analytics.inventory.total_value)}</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -212,11 +346,11 @@ export function StoreAnalytics() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">UGX {order.amount.toLocaleString()}</p>
-                    <Badge 
+                    <Badge
                       className={
                         order.status === 'completed' ? 'bg-green-100 text-green-700 border-green-200' :
-                        order.status === 'processing' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                        'bg-yellow-100 text-yellow-700 border-yellow-200'
+                          order.status === 'processing' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                            'bg-yellow-100 text-yellow-700 border-yellow-200'
                       }
                     >
                       {order.status}
@@ -261,8 +395,8 @@ export function StoreAnalytics() {
                       </p>
                     </div>
                   </div>
-                  <Progress 
-                    value={Math.min((product.sales / 250) * 100, 100)} 
+                  <Progress
+                    value={Math.min((product.sales / 250) * 100, 100)}
                     className="h-2"
                   />
                 </div>
@@ -291,7 +425,7 @@ export function StoreAnalytics() {
                 Your coffee products are performing 15% above average this month
               </p>
             </div>
-            
+
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-5 h-5 text-blue-600" />
@@ -301,7 +435,7 @@ export function StoreAnalytics() {
                 New customer acquisition is up 8% compared to last month
               </p>
             </div>
-            
+
             <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-purple-600" />

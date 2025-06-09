@@ -13,8 +13,8 @@ export default function Home() {
       <BarcodePaymentDemo />
       <SecurityFeatures />
 
-      <section className="container mx-auto px-4 py-8 space-y-12">
-        <div className="grid gap-12 lg:gap-16">
+      <section className="container mx-auto px-4 py-6 sm:py-8 space-y-12">
+        <div className="grid gap-8 sm:gap-12 lg:gap-16">
           <TargetSection
             id="sme"
             title="For SMEs and Brick & Mortar Businesses"
@@ -61,8 +61,18 @@ export default function Home() {
               "Payment requests that can accept from anyone or specific users",
               "Webhook support for real-time notifications and comprehensive SDKs",
             ]}
-            buttonText="Explore API"
-            buttonLink="#api"
+            buttons={[
+              {
+                text: "Explore API",
+                link: "https://piaxe.jettts.com/api/docs/",
+                external: true
+              },
+              {
+                text: "Register as Developer",
+                link: "/auth/developer-register",
+                variant: "outline"
+              }
+            ]}
             imageSrc="/images/business/developer-api.png"
             imageAlt="Developer integrating Piaxe API"
           />

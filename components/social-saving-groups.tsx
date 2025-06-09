@@ -357,13 +357,12 @@ export function SocialSavingGroups() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            transaction.type === 'contribution'
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === 'contribution'
                               ? 'bg-green-100 text-green-600 dark:bg-green-950/20'
                               : transaction.type === 'withdrawal'
-                              ? 'bg-red-100 text-red-600 dark:bg-red-950/20'
-                              : 'bg-blue-100 text-blue-600 dark:bg-blue-950/20'
-                          }`}>
+                                ? 'bg-red-100 text-red-600 dark:bg-red-950/20'
+                                : 'bg-blue-100 text-blue-600 dark:bg-blue-950/20'
+                            }`}>
                             {transaction.type === 'contribution' ? (
                               <ArrowUpRight className="w-5 h-5" />
                             ) : transaction.type === 'withdrawal' ? (

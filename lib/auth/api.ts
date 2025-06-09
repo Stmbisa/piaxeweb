@@ -1,3 +1,9 @@
+import {
+    MerchantRegistrationData,
+    MerchantProfile,
+    registerMerchant,
+} from './merchant-api';
+
 // Authentication API utilities
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://piaxe.jettts.com'
 
@@ -17,12 +23,21 @@ export interface User {
   is_verified: boolean
   has_api_pin: boolean
   avatar: string | null
-  merchant_profile?: {
-    business_name: string
-    merchant_id: string
+  developer_profile?: {
+    developer_name: string
+    developer_id: string
     api_key?: string
     client_id?: string
+    webhook_url?: string
+    status: 'active' | 'inactive' | 'pending'
+  }
+  business_profile?: {
+    business_name: string
+    business_id: string
     business_type: string
+    business_phone: string
+    business_email: string
+    business_address: string
     status: 'active' | 'inactive' | 'pending'
   }
 }
@@ -191,57 +206,8 @@ class AuthAPI {
     }
   }
 
-  // Merchant account management
-  async createMerchantAccount(token: string, merchantData: {
-    business_name: string
-    business_type: string
-    business_email: string
-    business_phone: string
-    business_address: string
-    owner_first_name: string
-    owner_last_name: string
-    owner_phone: string
-    owner_email: string
-  }): Promise<any> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/merchants/register`, {
-        method: 'POST',
-        headers: this.getHeaders(token),
-        body: JSON.stringify(merchantData),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Merchant account creation failed')
-      }
-
-      return await response.json()
-    } catch (error) {
-      console.error('Merchant account creation error:', error)
-      throw error
-    }
-  }
-
-  async getMerchantProfile(token: string): Promise<any> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/merchant/profile`, {
-        method: 'GET',
-        headers: this.getHeaders(token),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to fetch merchant profile')
-      }
-
-      return await response.json()
-    } catch (error) {
-      console.error('Merchant profile fetch error:', error)
-      throw error
-    }
-  }
-
-  async resetMerchantApiKey(token: string): Promise<{ request_id: string }> {
+  // Developer API credentials management (developers are merchants in the backend)
+  async resetDeveloperApiKey(token: string): Promise<{ request_id: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/merchant/api-key/reset`, {
         method: 'POST',
@@ -255,12 +221,12 @@ class AuthAPI {
 
       return await response.json()
     } catch (error) {
-      console.error('API key reset error:', error)
+      console.error('Developer API key reset error:', error)
       throw error
     }
   }
 
-  async confirmApiKeyReset(token: string, requestId: string, confirmationCode: string): Promise<{ api_key: string }> {
+  async confirmDeveloperApiKeyReset(token: string, requestId: string, confirmationCode: string): Promise<{ api_key: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/merchant/api-key/confirm`, {
         method: 'POST',
@@ -275,12 +241,12 @@ class AuthAPI {
 
       return await response.json()
     } catch (error) {
-      console.error('API key confirmation error:', error)
+      console.error('Developer API key confirmation error:', error)
       throw error
     }
   }
 
-  async resetClientId(token: string, password: string): Promise<{ client_id: string }> {
+  async resetDeveloperClientId(token: string, password: string): Promise<{ client_id: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/merchants/client-id/reset`, {
         method: 'POST',
@@ -295,7 +261,97 @@ class AuthAPI {
 
       return await response.json()
     } catch (error) {
-      console.error('Client ID reset error:', error)
+      console.error('Developer Client ID reset error:', error)
+      throw error
+    }
+  }
+
+  // Business account management
+  async createBusinessAccount(token: string, businessData: {
+    business_name: string
+    business_type: string
+    business_email: string
+    business_phone: string
+    business_address: string
+  }): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/businesses/register`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(businessData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Business account creation failed')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Business account creation error:', error)
+      throw error
+    }
+  }
+
+  async getBusinessProfile(token: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/business/profile`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to fetch business profile')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Business profile fetch error:', error)
+      throw error
+    }
+  }
+
+
+
+
+
+  // Developer account management (developers are merchants in the backend)
+  async createDeveloperAccount(token: string, developerData: MerchantRegistrationData): Promise<MerchantProfile> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/merchants/register`, {
+        method: 'POST',
+        headers: this.getHeaders(token),
+        body: JSON.stringify(developerData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Developer account creation failed')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Developer account creation error:', error)
+      throw error
+    }
+  }
+
+  async getDeveloperProfile(token: string): Promise<MerchantProfile> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/merchant/profile`, {
+        method: 'GET',
+        headers: this.getHeaders(token),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to fetch developer profile')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Developer profile fetch error:', error)
       throw error
     }
   }

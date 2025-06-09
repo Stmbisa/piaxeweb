@@ -1,40 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Building2, Key, AlertCircle, CheckCircle2, Copy } from "lucide-react"
+import { Building2, Lock, AlertCircle, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
+import { resetMerchantPin } from "@/lib/auth/merchant-api"
 import { useAuth } from "@/lib/auth/context"
-import { useToast } from "@/hooks/use-toast"
 
-export function MerchantClientIdResetForm() {
+export function MerchantPinResetForm() {
     const [formData, setFormData] = useState({
         current_password: "",
+        new_pin: "",
+        confirm_pin: "",
     })
-    const [newClientId, setNewClientId] = useState("")
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [success, setSuccess] = useState(false)
     const router = useRouter()
-    const { token, isAuthenticated, isDeveloper } = useAuth()
-    const { toast } = useToast()
-
-    // Handle redirects in useEffect to prevent SSR issues
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/auth/login?redirect=developer-client-id-reset')
-            return
-        }
-
-        if (!isDeveloper) {
-            router.push('/auth/developer-register')
-            return
-        }
-    }, [isAuthenticated, isDeveloper, router])
+    const { user, isBusiness } = useAuth()
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -49,8 +37,18 @@ export function MerchantClientIdResetForm() {
             return
         }
 
-        if (!token) {
-            setError("Authentication required. Please login first.")
+        if (!formData.new_pin) {
+            setError("New PIN is required")
+            return
+        }
+
+        if (formData.new_pin.length !== 4 || !/^\d{4}$/.test(formData.new_pin)) {
+            setError("PIN must be exactly 4 digits")
+            return
+        }
+
+        if (formData.new_pin !== formData.confirm_pin) {
+            setError("PIN confirmation does not match")
             return
         }
 
@@ -58,29 +56,24 @@ export function MerchantClientIdResetForm() {
         setError("")
 
         try {
-            // Import authAPI from the unified auth system
-            const { authAPI } = await import('@/lib/auth/api')
-            const response = await authAPI.resetDeveloperClientId(token, formData.current_password)
-            setNewClientId(response.client_id)
+            if (!token) {
+                setError("Authentication required. Please login first.")
+                return
+            }
+
+            const response = await resetMerchantPin(formData, token)
+
             setSuccess(true)
 
-            toast({
-                title: "Client ID Reset Successful",
-                description: "Your new client ID has been generated.",
-            })
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                router.push("/auth/merchant-login?message=PIN reset successful! Please login to continue.")
+            }, 2000)
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Client ID reset failed")
+            setError(err instanceof Error ? err.message : "PIN reset failed")
         } finally {
             setLoading(false)
         }
-    }
-
-    const copyClientId = () => {
-        navigator.clipboard.writeText(newClientId)
-        toast({
-            title: "Copied!",
-            description: "Client ID copied to clipboard",
-        })
     }
 
     if (success) {
@@ -89,26 +82,10 @@ export function MerchantClientIdResetForm() {
                 <CardContent className="p-6">
                     <div className="text-center space-y-4">
                         <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto" />
-                        <h3 className="text-lg font-semibold">Client ID Reset Successful</h3>
+                        <h3 className="text-lg font-semibold">PIN Reset Successful</h3>
                         <p className="text-muted-foreground">
-                            Your new client ID has been generated. Please copy and store it securely.
+                            Your business PIN has been reset successfully. You will be redirected to login.
                         </p>
-                        <div className="bg-muted p-4 rounded-md">
-                            <div className="flex items-center justify-between">
-                                <code className="text-sm font-mono break-all">{newClientId}</code>
-                                <Button variant="ghost" size="icon" onClick={copyClientId}>
-                                    <Copy className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Button asChild className="w-full">
-                                <Link href="/developer/dashboard">Go to Dashboard</Link>
-                            </Button>
-                            <Button variant="outline" asChild className="w-full">
-                                <Link href="/developers">View API Documentation</Link>
-                            </Button>
-                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -120,10 +97,10 @@ export function MerchantClientIdResetForm() {
             <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
                     <Building2 className="w-6 h-6 text-primary" />
-                    Reset Client ID
+                    Reset Business PIN
                 </CardTitle>
                 <CardDescription>
-                    Generate a new client ID for your developer account
+                    Reset your 4-digit PIN for secure transactions
                 </CardDescription>
             </CardHeader>
 
@@ -139,7 +116,7 @@ export function MerchantClientIdResetForm() {
                     <div className="space-y-2">
                         <Label htmlFor="current_password">Current Password</Label>
                         <div className="relative">
-                            <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 id="current_password"
                                 type="password"
@@ -155,15 +132,51 @@ export function MerchantClientIdResetForm() {
                         </p>
                     </div>
 
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                        <p className="text-sm text-yellow-800">
-                            <strong>Warning:</strong> Resetting your client ID will invalidate the current ID.
-                            Update your applications with the new client ID immediately.
+                    <div className="space-y-2">
+                        <Label htmlFor="new_pin">New PIN</Label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                                id="new_pin"
+                                type="password"
+                                placeholder="Enter 4-digit PIN"
+                                className="pl-10"
+                                maxLength={4}
+                                value={formData.new_pin}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '') // Only allow digits
+                                    handleInputChange("new_pin", value)
+                                }}
+                                required
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Choose a 4-digit PIN that you can remember easily
                         </p>
                     </div>
 
+                    <div className="space-y-2">
+                        <Label htmlFor="confirm_pin">Confirm New PIN</Label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                                id="confirm_pin"
+                                type="password"
+                                placeholder="Re-enter 4-digit PIN"
+                                className="pl-10"
+                                maxLength={4}
+                                value={formData.confirm_pin}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '') // Only allow digits
+                                    handleInputChange("confirm_pin", value)
+                                }}
+                                required
+                            />
+                        </div>
+                    </div>
+
                     <Button type="submit" disabled={loading} className="w-full">
-                        {loading ? "Resetting Client ID..." : "Reset Client ID"}
+                        {loading ? "Resetting PIN..." : "Reset PIN"}
                     </Button>
 
                     <div className="text-center text-sm">
