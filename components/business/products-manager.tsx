@@ -310,8 +310,8 @@ export function ProductsManager() {
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+            product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
         const matchesCategory = !categoryFilter || product.category === categoryFilter
         const matchesStatus = !statusFilter || product.status === statusFilter
 

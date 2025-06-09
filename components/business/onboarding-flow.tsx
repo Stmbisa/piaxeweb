@@ -569,7 +569,7 @@ export function BusinessOnboardingFlow() {
 
             <div className="max-w-md mx-auto space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div 
+                    <div
                         className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                         onClick={() => router.push('/business/dashboard/products')}
                     >
@@ -578,7 +578,7 @@ export function BusinessOnboardingFlow() {
                         <p className="text-sm text-muted-foreground">Add products one by one</p>
                     </div>
 
-                    <div 
+                    <div
                         className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                         onClick={() => router.push('/business/dashboard/products')}
                     >
@@ -587,7 +587,7 @@ export function BusinessOnboardingFlow() {
                         <p className="text-sm text-muted-foreground">Use barcode scanning</p>
                     </div>
 
-                    <div 
+                    <div
                         className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                         onClick={() => router.push('/business/dashboard/inventory')}
                     >
@@ -685,26 +685,23 @@ export function BusinessOnboardingFlow() {
                     return (
                         <div
                             key={step.id}
-                            className={`flex flex-col items-center p-4 rounded-lg min-w-[120px] ${
-                                isActive
+                            className={`flex flex-col items-center p-4 rounded-lg min-w-[120px] ${isActive
                                     ? 'bg-primary/10 border border-primary/20'
                                     : isCompleted
                                         ? 'bg-green-50 border border-green-200'
                                         : 'bg-gray-50 border border-gray-200'
-                            }`}
+                                }`}
                         >
-                            <div className={`p-2 rounded-full mb-2 ${
-                                isActive
+                            <div className={`p-2 rounded-full mb-2 ${isActive
                                     ? 'bg-primary text-white'
                                     : isCompleted
                                         ? 'bg-green-600 text-white'
                                         : 'bg-gray-200 text-gray-600'
-                            }`}>
+                                }`}>
                                 <Icon className="w-5 h-5" />
                             </div>
-                            <h4 className={`font-semibold text-sm text-center ${
-                                isActive ? 'text-primary' : isCompleted ? 'text-green-700' : 'text-gray-600'
-                            }`}>
+                            <h4 className={`font-semibold text-sm text-center ${isActive ? 'text-primary' : isCompleted ? 'text-green-700' : 'text-gray-600'
+                                }`}>
                                 {step.title}
                             </h4>
                             <p className="text-xs text-center text-muted-foreground">

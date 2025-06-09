@@ -139,8 +139,8 @@ export function OrdersManager() {
 
     const filteredOrders = orders.filter(order => {
         const matchesSearch = order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            order.customer_phone.includes(searchTerm) ||
-                            order.id.toLowerCase().includes(searchTerm.toLowerCase())
+            order.customer_phone.includes(searchTerm) ||
+            order.id.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesStatus = !statusFilter || order.status === statusFilter
         const matchesPayment = !paymentFilter || order.payment_status === paymentFilter
 

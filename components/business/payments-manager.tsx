@@ -145,8 +145,8 @@ export function PaymentsManager() {
 
     const filteredTransactions = transactions.filter(transaction => {
         const matchesSearch = transaction.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            transaction.order_id.toLowerCase().includes(searchTerm.toLowerCase())
+            transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            transaction.order_id.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesStatus = !statusFilter || transaction.status === statusFilter
         const matchesMethod = !methodFilter || transaction.payment_method === methodFilter
 
@@ -437,13 +437,12 @@ export function PaymentsManager() {
 
                                             <div className="flex items-center gap-4">
                                                 <div className="text-right">
-                                                    <p className={`font-semibold text-lg ${
-                                                        transaction.status === 'paid'
+                                                    <p className={`font-semibold text-lg ${transaction.status === 'paid'
                                                             ? 'text-green-600'
                                                             : transaction.status === 'failed'
                                                                 ? 'text-red-600'
                                                                 : 'text-gray-600'
-                                                    }`}>
+                                                        }`}>
                                                         UGX {transaction.amount.toLocaleString()}
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
