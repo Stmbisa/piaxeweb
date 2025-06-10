@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { X, Download, Smartphone } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 
 interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>
@@ -90,50 +88,54 @@ export function PWAInstallPrompt() {
     }
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-6 md:max-w-sm">
-            <Card className="bg-gradient-to-r from-primary to-secondary text-white shadow-2xl border-0 animate-in slide-in-from-bottom-4 duration-500">
-                <CardContent className="p-4">
+        <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-6 md:max-w-sm animate-glass-appear">
+            {/* Floating glass background effects */}
+            <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/10 rounded-full blur-xl animate-glass-float"></div>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-secondary/10 rounded-full blur-xl animate-glass-float-delayed"></div>
+            
+            <div className="glass-card-enhanced relative overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+                {/* Glass shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full animate-glass-shimmer opacity-50"></div>
+                
+                <div className="relative z-10">
                     <div className="flex items-start gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
-                            <Smartphone className="w-5 h-5" />
+                        <div className="glass-icon-button p-2 bg-primary/20 border border-primary/30 shadow-lg shadow-primary/20">
+                            <Smartphone className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm mb-1">Install Piaxe App</h3>
-                            <p className="text-xs opacity-90 mb-3 leading-relaxed">
+                            <h3 className="font-semibold text-sm mb-1 text-foreground">Install Piaxe App</h3>
+                            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
                                 Get access to secure payments, escrow protection, and business tools.
                                 Works offline and loads faster!
                             </p>
                             <div className="flex gap-2">
-                                <Button
-                                    size="sm"
-                                    variant="secondary"
+                                <button
                                     onClick={handleInstallClick}
-                                    className="flex-1 bg-white text-primary hover:bg-white/90 font-medium text-xs h-8"
+                                    className="glass-button-primary flex-1 text-xs h-8 font-medium flex items-center justify-center gap-1 group"
                                 >
-                                    <Download className="w-3 h-3 mr-1" />
+                                    <Download className="w-3 h-3 transition-transform group-hover:scale-110" />
                                     Install
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
+                                </button>
+                                <button
                                     onClick={handleDismiss}
-                                    className="text-white hover:bg-white/20 text-xs h-8 px-2"
+                                    className="glass-button text-xs h-8 px-3 hover:bg-muted/50 transition-all"
                                 >
                                     Later
-                                </Button>
+                                </button>
                             </div>
                         </div>
-                        <Button
-                            size="sm"
-                            variant="ghost"
+                        <button
                             onClick={handleDismiss}
-                            className="text-white hover:bg-white/20 p-1 h-6 w-6 shrink-0"
+                            className="glass-icon-button p-1 h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                         >
                             <X className="w-3 h-3" />
-                        </Button>
+                        </button>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+                
+                {/* Subtle glass border glow */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 pointer-events-none"></div>
+            </div>
         </div>
     )
 }

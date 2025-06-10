@@ -148,6 +148,69 @@ export function StoreAnalytics() {
     )
   }
 
+  // Use real data from analytics if available, otherwise fallback to mock data
+  const recentOrders = analytics.recent_orders?.length > 0 ? analytics.recent_orders.map(order => ({
+    id: order.id,
+    customer: order.customer_name,
+    amount: order.amount,
+    status: order.status,
+    time: formatDate(order.created_at)
+  })) : [
+    {
+      id: 'ORD-001',
+      customer: 'John Doe',
+      amount: 45000,
+      status: 'completed' as const,
+      time: '2 hours ago'
+    },
+    {
+      id: 'ORD-002',
+      customer: 'Jane Smith',
+      amount: 32000,
+      status: 'processing' as const,
+      time: '4 hours ago'
+    },
+    {
+      id: 'ORD-003',
+      customer: 'Mike Johnson',
+      amount: 78000,
+      status: 'pending' as const,
+      time: '6 hours ago'
+    }
+  ]
+
+  const topProducts = analytics.inventory.top_selling_products?.length > 0 ? analytics.inventory.top_selling_products.map(product => ({
+    name: product.name,
+    sales: product.sales_count,
+    revenue: product.revenue,
+    growth: product.growth
+  })) : [
+    {
+      name: 'Premium Coffee Beans',
+      sales: 245,
+      revenue: 980000,
+      growth: 15
+    },
+    {
+      name: 'Organic Tea Collection',
+      sales: 189,
+      revenue: 567000,
+      growth: 8
+    },
+    {
+      name: 'Artisan Pastries',
+      sales: 156,
+      revenue: 468000,
+      growth: -3
+    },
+    {
+      name: 'Fresh Smoothies',
+      sales: 134,
+      revenue: 402000,
+      growth: 22
+    }
+  ]
+
   return (
     <div className="space-y-6">
       {/* Store and Period Selection */}
