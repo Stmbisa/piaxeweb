@@ -59,7 +59,7 @@ export function Header() {
               API
             </Link>
             <Link
-              href="/#about"
+              href="/about"
               className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="About Piaxe"
             >

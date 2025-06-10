@@ -3,6 +3,9 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+// Force dynamic rendering since this page uses client-side routing
+export const dynamic = 'force-dynamic'
+
 export default function StoreDashboard() {
     const router = useRouter()
 

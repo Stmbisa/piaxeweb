@@ -36,32 +36,32 @@ export function TargetSection({
   const buttonsToRender = buttons || (buttonText && buttonLink ? [{ text: buttonText, link: buttonLink }] : [])
 
   return (
-    <section id={id} className="py-6 sm:py-10">
+    <section id={id} className="py-4 sm:py-10">
       <div
-        className={cn("grid gap-4 sm:gap-8 items-center", imageRight ? "lg:grid-cols-[1fr,1.2fr]" : "lg:grid-cols-[1.2fr,1fr]")}
+        className={cn("grid gap-3 sm:gap-8 items-center", imageRight ? "lg:grid-cols-[1fr,1.2fr]" : "lg:grid-cols-[1.2fr,1fr]")}
       >
-        <div className={cn("space-y-4 sm:space-y-6", imageRight && "lg:order-2")}>
-          <div className="space-y-3 sm:space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{title}</h2>
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">{description}</p>
+        <div className={cn("space-y-3 sm:space-y-6", imageRight && "lg:order-2")}>
+          <div className="space-y-2 sm:space-y-4">
+            <h2 className="text-xl sm:text-3xl font-bold tracking-tight">{title}</h2>
+            <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed">{description}</p>
           </div>
-          <ul className="space-y-2 sm:space-y-3">
+          <ul className="space-y-1.5 sm:space-y-3">
             {features.map((feature) => (
               <li key={feature} className="flex items-start gap-2 sm:gap-3">
-                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-sm sm:text-base text-muted-foreground">{feature}</span>
+                <CheckCircle className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+                <span className="text-xs sm:text-base text-muted-foreground">{feature}</span>
               </li>
             ))}
           </ul>
           {buttonsToRender.length > 0 && (
-            <div className="pt-3 sm:pt-4 flex flex-wrap gap-3">
+            <div className="pt-2 sm:pt-4 flex flex-wrap gap-2 sm:gap-3">
               {buttonsToRender.map((button, index) => (
                 <Button
                   key={index}
                   asChild
-                  size="lg"
+                  size="sm"
                   variant={button.variant || "default"}
-                  className="rounded-full px-6 sm:px-8"
+                  className="rounded-full px-4 sm:px-8 text-xs sm:text-sm"
                 >
                   {button.external ? (
                     <a href={button.link} target="_blank" rel="noopener noreferrer">

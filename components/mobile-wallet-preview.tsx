@@ -7,13 +7,13 @@ import Image from "next/image"
 
 export function MobileWalletPreview() {
   return (
-    <section className="py-8 bg-gradient-to-br from-background via-purple-50/20 to-blue-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-blue-950/30">
+    <section className="py-6 sm:py-8 bg-gradient-to-br from-background via-purple-50/20 to-blue-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-blue-950/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-foreground">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 sm:mb-4 text-foreground">
             Experience Piaxe on Mobile
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Manage your finances, make secure payments, and grow your business with our intuitive mobile app
           </p>
         </div>

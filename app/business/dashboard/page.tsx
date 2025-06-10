@@ -5,6 +5,9 @@ import { BusinessProtectedRoute } from "@/components/auth/business-protected-rou
 import { BusinessDashboardOverview } from "@/components/business/dashboard-overview"
 import { BusinessSidebar } from "@/components/business/sidebar"
 
+// Force dynamic rendering since this page requires authentication
+export const dynamic = 'force-dynamic'
+
 export default function BusinessDashboard() {
     const { user } = useAuth()
     const businessProfile = user?.business_profile

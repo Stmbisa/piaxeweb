@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth/context"
 import { BusinessOnboardingFlow } from "@/components/business/onboarding-flow"
+
+// Force dynamic rendering since this page uses client-side hooks
+export const dynamic = 'force-dynamic'
 import { BusinessProtectedRoute } from "@/components/auth/business-protected-route"
 
 export default function BusinessOnboardingPage() {

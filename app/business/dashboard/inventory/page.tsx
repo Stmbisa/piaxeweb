@@ -1,5 +1,8 @@
 "use client"
 
+// Force dynamic rendering since this page uses client-side code
+export const dynamic = 'force-dynamic'
+
 import { BusinessProtectedRoute } from "@/components/auth/business-protected-route"
 import { InventoryManager } from "@/components/dashboard/inventory-manager"
 

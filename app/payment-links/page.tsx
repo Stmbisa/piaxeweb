@@ -6,6 +6,9 @@ export const metadata: Metadata = {
     description: 'Create payment links and shared carts for collaborative payments with friends and customers',
 }
 
+// Force dynamic rendering since the component uses client-side code
+export const dynamic = 'force-dynamic'
+
 export default function PaymentLinksPage() {
     return <PaymentLinksSharedCarts />
 }

@@ -13,8 +13,8 @@ export default function Home() {
       <BarcodePaymentDemo />
       <SecurityFeatures />
 
-      <section className="container mx-auto px-4 py-6 sm:py-8 space-y-12">
-        <div className="grid gap-8 sm:gap-12 lg:gap-16">
+      <section className="container mx-auto px-4 py-4 sm:py-6 space-y-8">
+        <div className="grid gap-6 sm:gap-8 lg:gap-10">
           <TargetSection
             id="sme"
             title="For SMEs and Brick & Mortar Businesses"

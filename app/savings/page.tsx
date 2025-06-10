@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: 'Join or create saving groups with friends and family for shared financial goals',
 }
 
+// Force dynamic rendering since the component uses client-side code
+export const dynamic = 'force-dynamic'
+
 export default function SocialSavingGroupsPage() {
   return <SocialSavingGroups />
 }
