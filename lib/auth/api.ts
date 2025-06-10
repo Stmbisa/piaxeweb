@@ -275,18 +275,45 @@ class AuthAPI {
     business_address: string
   }): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/businesses/register`, {
-        method: 'POST',
-        headers: this.getHeaders(token),
-        body: JSON.stringify(businessData),
-      })
+      // Import the shopping inventory API for store creation
+      const { shoppingInventoryAPI } = await import('../api/shopping-inventory')
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Business account creation failed')
+      // Create a store directly using the shopping inventory API
+      // This is the primary business entity in the system
+      const storeData = {
+        name: `${businessData.business_name} - Main Store`,
+        description: `Main location for ${businessData.business_name}`,
+        address: businessData.business_address,
+        contact_email: businessData.business_email,
+        contact_phone: businessData.business_phone,
+        business_hours: {
+          Monday: { open: "09:00", close: "17:00" },
+          Tuesday: { open: "09:00", close: "17:00" },
+          Wednesday: { open: "09:00", close: "17:00" },
+          Thursday: { open: "09:00", close: "17:00" },
+          Friday: { open: "09:00", close: "17:00" },
+          Saturday: { open: "10:00", close: "16:00" },
+          Sunday: { open: "closed", close: "closed" }
+        },
+        notification_preferences: {
+          email_notifications: true,
+          sms_notifications: false,
+          marketing_notifications: false
+        }
       }
 
-      return await response.json()
+      const store = await shoppingInventoryAPI.createStore(token, storeData)
+
+      // Return store information in a format compatible with business profile
+      return {
+        business_name: businessData.business_name,
+        business_type: businessData.business_type,
+        business_email: businessData.business_email,
+        business_phone: businessData.business_phone,
+        business_address: businessData.business_address,
+        store_id: store.id,
+        store: store
+      }
     } catch (error) {
       console.error('Business account creation error:', error)
       throw error

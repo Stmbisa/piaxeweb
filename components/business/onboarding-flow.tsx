@@ -47,13 +47,15 @@ interface StoreData {
     name: string
     description: string
     address: string
-    phone: string
-    email: string
-    settings: {
-        currency: string
-        tax_rate: number
-        accepts_online_orders: boolean
-        delivery_available: boolean
+    contact_phone: string
+    contact_email: string
+    business_hours?: {
+        [key: string]: {
+            [key: string]: string
+        }
+    }
+    notification_preferences?: {
+        [key: string]: boolean
     }
 }
 
@@ -132,19 +134,19 @@ export function BusinessOnboardingFlow() {
         name: '',
         description: '',
         address: '',
-        phone: '',
-        email: '',
-        settings: {
-            currency: 'UGX',
-            tax_rate: 18,
-            accepts_online_orders: true,
-            delivery_available: false
+        contact_phone: '',
+        contact_email: '',
+        business_hours: {},
+        notification_preferences: {
+            online_orders: true,
+            delivery_updates: false,
+            inventory_alerts: true
         }
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const { user, token, updateUser } = useAuth()
+    const { user, token } = useAuth()
     const { toast } = useToast()
     const router = useRouter()
 
@@ -153,11 +155,11 @@ export function BusinessOnboardingFlow() {
         if (user?.business_profile) {
             setBusinessData({
                 business_name: user.business_profile.business_name || '',
-                business_description: user.business_profile.description || '',
+                business_description: '',
                 business_type: user.business_profile.business_type || '',
-                business_category: user.business_profile.category || '',
-                website: user.business_profile.website || '',
-                logo: user.business_profile.logo || ''
+                business_category: '',
+                website: '',
+                logo: ''
             })
         }
     }, [user])
@@ -189,11 +191,11 @@ export function BusinessOnboardingFlow() {
             setError('Store address is required')
             return false
         }
-        if (!storeData.phone.trim()) {
+        if (!storeData.contact_phone.trim()) {
             setError('Store phone is required')
             return false
         }
-        if (!storeData.email.trim()) {
+        if (!storeData.contact_email.trim()) {
             setError('Store email is required')
             return false
         }
@@ -217,7 +219,7 @@ export function BusinessOnboardingFlow() {
                     setup_step: 'store-setup'
                 }
                 // In a real app, call API to update business profile
-                await updateUser({ business_profile: updatedProfile })
+                // await updateUser({ business_profile: updatedProfile })
                 toast({
                     title: "Business information saved",
                     description: "Let's set up your first store",
@@ -240,9 +242,10 @@ export function BusinessOnboardingFlow() {
                     name: storeData.name,
                     description: storeData.description,
                     address: storeData.address,
-                    phone: storeData.phone,
-                    email: storeData.email,
-                    settings: storeData.settings
+                    contact_phone: storeData.contact_phone,
+                    contact_email: storeData.contact_email,
+                    business_hours: storeData.business_hours || {},
+                    notification_preferences: storeData.notification_preferences || {}
                 })
 
                 toast({
@@ -267,7 +270,7 @@ export function BusinessOnboardingFlow() {
                     setup_complete: true,
                     setup_step: 'complete'
                 }
-                await updateUser({ business_profile: updatedProfile })
+                // await updateUser({ business_profile: updatedProfile })
 
                 toast({
                     title: "Onboarding complete!",
@@ -300,11 +303,17 @@ export function BusinessOnboardingFlow() {
     }
 
     const handleStoreDataChange = (field: string, value: any) => {
-        if (field.startsWith('settings.')) {
-            const settingField = field.replace('settings.', '')
+        if (field.startsWith('business_hours.')) {
+            const hourField = field.replace('business_hours.', '')
             setStoreData(prev => ({
                 ...prev,
-                settings: { ...prev.settings, [settingField]: value }
+                business_hours: { ...prev.business_hours, [hourField]: value }
+            }))
+        } else if (field.startsWith('notification_preferences.')) {
+            const prefField = field.replace('notification_preferences.', '')
+            setStoreData(prev => ({
+                ...prev,
+                notification_preferences: { ...prev.notification_preferences, [prefField]: value }
             }))
         } else {
             setStoreData(prev => ({ ...prev, [field]: value }))
@@ -444,8 +453,8 @@ export function BusinessOnboardingFlow() {
                             <Input
                                 id="store_phone"
                                 placeholder="+256701234567"
-                                value={storeData.phone}
-                                onChange={(e) => handleStoreDataChange('phone', e.target.value)}
+                                value={storeData.contact_phone}
+                                onChange={(e) => handleStoreDataChange('contact_phone', e.target.value)}
                                 className="pl-10"
                             />
                         </div>
@@ -459,8 +468,8 @@ export function BusinessOnboardingFlow() {
                                 id="store_email"
                                 type="email"
                                 placeholder="store@business.com"
-                                value={storeData.email}
-                                onChange={(e) => handleStoreDataChange('email', e.target.value)}
+                                value={storeData.contact_email}
+                                onChange={(e) => handleStoreDataChange('contact_email', e.target.value)}
                                 className="pl-10"
                             />
                         </div>
@@ -468,57 +477,62 @@ export function BusinessOnboardingFlow() {
                 </div>
 
                 <div className="space-y-4 pt-4 border-t">
-                    <h4 className="font-semibold">Store Settings</h4>
+                    <h4 className="font-semibold">Business Hours & Preferences</h4>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
                         <div className="space-y-2">
-                            <Label htmlFor="currency">Currency</Label>
-                            <Select value={storeData.settings.currency} onValueChange={(value) => handleStoreDataChange('settings.currency', value)}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="UGX">UGX (Ugandan Shilling)</SelectItem>
-                                    <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                                    <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="tax_rate">Tax Rate (%)</Label>
-                            <Input
-                                id="tax_rate"
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={storeData.settings.tax_rate}
-                                onChange={(e) => handleStoreDataChange('settings.tax_rate', parseFloat(e.target.value) || 0)}
+                            <Label htmlFor="business-hours">Business Hours (JSON format)</Label>
+                            <Textarea
+                                id="business-hours"
+                                placeholder='{"monday": {"open": "09:00", "close": "17:00"}, "tuesday": {"open": "09:00", "close": "17:00"}}'
+                                value={storeData.business_hours ? JSON.stringify(storeData.business_hours, null, 2) : ''}
+                                onChange={(e) => {
+                                    try {
+                                        const parsed = JSON.parse(e.target.value)
+                                        handleStoreDataChange('business_hours', parsed)
+                                    } catch {
+                                        // Invalid JSON, don't update
+                                    }
+                                }}
+                                rows={4}
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            id="online_orders"
-                            checked={storeData.settings.accepts_online_orders}
-                            onChange={(e) => handleStoreDataChange('settings.accepts_online_orders', e.target.checked)}
-                            className="rounded"
-                        />
-                        <Label htmlFor="online_orders">Accept online orders</Label>
-                    </div>
+                    <div className="space-y-3">
+                        <h5 className="font-medium">Notification Preferences</h5>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="online_orders"
+                                checked={storeData.notification_preferences?.online_orders !== false}
+                                onChange={(e) => handleStoreDataChange('notification_preferences.online_orders', e.target.checked)}
+                                className="rounded"
+                            />
+                            <Label htmlFor="online_orders">Online order notifications</Label>
+                        </div>
 
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            id="delivery"
-                            checked={storeData.settings.delivery_available}
-                            onChange={(e) => handleStoreDataChange('settings.delivery_available', e.target.checked)}
-                            className="rounded"
-                        />
-                        <Label htmlFor="delivery">Offer delivery services</Label>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="delivery_updates"
+                                checked={storeData.notification_preferences?.delivery_updates !== false}
+                                onChange={(e) => handleStoreDataChange('notification_preferences.delivery_updates', e.target.checked)}
+                                className="rounded"
+                            />
+                            <Label htmlFor="delivery_updates">Delivery update notifications</Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="inventory_alerts"
+                                checked={storeData.notification_preferences?.inventory_alerts !== false}
+                                onChange={(e) => handleStoreDataChange('notification_preferences.inventory_alerts', e.target.checked)}
+                                className="rounded"
+                            />
+                            <Label htmlFor="inventory_alerts">Inventory alert notifications</Label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -686,17 +700,17 @@ export function BusinessOnboardingFlow() {
                         <div
                             key={step.id}
                             className={`flex flex-col items-center p-4 rounded-lg min-w-[120px] ${isActive
-                                    ? 'bg-primary/10 border border-primary/20'
-                                    : isCompleted
-                                        ? 'bg-green-50 border border-green-200'
-                                        : 'bg-gray-50 border border-gray-200'
+                                ? 'bg-primary/10 border border-primary/20'
+                                : isCompleted
+                                    ? 'bg-green-50 border border-green-200'
+                                    : 'bg-gray-50 border border-gray-200'
                                 }`}
                         >
                             <div className={`p-2 rounded-full mb-2 ${isActive
-                                    ? 'bg-primary text-white'
-                                    : isCompleted
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-gray-200 text-gray-600'
+                                ? 'bg-primary text-white'
+                                : isCompleted
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-gray-200 text-gray-600'
                                 }`}>
                                 <Icon className="w-5 h-5" />
                             </div>

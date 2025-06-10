@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -159,12 +160,12 @@ export function SettingsManager() {
                     business_description: firstStore.description,
                     business_type: 'Retail Store',
                     website: '',
-                    logo: firstStore.logo,
-                    contact_email: firstStore.email,
-                    contact_phone: firstStore.phone,
+                    logo: '',
+                    contact_email: firstStore.contact_email,
+                    contact_phone: firstStore.contact_phone,
                     address: firstStore.address,
                     tax_id: '',
-                    currency: firstStore.settings.currency,
+                    currency: 'UGX',
                     timezone: 'Africa/Kampala',
                     language: 'en'
                 })
@@ -191,12 +192,12 @@ export function SettingsManager() {
             business_description: store.description,
             business_type: 'Retail Store',
             website: '',
-            logo: store.logo,
-            contact_email: store.email,
-            contact_phone: store.phone,
+            logo: '',
+            contact_email: store.contact_email,
+            contact_phone: store.contact_phone,
             address: store.address,
             tax_id: '',
-            currency: store.settings.currency,
+            currency: 'UGX',
             timezone: 'Africa/Kampala',
             language: 'en'
         })
@@ -212,16 +213,11 @@ export function SettingsManager() {
             await shoppingInventoryAPI.updateStore(token, selectedStore, {
                 name: businessSettings.business_name,
                 description: businessSettings.business_description,
-                email: businessSettings.contact_email,
-                phone: businessSettings.contact_phone,
                 address: businessSettings.address,
-                logo: businessSettings.logo,
-                settings: {
-                    currency: businessSettings.currency,
-                    tax_rate: 18, // Default tax rate
-                    accepts_online_orders: true,
-                    delivery_available: true
-                }
+                contact_email: businessSettings.contact_email,
+                contact_phone: businessSettings.contact_phone,
+                business_hours: {},
+                notification_preferences: {}
             })
 
             toast({

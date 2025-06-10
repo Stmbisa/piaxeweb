@@ -35,13 +35,15 @@ interface StoreFormData {
     name: string
     description: string
     address: string
-    phone: string
-    email: string
-    settings: {
-        currency: string
-        tax_rate: number
-        accepts_online_orders: boolean
-        delivery_available: boolean
+    contact_phone: string
+    contact_email: string
+    business_hours?: {
+        [key: string]: {
+            [key: string]: string
+        }
+    }
+    notification_preferences?: {
+        [key: string]: boolean
     }
 }
 
@@ -55,14 +57,10 @@ export function StoreManager() {
         name: '',
         description: '',
         address: '',
-        phone: '',
-        email: '',
-        settings: {
-            currency: 'UGX',
-            tax_rate: 18,
-            accepts_online_orders: true,
-            delivery_available: false
-        }
+        contact_phone: '',
+        contact_email: '',
+        business_hours: {},
+        notification_preferences: {}
     })
 
     const { user, token } = useAuth()
@@ -94,7 +92,7 @@ export function StoreManager() {
     const handleAddStore = async () => {
         if (!token) return
 
-        if (!formData.name.trim() || !formData.address.trim() || !formData.phone.trim() || !formData.email.trim()) {
+        if (!formData.name.trim() || !formData.address.trim() || !formData.contact_phone.trim() || !formData.contact_email.trim()) {
             toast({
                 title: "Error",
                 description: "Please fill in all required fields",
@@ -108,9 +106,10 @@ export function StoreManager() {
                 name: formData.name.trim(),
                 description: formData.description.trim(),
                 address: formData.address.trim(),
-                phone: formData.phone.trim(),
-                email: formData.email.trim(),
-                settings: formData.settings
+                contact_phone: formData.contact_phone.trim(),
+                contact_email: formData.contact_email.trim(),
+                business_hours: formData.business_hours || {},
+                notification_preferences: formData.notification_preferences || {}
             })
 
             setStores(prev => [...prev, newStore])
@@ -137,9 +136,10 @@ export function StoreManager() {
             name: store.name,
             description: store.description,
             address: store.address,
-            phone: store.phone,
-            email: store.email,
-            settings: store.settings
+            contact_phone: store.contact_phone,
+            contact_email: store.contact_email,
+            business_hours: store.business_hours || {},
+            notification_preferences: store.notification_preferences || {}
         })
     }
 
@@ -151,9 +151,10 @@ export function StoreManager() {
                 name: formData.name.trim(),
                 description: formData.description.trim(),
                 address: formData.address.trim(),
-                phone: formData.phone.trim(),
-                email: formData.email.trim(),
-                settings: formData.settings
+                contact_phone: formData.contact_phone.trim(),
+                contact_email: formData.contact_email.trim(),
+                business_hours: formData.business_hours,
+                notification_preferences: formData.notification_preferences
             })
 
             setStores(prev => prev.map(store =>
@@ -201,23 +202,25 @@ export function StoreManager() {
             name: '',
             description: '',
             address: '',
-            phone: '',
-            email: '',
-            settings: {
-                currency: 'UGX',
-                tax_rate: 18,
-                accepts_online_orders: true,
-                delivery_available: false
-            }
+            contact_phone: '',
+            contact_email: '',
+            business_hours: {},
+            notification_preferences: {}
         })
     }
 
     const handleFormDataChange = (field: string, value: any) => {
-        if (field.startsWith('settings.')) {
-            const settingField = field.replace('settings.', '')
+        if (field.startsWith('business_hours.')) {
+            const hourField = field.replace('business_hours.', '')
             setFormData(prev => ({
                 ...prev,
-                settings: { ...prev.settings, [settingField]: value }
+                business_hours: { ...prev.business_hours, [hourField]: value }
+            }))
+        } else if (field.startsWith('notification_preferences.')) {
+            const prefField = field.replace('notification_preferences.', '')
+            setFormData(prev => ({
+                ...prev,
+                notification_preferences: { ...prev.notification_preferences, [prefField]: value }
             }))
         } else {
             setFormData(prev => ({ ...prev, [field]: value }))
@@ -277,7 +280,7 @@ export function StoreManager() {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Active Stores</p>
                                 <p className="text-2xl font-bold text-green-600">
-                                    {stores.filter(store => store.status === 'active').length}
+                                    {stores.length}
                                 </p>
                             </div>
                             <TrendingUp className="w-8 h-8 text-green-600" />
@@ -291,7 +294,7 @@ export function StoreManager() {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Online Orders</p>
                                 <p className="text-2xl font-bold text-purple-600">
-                                    {stores.filter(store => store.settings.accepts_online_orders).length}
+                                    {stores.filter(store => store.notification_preferences?.online_orders !== false).length}
                                 </p>
                             </div>
                             <ShoppingBag className="w-8 h-8 text-purple-600" />
@@ -305,7 +308,7 @@ export function StoreManager() {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Delivery Available</p>
                                 <p className="text-2xl font-bold text-orange-600">
-                                    {stores.filter(store => store.settings.delivery_available).length}
+                                    {stores.filter(store => store.notification_preferences?.delivery_updates !== false).length}
                                 </p>
                             </div>
                             <Globe className="w-8 h-8 text-orange-600" />
@@ -377,8 +380,8 @@ export function StoreManager() {
                                     <Input
                                         id="store-phone"
                                         placeholder="+256701234567"
-                                        value={formData.phone}
-                                        onChange={(e) => handleFormDataChange('phone', e.target.value)}
+                                        value={formData.contact_phone}
+                                        onChange={(e) => handleFormDataChange('contact_phone', e.target.value)}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -387,65 +390,68 @@ export function StoreManager() {
                                         id="store-email"
                                         type="email"
                                         placeholder="store@business.com"
-                                        value={formData.email}
-                                        onChange={(e) => handleFormDataChange('email', e.target.value)}
+                                        value={formData.contact_email}
+                                        onChange={(e) => handleFormDataChange('contact_email', e.target.value)}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-4 pt-4 border-t">
-                                <h4 className="font-semibold">Store Settings</h4>
+                                <h4 className="font-semibold">Business Hours & Preferences</h4>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
                                     <div className="space-y-2">
-                                        <Label htmlFor="currency">Currency</Label>
-                                        <Select value={formData.settings.currency} onValueChange={(value) => handleFormDataChange('settings.currency', value)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="UGX">UGX (Ugandan Shilling)</SelectItem>
-                                                <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                                                <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                                                <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="tax-rate">Tax Rate (%)</Label>
-                                        <Input
-                                            id="tax-rate"
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            value={formData.settings.tax_rate}
-                                            onChange={(e) => handleFormDataChange('settings.tax_rate', parseFloat(e.target.value) || 0)}
+                                        <Label htmlFor="business-hours">Business Hours (JSON format)</Label>
+                                        <Textarea
+                                            id="business-hours"
+                                            placeholder='{"monday": {"open": "09:00", "close": "17:00"}, "tuesday": {"open": "09:00", "close": "17:00"}}'
+                                            value={formData.business_hours ? JSON.stringify(formData.business_hours, null, 2) : ''}
+                                            onChange={(e) => {
+                                                try {
+                                                    const parsed = JSON.parse(e.target.value)
+                                                    handleFormDataChange('business_hours', parsed)
+                                                } catch {
+                                                    // Invalid JSON, don't update
+                                                }
+                                            }}
+                                            rows={4}
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-3">
+                                    <h5 className="font-medium">Notification Preferences</h5>
                                     <div className="flex items-center space-x-2">
                                         <input
                                             type="checkbox"
                                             id="online-orders"
-                                            checked={formData.settings.accepts_online_orders}
-                                            onChange={(e) => handleFormDataChange('settings.accepts_online_orders', e.target.checked)}
+                                            checked={formData.notification_preferences?.online_orders !== false}
+                                            onChange={(e) => handleFormDataChange('notification_preferences.online_orders', e.target.checked)}
                                             className="rounded"
                                         />
-                                        <Label htmlFor="online-orders">Accept online orders</Label>
+                                        <Label htmlFor="online-orders">Online order notifications</Label>
                                     </div>
 
                                     <div className="flex items-center space-x-2">
                                         <input
                                             type="checkbox"
-                                            id="delivery-service"
-                                            checked={formData.settings.delivery_available}
-                                            onChange={(e) => handleFormDataChange('settings.delivery_available', e.target.checked)}
+                                            id="delivery-updates"
+                                            checked={formData.notification_preferences?.delivery_updates !== false}
+                                            onChange={(e) => handleFormDataChange('notification_preferences.delivery_updates', e.target.checked)}
                                             className="rounded"
                                         />
-                                        <Label htmlFor="delivery-service">Offer delivery services</Label>
+                                        <Label htmlFor="delivery-updates">Delivery update notifications</Label>
+                                    </div>
+
+                                    <div className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            id="inventory-alerts"
+                                            checked={formData.notification_preferences?.inventory_alerts !== false}
+                                            onChange={(e) => handleFormDataChange('notification_preferences.inventory_alerts', e.target.checked)}
+                                            className="rounded"
+                                        />
+                                        <Label htmlFor="inventory-alerts">Inventory alert notifications</Label>
                                     </div>
                                 </div>
                             </div>
@@ -472,11 +478,8 @@ export function StoreManager() {
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg">{store.name}</CardTitle>
-                                <Badge className={store.status === 'active'
-                                    ? 'bg-green-100 text-green-700 border-green-200'
-                                    : 'bg-gray-100 text-gray-700 border-gray-200'
-                                }>
-                                    {store.status}
+                                <Badge className="bg-green-100 text-green-700 border-green-200">
+                                    Active
                                 </Badge>
                             </div>
                             {store.description && (
@@ -491,11 +494,11 @@ export function StoreManager() {
                                 </div>
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <Phone className="w-4 h-4" />
-                                    <span>{store.phone}</span>
+                                    <span>{store.contact_phone}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <Mail className="w-4 h-4" />
-                                    <span className="truncate">{store.email}</span>
+                                    <span className="truncate">{store.contact_email}</span>
                                 </div>
                             </div>
 
@@ -510,19 +513,19 @@ export function StoreManager() {
                                         <p className="text-xs text-muted-foreground">Orders</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium">{store.settings.currency} 0</p>
+                                        <p className="text-sm font-medium">UGX 0</p>
                                         <p className="text-xs text-muted-foreground">Revenue</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
-                                {store.settings.accepts_online_orders && (
+                                {store.notification_preferences?.online_orders !== false && (
                                     <Badge variant="outline" className="text-xs">
                                         Online Orders
                                     </Badge>
                                 )}
-                                {store.settings.delivery_available && (
+                                {store.notification_preferences?.delivery_updates !== false && (
                                     <Badge variant="outline" className="text-xs">
                                         Delivery
                                     </Badge>
@@ -531,7 +534,7 @@ export function StoreManager() {
 
                             <div className="flex items-center justify-between pt-2">
                                 <span className="text-sm font-medium">
-                                    Tax: {store.settings.tax_rate}%
+                                    {store.business_hours ? 'Business Hours Set' : 'Hours Not Set'}
                                 </span>
                                 <div className="flex items-center gap-1">
                                     <Button variant="ghost" size="sm" onClick={() => handleEditStore(store)}>
@@ -624,8 +627,8 @@ export function StoreManager() {
                                 <Input
                                     id="edit-store-phone"
                                     placeholder="+256701234567"
-                                    value={formData.phone}
-                                    onChange={(e) => handleFormDataChange('phone', e.target.value)}
+                                    value={formData.contact_phone}
+                                    onChange={(e) => handleFormDataChange('contact_phone', e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -634,65 +637,68 @@ export function StoreManager() {
                                     id="edit-store-email"
                                     type="email"
                                     placeholder="store@business.com"
-                                    value={formData.email}
-                                    onChange={(e) => handleFormDataChange('email', e.target.value)}
+                                    value={formData.contact_email}
+                                    onChange={(e) => handleFormDataChange('contact_email', e.target.value)}
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-4 pt-4 border-t">
-                            <h4 className="font-semibold">Store Settings</h4>
+                            <h4 className="font-semibold">Business Hours & Preferences</h4>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-3">
                                 <div className="space-y-2">
-                                    <Label htmlFor="edit-currency">Currency</Label>
-                                    <Select value={formData.settings.currency} onValueChange={(value) => handleFormDataChange('settings.currency', value)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="UGX">UGX (Ugandan Shilling)</SelectItem>
-                                            <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                                            <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                                            <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-tax-rate">Tax Rate (%)</Label>
-                                    <Input
-                                        id="edit-tax-rate"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={formData.settings.tax_rate}
-                                        onChange={(e) => handleFormDataChange('settings.tax_rate', parseFloat(e.target.value) || 0)}
+                                    <Label htmlFor="edit-business-hours">Business Hours (JSON format)</Label>
+                                    <Textarea
+                                        id="edit-business-hours"
+                                        placeholder='{"monday": {"open": "09:00", "close": "17:00"}, "tuesday": {"open": "09:00", "close": "17:00"}}'
+                                        value={formData.business_hours ? JSON.stringify(formData.business_hours, null, 2) : ''}
+                                        onChange={(e) => {
+                                            try {
+                                                const parsed = JSON.parse(e.target.value)
+                                                handleFormDataChange('business_hours', parsed)
+                                            } catch {
+                                                // Invalid JSON, don't update
+                                            }
+                                        }}
+                                        rows={4}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-3">
+                                <h5 className="font-medium">Notification Preferences</h5>
                                 <div className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
                                         id="edit-online-orders"
-                                        checked={formData.settings.accepts_online_orders}
-                                        onChange={(e) => handleFormDataChange('settings.accepts_online_orders', e.target.checked)}
+                                        checked={formData.notification_preferences?.online_orders !== false}
+                                        onChange={(e) => handleFormDataChange('notification_preferences.online_orders', e.target.checked)}
                                         className="rounded"
                                     />
-                                    <Label htmlFor="edit-online-orders">Accept online orders</Label>
+                                    <Label htmlFor="edit-online-orders">Online order notifications</Label>
                                 </div>
 
                                 <div className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
-                                        id="edit-delivery-service"
-                                        checked={formData.settings.delivery_available}
-                                        onChange={(e) => handleFormDataChange('settings.delivery_available', e.target.checked)}
+                                        id="edit-delivery-updates"
+                                        checked={formData.notification_preferences?.delivery_updates !== false}
+                                        onChange={(e) => handleFormDataChange('notification_preferences.delivery_updates', e.target.checked)}
                                         className="rounded"
                                     />
-                                    <Label htmlFor="edit-delivery-service">Offer delivery services</Label>
+                                    <Label htmlFor="edit-delivery-updates">Delivery update notifications</Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="edit-inventory-alerts"
+                                        checked={formData.notification_preferences?.inventory_alerts !== false}
+                                        onChange={(e) => handleFormDataChange('notification_preferences.inventory_alerts', e.target.checked)}
+                                        className="rounded"
+                                    />
+                                    <Label htmlFor="edit-inventory-alerts">Inventory alert notifications</Label>
                                 </div>
                             </div>
                         </div>

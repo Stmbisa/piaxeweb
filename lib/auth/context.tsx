@@ -11,6 +11,7 @@ interface AuthContextType {
     isAuthenticated: boolean
     isDeveloper: boolean
     isBusiness: boolean
+    hasStores: boolean
     login: (credentials: LoginCredentials) => Promise<void>
     register: (data: RegisterData) => Promise<void>
     logout: () => Promise<void>
@@ -18,6 +19,7 @@ interface AuthContextType {
     createDeveloperAccount: (developerData: MerchantRegistrationData) => Promise<void>
     createBusinessAccount: (businessData: any) => Promise<void>
     refreshProfileStatus: () => Promise<void>
+    checkStores: () => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -30,10 +32,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [token, setToken] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [hasStores, setHasStores] = useState(false)
 
     const isAuthenticated = !!user && !!token
     const isDeveloper = !!user?.developer_profile
-    const isBusiness = !!user?.business_profile
+    const isBusiness = !!user?.business_profile || hasStores
 
     // Load auth data from localStorage on mount
     useEffect(() => {
@@ -173,6 +176,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await authAPI.createBusinessAccount(token, businessData)
             // Refresh user profile to get updated business info
             await refreshProfileStatus()
+            // Check for stores since we just created one
+            await checkStores()
         } catch (error) {
             console.error('Business account creation failed:', error)
             throw error
@@ -194,6 +199,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const checkStores = async (): Promise<boolean> => {
+        if (!token) return false
+
+        try {
+            const { shoppingInventoryAPI } = await import('../api/shopping-inventory')
+            const stores = await shoppingInventoryAPI.getStores(token)
+            const hasUserStores = stores.length > 0
+            setHasStores(hasUserStores)
+            return hasUserStores
+        } catch (error) {
+            console.error('Failed to check stores:', error)
+            setHasStores(false)
+            return false
+        }
+    }
+
     // Set up automatic token refresh
     useEffect(() => {
         if (!token) return
@@ -209,6 +230,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(refreshInterval)
     }, [token])
 
+    // Check for stores when user is authenticated
+    useEffect(() => {
+        if (isAuthenticated && token && !user?.business_profile) {
+            checkStores()
+        }
+    }, [isAuthenticated, token, user?.business_profile])
+
     const value: AuthContextType = {
         user,
         token,
@@ -216,6 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         isDeveloper,
         isBusiness,
+        hasStores,
         login,
         register,
         logout,
@@ -223,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createDeveloperAccount,
         createBusinessAccount,
         refreshProfileStatus,
+        checkStores,
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

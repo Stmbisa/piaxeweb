@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/auth/context"
 import { Code, AlertCircle, CheckCircle, Briefcase, Mail, Phone, MapPin, Link as LinkIcon, Type } from "lucide-react"
@@ -165,7 +166,21 @@ export function DeveloperRegisterForm() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="businessType">Business Type *</Label>
-                                <Input id="businessType" name="business_type" type="text" placeholder="e.g., SaaS, E-commerce" value={businessType} onChange={(e) => setBusinessType(e.target.value)} required />
+                                <Select value={businessType} onValueChange={setBusinessType}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select business type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Retail">Retail</SelectItem>
+                                        <SelectItem value="Wholesale">Wholesale</SelectItem>
+                                        <SelectItem value="Services">Services</SelectItem>
+                                        <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                                        <SelectItem value="E-commerce">E-commerce</SelectItem>
+                                        <SelectItem value="Other">Other</SelectItem>
+                                        <SelectItem value="Crypto">Crypto</SelectItem>
+                                        <SelectItem value="Gambling">Gambling</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 

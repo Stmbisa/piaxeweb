@@ -86,12 +86,61 @@ const config = {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(0)" },
         },
+        // Glass-specific animations
+        "glass-appear": {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px) scale(0.95)",
+            backdropFilter: "blur(0px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0) scale(1)",
+            backdropFilter: "blur(12px)",
+          },
+        },
+        "glass-float": {
+          "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
+          "50%": { transform: "translateY(-20px) rotate(180deg)" },
+        },
+        "glass-float-delayed": {
+          "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
+          "50%": { transform: "translateY(-15px) rotate(-180deg)" },
+        },
+        "glass-shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "glass-ripple": {
+          "0%": { transform: "scale(0)", opacity: "1" },
+          "100%": { transform: "scale(4)", opacity: "0" },
+        },
+        "glass-morph": {
+          "0%, 100%": { borderRadius: "12px" },
+          "50%": { borderRadius: "24px" },
+        },
+        "glass-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 8px 32px 0 rgba(var(--glass-shadow), 0.15)",
+          },
+          "50%": {
+            boxShadow: "0 12px 40px 0 rgba(var(--glass-shadow), 0.25)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
+        // Glass animations
+        "glass-appear": "glass-appear 0.8s ease-out forwards",
+        "glass-float": "glass-float 6s ease-in-out infinite",
+        "glass-float-delayed": "glass-float-delayed 8s ease-in-out infinite",
+        "glass-shimmer": "glass-shimmer 2s linear infinite",
+        "glass-ripple": "glass-ripple 0.6s ease-out",
+        "glass-morph": "glass-morph 4s ease-in-out infinite",
+        "glass-pulse": "glass-pulse 2s ease-in-out infinite",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

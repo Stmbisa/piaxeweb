@@ -10,16 +10,27 @@ interface BusinessProtectedRouteProps {
 }
 
 export function BusinessProtectedRoute({ children, fallback }: BusinessProtectedRouteProps) {
-  const { isAuthenticated, isBusiness, isLoading } = useAuth()
+  const { isAuthenticated, isBusiness, isLoading, checkStores } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login?message=Please login to access the business dashboard&redirect=business/dashboard')
-    } else if (!isLoading && isAuthenticated && !isBusiness) {
-      router.push('/auth/business-register?message=Please create a business account to access the business dashboard')
+    const handleAuth = async () => {
+      if (!isLoading && !isAuthenticated) {
+        router.push('/auth/login?message=Please login to access the business dashboard&redirect=business/dashboard')
+        return
+      }
+
+      if (!isLoading && isAuthenticated && !isBusiness) {
+        // Check if user has stores before redirecting to registration
+        const hasStores = await checkStores()
+        if (!hasStores) {
+          router.push('/auth/business-register?message=Please create a business account to access the business dashboard')
+        }
+      }
     }
-  }, [isAuthenticated, isBusiness, isLoading, router])
+
+    handleAuth()
+  }, [isAuthenticated, isBusiness, isLoading, router, checkStores])
 
   if (isLoading) {
     return (

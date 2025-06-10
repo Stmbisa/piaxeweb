@@ -109,14 +109,13 @@ export function MerchantRegisterForm() {
 
   const businessTypes = [
     "Retail",
-    "Restaurant",
-    "E-commerce",
+    "Wholesale",
     "Services",
-    "Technology",
-    "Healthcare",
-    "Education",
     "Manufacturing",
-    "Other"
+    "E-commerce",
+    "Other",
+    "Crypto",
+    "Gambling"
   ]
 
   const categories = [

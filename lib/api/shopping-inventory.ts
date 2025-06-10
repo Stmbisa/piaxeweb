@@ -45,19 +45,19 @@ export interface ProductUpdate {
 // Store Types
 export interface Store {
   id: string
+  owner_id: string
   name: string
   description: string
   address: string
-  phone: string
-  email: string
-  logo?: string
-  status: 'active' | 'inactive'
-  merchant_id: string
-  settings: {
-    currency: string
-    tax_rate: number
-    accepts_online_orders: boolean
-    delivery_available: boolean
+  contact_email: string
+  contact_phone: string
+  business_hours?: {
+    [key: string]: {
+      [key: string]: string
+    }
+  }
+  notification_preferences?: {
+    [key: string]: boolean
   }
   created_at: string
   updated_at: string
@@ -67,14 +67,15 @@ export interface StoreCreate {
   name: string
   description: string
   address: string
-  phone: string
-  email: string
-  logo?: string
-  settings?: {
-    currency?: string
-    tax_rate?: number
-    accepts_online_orders?: boolean
-    delivery_available?: boolean
+  contact_email: string
+  contact_phone: string
+  business_hours?: {
+    [key: string]: {
+      [key: string]: string
+    }
+  }
+  notification_preferences?: {
+    [key: string]: boolean
   }
 }
 
@@ -82,15 +83,15 @@ export interface StoreUpdate {
   name?: string
   description?: string
   address?: string
-  phone?: string
-  email?: string
-  logo?: string
-  status?: 'active' | 'inactive'
-  settings?: {
-    currency?: string
-    tax_rate?: number
-    accepts_online_orders?: boolean
-    delivery_available?: boolean
+  contact_phone?: string
+  contact_email?: string
+  business_hours?: {
+    [key: string]: {
+      [key: string]: string
+    }
+  }
+  notification_preferences?: {
+    [key: string]: boolean
   }
 }
 
@@ -163,7 +164,7 @@ class ShoppingInventoryAPI {
   // Store Management
   async createStore(token: string, storeData: StoreCreate): Promise<Store> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/create`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(storeData),
@@ -183,7 +184,7 @@ class ShoppingInventoryAPI {
 
   async getStores(token: string): Promise<Store[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -202,7 +203,7 @@ class ShoppingInventoryAPI {
 
   async getStore(token: string, storeId: string): Promise<Store> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -221,7 +222,7 @@ class ShoppingInventoryAPI {
 
   async updateStore(token: string, storeId: string, storeData: StoreUpdate): Promise<Store> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`, {
         method: 'PUT',
         headers: this.getHeaders(token),
         body: JSON.stringify(storeData),
@@ -241,7 +242,7 @@ class ShoppingInventoryAPI {
 
   async deleteStore(token: string, storeId: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`, {
         method: 'DELETE',
         headers: this.getHeaders(token),
       })
@@ -259,7 +260,7 @@ class ShoppingInventoryAPI {
   // Product Management
   async createProduct(token: string, storeId: string, productData: ProductCreate): Promise<Product> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products/create`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/create`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(productData),
@@ -292,7 +293,7 @@ class ShoppingInventoryAPI {
       if (params?.page) queryParams.append('page', params.page.toString())
       if (params?.limit) queryParams.append('limit', params.limit.toString())
 
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products?${queryParams}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products?${queryParams}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -311,7 +312,7 @@ class ShoppingInventoryAPI {
 
   async getProduct(token: string, storeId: string, productId: string): Promise<Product> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -330,7 +331,7 @@ class ShoppingInventoryAPI {
 
   async updateProduct(token: string, storeId: string, productId: string, productData: ProductUpdate): Promise<Product> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`, {
         method: 'PUT',
         headers: this.getHeaders(token),
         body: JSON.stringify(productData),
@@ -350,7 +351,7 @@ class ShoppingInventoryAPI {
 
   async deleteProduct(token: string, storeId: string, productId: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`, {
         method: 'DELETE',
         headers: this.getHeaders(token),
       })
@@ -368,7 +369,7 @@ class ShoppingInventoryAPI {
   // Stock Management
   async updateStock(token: string, storeId: string, productId: string, quantity: number, operation: 'add' | 'subtract' | 'set'): Promise<Product> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/products/${productId}/stock`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}/stock`, {
         method: 'PUT',
         headers: this.getHeaders(token),
         body: JSON.stringify({ quantity, operation }),
@@ -389,7 +390,7 @@ class ShoppingInventoryAPI {
   // Category Management
   async createCategory(token: string, storeId: string, categoryData: CategoryCreate): Promise<Category> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/categories/create`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/categories/create`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(categoryData),
@@ -409,7 +410,7 @@ class ShoppingInventoryAPI {
 
   async getCategories(token: string, storeId: string): Promise<Category[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/categories`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/categories`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -429,7 +430,7 @@ class ShoppingInventoryAPI {
   // Order Management
   async createOrder(token: string, storeId: string, orderData: OrderCreate): Promise<Order> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/orders/create`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/orders/create`, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify(orderData),
@@ -460,7 +461,7 @@ class ShoppingInventoryAPI {
       if (params?.page) queryParams.append('page', params.page.toString())
       if (params?.limit) queryParams.append('limit', params.limit.toString())
 
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/orders?${queryParams}`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/orders?${queryParams}`, {
         method: 'GET',
         headers: this.getHeaders(token),
       })
@@ -479,7 +480,7 @@ class ShoppingInventoryAPI {
 
   async updateOrderStatus(token: string, storeId: string, orderId: string, status: Order['status']): Promise<Order> {
     try {
-      const response = await fetch(`${API_BASE_URL}/shoppingandinventory/stores/${storeId}/orders/${orderId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: this.getHeaders(token),
         body: JSON.stringify({ status }),
