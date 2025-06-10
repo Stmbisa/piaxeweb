@@ -1,121 +1,101 @@
-/* global.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Base Theme Colors - Light Mode */
-    --background: 260 23% 95%; /* Light grayish-blue background */
+    --background: 260 23% 95%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    /* Piaxe Brand Colors Integration */
-    /* Piaxe Primary: #06B6D4 */
     --primary: 188 94% 43%;
-    --primary-foreground: 0 0% 100%; /* White text on primary color */
-    /* Piaxe Secondary: #4338CA */
+    --primary-foreground: 0 0% 100%;
     --secondary: 248 84% 51%;
-    --secondary-foreground: 0 0% 100%; /* White text on secondary color */
+    --secondary-foreground: 0 0% 100%;
 
-    /* Other Semantic Colors */
     --muted: 260 23% 90%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 260 23% 90%; /* Can be same as muted or a different subtle color */
+    --accent: 260 23% 90%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders, Inputs, Rings */
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 188 94% 43%; /* Piaxe Primary for focus rings */
-
-    /* Radius */
+    --ring: 188 94% 43%;
     --radius: 0.75rem;
 
-    /* Liquid Glass Effect Variables - LIGHT MODE */
-    /* These define the "clear" glass look. Branded glass will tint these. */
-    --glass-bg-rgb: 255 255 255;      /* Base color of the glass (e.g., white) */
-    --glass-border-rgb: 230 230 240;  /* Subtle border color for definition (light lavender/gray) */
-    --glass-highlight-rgb: 255 255 255;/* Bright highlight color (e.g., pure white) */
-    --glass-shadow-rgb: 100 100 120;  /* Soft shadow color (cool gray) */
-    --glass-icon-color-hsl: var(--foreground); /* Default icon color on clear glass */
+    --glass-bg-rgb: 255 255 255;
+    --glass-border-rgb: 230 230 240;
+    --glass-highlight-rgb: 255 255 255;
+    --glass-shadow-rgb: 100 100 120;
+    --glass-icon-color-hsl: var(--foreground);
   }
 
   .dark {
-    /* Base Theme Colors - Dark Mode */
-    --background: 240 10% 3.9%; /* Very dark blue/gray background */
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Piaxe Brand Colors (remain the same, foregrounds might differ if needed) */
     --primary: 188 94% 43%;
     --primary-foreground: 0 0% 100%;
     --secondary: 248 84% 51%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Other Semantic Colors - Dark Mode */
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 72.2% 50.6%; /* Adjusted for dark mode */
+    --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders, Inputs, Rings - Dark Mode */
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 188 94% 43%; /* Piaxe Primary for focus rings */
+    --ring: 188 94% 43%;
 
-    /* Liquid Glass Effect Variables - DARK MODE */
-    --glass-bg-rgb: 40 42 50;        /* Darker, slightly desaturated blue-gray for glass base */
-    --glass-border-rgb: 80 85 100;   /* Muted blue, visible against dark glass bg */
-    --glass-highlight-rgb: 100 105 120;/* Brighter highlight for dark mode */
-    --glass-shadow-rgb: 0 0 0;         /* Black shadow for depth */
-    --glass-icon-color-hsl: var(--foreground); /* Default icon color on clear glass in dark mode */
+    --glass-bg-rgb: 40 42 50;
+    --glass-border-rgb: 80 85 100;
+    --glass-highlight-rgb: 100 105 120;
+    --glass-shadow-rgb: 0 0 0;
+    --glass-icon-color-hsl: var(--foreground);
   }
 }
 
 @layer base {
   * {
-    @apply border-border; /* Default border color for elements */
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1; /* Ligatures and contextual alternates */
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Smooth scrolling for anchor links */
 html {
   scroll-behavior: smooth;
 }
 
-/* Focus styles for accessibility */
 @layer base {
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
-/* Custom scrollbar utilities */
 @layer utilities {
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+    display: none;
   }
 
-  /* Grid background patterns (as provided in original) */
   .bg-grid-slate-100 {
     background-image: linear-gradient(to right, rgb(241 245 249 / 0.8) 1px, transparent 1px),
       linear-gradient(to bottom, rgb(241 245 249 / 0.8) 1px, transparent 1px);
@@ -129,55 +109,46 @@ html {
   }
 }
 
-/* Enhanced Liquid Glass Theme Components */
 @layer components {
-  /* Base Glass Element Styling (Foundation for all glass components) */
   .glass-base {
     @apply backdrop-blur-xl transition-all duration-300 ease-out relative overflow-hidden;
-    /* Main surface: semi-transparent gradient */
     background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.55), rgba(var(--glass-bg-rgb), 0.35));
-    /* Outer border: subtle, slightly lighter/different from bg */
     border: 1px solid rgba(var(--glass-border-rgb), 0.3);
-    /* Shadow for depth, inner highlight for "raised" effect */
-    box-shadow: 0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.18), /* Softer, wider shadow */
-                inset 0 1.5px 1px 0 rgba(var(--glass-highlight-rgb), 0.45), /* Top inner highlight */
-                inset 0 -0.5px 0.5px 0 rgba(var(--glass-shadow-rgb), 0.1);  /* Subtle bottom inner shadow */
+    box-shadow: 0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.18),
+                inset 0 1.5px 1px 0 rgba(var(--glass-highlight-rgb), 0.45),
+                inset 0 -0.5px 0.5px 0 rgba(var(--glass-shadow-rgb), 0.1);
   }
 
-  /* Inner border/highlight effect using pseudo-element */
   .glass-base::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit; /* Match parent's border-radius */
-    padding: 1px; /* Controls thickness of this "inner glowing edge" */
-    /* Gradient for the inner highlight, using glass-highlight color */
+    border-radius: inherit;
+    padding: 1px;
     background: linear-gradient(135deg, rgba(var(--glass-highlight-rgb), 0.25), rgba(var(--glass-highlight-rgb), 0.05));
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: xor; /* Standard */
-    -webkit-mask-composite: xor; /* For Safari/Chrome */
-    pointer-events: none; /* Doesn't interfere with clicks */
-    z-index: 1; /* Above the main background but below content */
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+    z-index: 1;
   }
 
-  /* Optional: Subtle diagonal sheen for a more "polished" look */
   .glass-base::after {
     content: "";
     position: absolute;
-    top: 0; left: -80%; /* Start off-center */
+    top: 0; left: -80%;
     width: 60%; height: 100%;
-    /* Sheen gradient, using glass-highlight color */
     background: linear-gradient(
       to right,
       rgba(var(--glass-highlight-rgb), 0.12) 0%,
       rgba(var(--glass-highlight-rgb), 0.06) 50%,
       rgba(var(--glass-highlight-rgb), 0) 100%
     );
-    transform: skewX(-25deg); /* Angle the sheen */
+    transform: skewX(-25deg);
     pointer-events: none;
-    z-index: 0; /* Behind ::before and content */
+    z-index: 0;
     opacity: 0.7;
-    transition: left 0.5s ease-out, opacity 0.5s ease-out; /* Smooth transition for hover */
+    transition: left 0.5s ease-out, opacity 0.5s ease-out;
   }
 
   .glass-base:hover {
@@ -186,28 +157,68 @@ html {
     box-shadow: 0 12px 40px 0 rgba(var(--glass-shadow-rgb), 0.22),
                 inset 0 2px 1.5px 0 rgba(var(--glass-highlight-rgb), 0.55),
                 inset 0 -1px 1px 0 rgba(var(--glass-shadow-rgb), 0.15);
-    transform: translateY(-2px); /* Slight lift on hover */
+    transform: translateY(-2px);
   }
-  .glass-base:hover::after { /* Move sheen slightly on hover */
+  .glass-base:hover::after {
     opacity: 0.9;
     left: -60%;
   }
 
-  /* Glass Card Component */
   .glass-card {
-    @apply glass-base rounded-xl p-6; /* Standard padding and rounding */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1.5px solid rgba(var(--glass-border-rgb), 0.7);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.6), rgba(var(--glass-bg-rgb), 0.4));
+    box-shadow:
+      0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.2),
+      inset 0 1.5px 1px 0 rgba(var(--glass-highlight-rgb), 0.5),
+      inset 0 -0.5px 0.5px 0 rgba(var(--glass-shadow-rgb), 0.1),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.15);
+  }
+  .glass-card:hover {
+    border-color: rgba(var(--glass-border-rgb), 0.9);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.7), rgba(var(--glass-bg-rgb), 0.5));
+    box-shadow:
+      0 12px 40px 0 rgba(var(--glass-shadow-rgb), 0.25),
+      inset 0 2px 1.5px 0 rgba(var(--glass-highlight-rgb), 0.6),
+      inset 0 -1px 1px 0 rgba(var(--glass-shadow-rgb), 0.15),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.25);
+    transform: translateY(-2px);
   }
 
-  /* Glass Card - Piaxe Primary Tint */
+  .glass-card-dashed {
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.2), rgba(var(--glass-bg-rgb), 0.1));
+    border: 2px dashed rgba(var(--glass-border-rgb), 0.4);
+    box-shadow: 0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.15);
+  }
+  .glass-card-dashed:hover {
+    border-color: rgba(var(--glass-border-rgb), 0.6);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.3), rgba(var(--glass-bg-rgb), 0.2));
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(var(--glass-shadow-rgb), 0.2);
+  }
+
+  .glass-card-large {
+    @apply glass-card p-8;
+  }
+
   .glass-card-primary {
-    @apply glass-card; /* Inherit base glass styling and padding/rounding */
-    /* Tint the background with Piaxe primary color */
+    @apply glass-card;
     background: linear-gradient(135deg, hsl(var(--primary) / 0.25), hsl(var(--primary) / 0.15));
-    /* Border uses a slightly more opaque version of primary */
     border-color: hsl(var(--primary) / 0.4);
-    /* Shadow can also be tinted with primary or keep neutral for contrast */
-    box-shadow: 0 8px 32px 0 hsl(var(--primary) / 0.2), /* Tinted shadow */
-                inset 0 1.5px 1px 0 rgba(var(--glass-highlight-rgb), 0.5), /* Keep inner highlight bright white */
+    box-shadow: 0 8px 32px 0 hsl(var(--primary) / 0.2),
+                inset 0 1.5px 1px 0 rgba(var(--glass-highlight-rgb), 0.5),
                 inset 0 -0.5px 0.5px 0 hsl(var(--primary) / 0.1);
   }
   .glass-card-primary:hover {
@@ -218,7 +229,6 @@ html {
                 inset 0 -1px 1px 0 hsl(var(--primary) / 0.15);
   }
 
-  /* Glass Card - Piaxe Secondary Tint */
   .glass-card-secondary {
     @apply glass-card;
     background: linear-gradient(135deg, hsl(var(--secondary) / 0.25), hsl(var(--secondary) / 0.15));
@@ -235,57 +245,61 @@ html {
                 inset 0 -1px 1px 0 hsl(var(--secondary) / 0.15);
   }
 
-
-  /* Glass Button Component */
   .glass-button {
-    @apply glass-base p-3 rounded-lg text-sm font-medium; /* Default button padding and rounding */
-    /* Text color should typically be --foreground or a specific color based on context */
+    @apply glass-base p-3 rounded-lg text-sm font-medium;
     color: hsl(var(--foreground));
   }
   .glass-button:hover {
-    transform: translateY(-1px); /* Less lift for buttons */
+    transform: translateY(-1px);
   }
   .glass-button:active {
-    transform: translateY(0.5px); /* "Pressed in" effect */
+    transform: translateY(0.5px);
     background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.45), rgba(var(--glass-bg-rgb), 0.25));
     box-shadow: 0 2px 10px 0 rgba(var(--glass-shadow-rgb), 0.2),
                 inset 0 1px 0.5px 0 rgba(var(--glass-highlight-rgb), 0.35),
                 inset 0 -0.5px 0.5px 0 rgba(var(--glass-shadow-rgb), 0.05);
   }
-  .glass-button:active::after { /* Dim sheen on active/pressed */
+  .glass-button:active::after {
     opacity: 0.3;
   }
 
-  /* Glass Button - Piaxe Primary Filled/Tinted */
   .glass-button-primary {
-    @apply glass-button; /* Inherit base glass button styling */
-    /* More saturated Piaxe primary color for button background */
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.7), hsl(var(--primary) / 0.5));
-    border-color: hsl(var(--primary) / 0.6);
-    color: hsl(var(--primary-foreground)); /* Text color for primary button */
-    box-shadow: 0 4px 16px 0 hsl(var(--primary) / 0.3), /* Shadow tinted with primary */
-                inset 0 1.5px 1px 0 rgba(255,255,255,0.3), /* White highlight for pop */
-                inset 0 -0.5px 1px 0 hsl(var(--primary) / 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1.5px solid hsl(var(--primary) / 0.8);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.65));
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    box-shadow:
+      0 4px 16px 0 hsl(var(--primary) / 0.4),
+      inset 0 1.5px 1px 0 rgba(255,255,255,0.4),
+      inset 0 -0.5px 1px 0 hsl(var(--primary) / 0.3),
+      0 1px 3px 0 hsl(var(--primary) / 0.2);
   }
   .glass-button-primary:hover {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--primary) / 0.6));
-    border-color: hsl(var(--primary) / 0.7);
-    box-shadow: 0 6px 20px 0 hsl(var(--primary) / 0.35),
-                inset 0 1.5px 1px 0 rgba(255,255,255,0.35),
-                inset 0 -0.5px 1px 0 hsl(var(--primary) / 0.25);
+    border-color: hsl(var(--primary) / 1);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.95), hsl(var(--primary) / 0.75));
+    box-shadow:
+      0 6px 20px 0 hsl(var(--primary) / 0.5),
+      inset 0 1.5px 1px 0 rgba(255,255,255,0.5),
+      inset 0 -0.5px 1px 0 hsl(var(--primary) / 0.4),
+      0 2px 6px 0 hsl(var(--primary) / 0.3);
+    transform: translateY(-1px);
   }
-  .glass-button-primary:active { /* Active state for primary button */
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.4));
-    box-shadow: 0 2px 8px 0 hsl(var(--primary) / 0.3),
-                inset 0 1px 0.5px 0 rgba(255,255,255,0.25),
-                inset 0 -0.5px 0.5px 0 hsl(var(--primary) / 0.15);
-  }
-  /* Style for icons within primary buttons */
-  .glass-button-primary .lucide, .glass-button-primary svg {
-    color: hsl(var(--primary-foreground));
+  .glass-button-primary:active {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.75), hsl(var(--primary) / 0.55));
+    box-shadow:
+      0 2px 8px 0 hsl(var(--primary) / 0.4),
+      inset 0 1px 0.5px 0 rgba(255,255,255,0.3),
+      inset 0 -0.5px 0.5px 0 hsl(var(--primary) / 0.2);
+    transform: translateY(0.5px);
   }
 
-  /* Glass Button - Piaxe Secondary Filled/Tinted */
   .glass-button-secondary {
     @apply glass-button;
     background: linear-gradient(135deg, hsl(var(--secondary) / 0.7), hsl(var(--secondary) / 0.5));
@@ -302,64 +316,130 @@ html {
   .glass-button-secondary:active {
     background: linear-gradient(135deg, hsl(var(--secondary) / 0.6), hsl(var(--secondary) / 0.4));
   }
-  .glass-button-secondary .lucide, .glass-button-secondary svg {
-    color: hsl(var(--secondary-foreground));
-  }
 
-
-  /* Glass Icon Button (Circular) */
   .glass-icon-button {
-    @apply glass-base rounded-full w-12 h-12 p-0 flex items-center justify-center; /* Adjust size as needed */
+    @apply glass-base rounded-full w-12 h-12 p-0 flex items-center justify-center;
   }
-  .glass-icon-button .lucide, .glass-icon-button svg { /* Style for lucide icons within these buttons */
-     color: hsl(var(--glass-icon-color-hsl)); /* Use HSL variable for icon color */
+  .glass-icon-button .lucide, .glass-icon-button svg {
+     color: hsl(var(--glass-icon-color-hsl));
      transition: color 0.2s ease-out;
   }
   .glass-icon-button:hover .lucide, .glass-icon-button:hover svg {
-     color: hsl(var(--primary)); /* Or a brighter version of icon color */
-  }
-  /* Primary and Secondary variants for Icon Buttons */
-  .glass-icon-button-primary {
-    @apply glass-icon-button glass-button-primary; /* Combines base icon button shape with primary button colors */
-  }
-  .glass-icon-button-secondary {
-    @apply glass-icon-button glass-button-secondary;
+     color: hsl(var(--primary));
   }
 
+  .glass-card-dashed {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.3), rgba(var(--glass-bg-rgb), 0.15));
+    border: 2px dashed rgba(var(--glass-border-rgb), 0.7);
+    box-shadow:
+      0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.2),
+      inset 0 1px 1px 0 rgba(var(--glass-highlight-rgb), 0.4),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.1);
+  }
+  .glass-card-dashed:hover {
+    border-color: rgba(var(--glass-border-rgb), 0.9);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.4), rgba(var(--glass-bg-rgb), 0.25));
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 40px 0 rgba(var(--glass-shadow-rgb), 0.25),
+      inset 0 1px 1px 0 rgba(var(--glass-highlight-rgb), 0.5),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.2);
+  }
 
-  /* Glass Navigation Bar */
+  /* Enhanced glass card with better visibility and smooth outlines */
+  .glass-card-enhanced {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 2px solid rgba(var(--glass-border-rgb), 0.8);
+    background: linear-gradient(135deg,
+      rgba(var(--glass-bg-rgb), 0.75) 0%,
+      rgba(var(--glass-bg-rgb), 0.55) 50%,
+      rgba(var(--glass-bg-rgb), 0.45) 100%);
+    box-shadow:
+      0 8px 32px 0 rgba(var(--glass-shadow-rgb), 0.25),
+      inset 0 2px 2px 0 rgba(var(--glass-highlight-rgb), 0.7),
+      inset 0 -1px 1px 0 rgba(var(--glass-shadow-rgb), 0.2),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.25),
+      0 1px 3px 0 rgba(var(--glass-shadow-rgb), 0.1);
+  }
+  .glass-card-enhanced:hover {
+    border-color: rgba(var(--glass-border-rgb), 1);
+    background: linear-gradient(135deg,
+      rgba(var(--glass-bg-rgb), 0.85) 0%,
+      rgba(var(--glass-bg-rgb), 0.65) 50%,
+      rgba(var(--glass-bg-rgb), 0.55) 100%);
+    box-shadow:
+      0 12px 40px 0 rgba(var(--glass-shadow-rgb), 0.3),
+      inset 0 2px 2px 0 rgba(var(--glass-highlight-rgb), 0.8),
+      inset 0 -1px 1px 0 rgba(var(--glass-shadow-rgb), 0.25),
+      0 0 0 1px rgba(var(--glass-highlight-rgb), 0.35),
+      0 2px 6px 0 rgba(var(--glass-shadow-rgb), 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Glass input with visible borders */
+  .glass-input {
+    @apply glass-base;
+    border: 1.5px solid rgba(var(--glass-border-rgb), 0.5);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.4), rgba(var(--glass-bg-rgb), 0.2));
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .glass-input:focus {
+    border-color: hsl(var(--primary) / 0.7);
+    box-shadow:
+      0 0 0 2px hsl(var(--primary) / 0.2),
+      inset 0 1px 1px 0 rgba(var(--glass-highlight-rgb), 0.5);
+  }
+
   .glass-nav {
     @apply glass-base fixed top-0 z-50 w-full;
-    border-radius: 0; /* Navs are typically not rounded or only bottom-rounded */
+    border-radius: 0;
     border-left-width: 0;
     border-right-width: 0;
-    border-top-width: 0; /* Typically only a bottom border for a top nav bar */
-    /* Adjust padding if needed for nav items */
-    /* @apply px-4 py-3; */
+    border-top-width: 0;
   }
 
-  /* Glass Tabs */
-  .glass-tabs-container { /* The wrapper for a group of tabs */
-    @apply glass-base inline-flex p-1 rounded-full; /* Pill-shaped container for tabs */
+  .glass-card-dashed {
+    @apply glass-card;
+    border: 2px dashed rgba(var(--glass-border-rgb), 0.4);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.2), rgba(var(--glass-bg-rgb), 0.1));
   }
-  .glass-tab {
-    @apply px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-out cursor-pointer relative;
-    color: hsl(var(--muted-foreground)); /* Muted text for inactive tabs */
+  .glass-card-dashed:hover {
+    border-color: rgba(var(--glass-border-rgb), 0.6);
+    background: linear-gradient(135deg, rgba(var(--glass-bg-rgb), 0.3), rgba(var(--glass-bg-rgb), 0.2));
   }
-  .glass-tab:hover {
-    color: hsl(var(--foreground));
-    background-color: rgba(var(--glass-highlight-rgb), 0.1); /* Subtle hover background */
-  }
-  .glass-tab-active {
-    @apply text-primary-foreground; /* Text color for active tab */
-    /* Active tab has a stronger, "filled" glass appearance using primary color */
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.75), hsl(var(--primary) / 0.55));
-    border: 1px solid hsl(var(--primary) / 0.5); /* Optional: subtle border for active tab */
-    box-shadow: 0 3px 10px 0 hsl(var(--primary) / 0.3), /* Shadow for active tab */
-                inset 0 1px 1px 0 rgba(var(--glass-highlight-rgb), 0.4);
-  }
-  .glass-tab-active:hover { /* Keep active style on hover, maybe slightly brighter */
-     color: hsl(var(--primary-foreground));
-     background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--primary) / 0.6));
+
+  /* Mobile-specific fixes for glass interactions */
+  @media (max-width: 768px) {
+    .glass-button, .glass-button-primary, .glass-button-secondary {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      z-index: 10;
+    }
+
+    .glass-button::before, .glass-button::after,
+    .glass-button-primary::before, .glass-button-primary::after,
+    .glass-button-secondary::before, .glass-button-secondary::after {
+      pointer-events: none;
+    }
+
+    .glass-card {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
   }
 }

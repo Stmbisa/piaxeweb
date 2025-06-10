@@ -138,6 +138,8 @@ export function CampaignManager() {
   const totalDelivered = campaigns.reduce((sum, c) => sum + c.metrics.delivered_count, 0)
   const totalOpened = campaigns.reduce((sum, c) => sum + c.metrics.opened_count, 0)
   const totalConversions = campaigns.reduce((sum, c) => sum + c.metrics.conversion_count, 0)
+  const totalSpent = campaigns.reduce((sum, c) => sum + (c.metrics.sent_count * 50), 0) // Estimated cost
+  const totalReach = totalSent // Using sent count as reach
 
   return (
     <div className="space-y-6">
@@ -323,11 +325,11 @@ export function CampaignManager() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold text-lg text-green-900">{campaign.name}</h3>
-                        <p className="text-sm text-green-700 mb-2">{campaign.description}</p>
+                        <p className="text-sm text-green-700 mb-2">{campaign.content.message}</p>
                         <div className="flex items-center gap-4 text-sm text-green-600">
-                          <span>{campaign.reach} people reached</span>
-                          <span>{campaign.conversions} conversions</span>
-                          <span>UGX {campaign.spent.toLocaleString()} spent</span>
+                          <span>{campaign.metrics.sent_count} people reached</span>
+                          <span>{campaign.metrics.conversion_count} conversions</span>
+                          <span>UGX {Math.round(campaign.metrics.sent_count * 50).toLocaleString()} spent</span>
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -348,16 +350,16 @@ export function CampaignManager() {
         <TabsContent value="scheduled" className="space-y-4">
           <div className="grid gap-4">
             {campaigns
-              .filter(campaign => campaign.status === 'scheduled')
+              .filter(campaign => campaign.status === 'draft' || campaign.status === 'paused')
               .map((campaign) => (
                 <Card key={campaign.id} className="border-blue-200 bg-blue-50/50">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold text-lg text-blue-900">{campaign.name}</h3>
-                        <p className="text-sm text-blue-700 mb-2">{campaign.description}</p>
+                        <p className="text-sm text-blue-700 mb-2">{campaign.content.message}</p>
                         <p className="text-sm text-blue-600">
-                          Starts: {campaign.startDate} | Budget: UGX {campaign.budget.toLocaleString()}
+                          Created: {new Date(campaign.created_at).toLocaleDateString()} | Messages: {campaign.metrics.sent_count}
                         </p>
                       </div>
                       <div className="flex gap-2">
@@ -393,9 +395,9 @@ export function CampaignManager() {
                         <p className="text-sm text-muted-foreground">{campaign.type}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">{campaign.conversions} conversions</p>
+                        <p className="font-semibold">{campaign.metrics.conversion_count} conversions</p>
                         <p className="text-sm text-muted-foreground">
-                          {campaign.reach > 0 ? ((campaign.conversions / campaign.reach) * 100).toFixed(1) : 0}% conversion rate
+                          {campaign.metrics.sent_count > 0 ? ((campaign.metrics.conversion_count / campaign.metrics.sent_count) * 100).toFixed(1) : 0}% conversion rate
                         </p>
                       </div>
                     </div>

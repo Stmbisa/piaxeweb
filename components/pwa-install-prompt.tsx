@@ -100,7 +100,7 @@ export function PWAInstallPrompt() {
                         <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-sm mb-1">Install Piaxe App</h3>
                             <p className="text-xs opacity-90 mb-3 leading-relaxed">
-                                Get instant access to secure payments, escrow protection, and business tools.
+                                Get access to secure payments, escrow protection, and business tools.
                                 Works offline and loads faster!
                             </p>
                             <div className="flex gap-2">

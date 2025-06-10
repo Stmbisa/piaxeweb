@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth/context"
+import { QueryProvider } from "@/lib/providers/query-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
@@ -165,14 +166,16 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-              <PWAInstallPrompt />
-            </div>
+            <QueryProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+                <PWAInstallPrompt />
+              </div>
+            </QueryProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

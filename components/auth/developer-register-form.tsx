@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -97,63 +96,70 @@ export function DeveloperRegisterForm() {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white">
-                <Card className="w-full max-w-md mx-4">
-                    <CardHeader className="text-center">
-                        <Code className="w-12 h-12 mx-auto text-purple-600 mb-4" />
-                        <CardTitle>Authentication Required</CardTitle>
-                        <CardDescription>
+            <div className="min-h-screen flex items-center justify-center liquid-glass-bg">
+                <div className="glass-card w-full max-w-md mx-4 animate-glass-appear">
+                    <div className="text-center space-y-4 p-8">
+                        <Code className="w-12 h-12 mx-auto text-primary mb-4" />
+                        <h1 className="text-xl font-bold text-foreground">Authentication Required</h1>
+                        <p className="text-muted-foreground">
                             You need to be logged in to create a developer account.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Link href="/auth/login" passHref legacyBehavior>
-                            <Button asChild className="w-full"><a href="/auth/login">Login to Continue</a></Button>
-                        </Link>
-                        <div className="text-center">
-                            <span className="text-sm text-gray-600">
-                                Don't have an account?{" "}
-                                <Link href="/auth/register" className="text-purple-600 hover:underline">
-                                    Sign up
-                                </Link>
-                            </span>
+                        </p>
+                        <div className="space-y-4 pt-4">
+                            <Link href="/auth/login">
+                                <button className="glass-button-primary w-full px-6 py-3">
+                                    Login to Continue
+                                </button>
+                            </Link>
+                            <div className="text-center">
+                                <span className="text-sm text-muted-foreground">
+                                    Don't have an account?{" "}
+                                    <Link href="/auth/register" className="text-primary hover:underline">
+                                        Sign up
+                                    </Link>
+                                </span>
+                            </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         )
     }
 
     if (currentSuccess && !isDeveloper) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white">
-                <Card className="w-full max-w-md mx-4">
-                    <CardHeader className="text-center">
+            <div className="min-h-screen flex items-center justify-center liquid-glass-bg">
+                <div className="glass-card w-full max-w-md mx-4 animate-glass-appear">
+                    <div className="text-center space-y-4 p-8">
                         <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
-                        <CardTitle className="text-green-600">Developer Account Created!</CardTitle>
-                        <CardDescription>
+                        <h1 className="text-xl font-bold text-green-600">Developer Account Created!</h1>
+                        <p className="text-muted-foreground">
                             {currentSuccess}
-                        </CardDescription>
-                    </CardHeader>
-                </Card>
+                        </p>
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white p-4">
-            <Card className="w-full max-w-2xl">
-                <CardHeader className="text-center">
-                    <Briefcase className="w-16 h-16 mx-auto text-purple-600 mb-4" />
-                    <CardTitle className="text-2xl font-bold">Register Your Business</CardTitle>
-                    <CardDescription>
+        <div className="min-h-screen flex items-center justify-center liquid-glass-bg p-4">
+            <div className="glass-card-enhanced w-full max-w-2xl animate-glass-appear">
+                <div className="text-center space-y-4 mb-8">
+                    <Briefcase className="w-16 h-16 mx-auto text-primary mb-4" />
+                    <h1 className="text-2xl font-bold text-foreground">Register Your Business</h1>
+                    <p className="text-muted-foreground">
                         Provide your business details to become a Piaxe Developer and access our APIs.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+                    </p>
+                </div>
+                <div className="space-y-6">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {currentError && (
-                            <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                            <div className="glass-card flex items-center space-x-2 text-red-400 p-4"
+                                style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '12px'
+                                }}>
                                 <AlertCircle className="w-5 h-5" />
                                 <span className="text-sm">{currentError}</span>
                             </div>
@@ -162,12 +168,21 @@ export function DeveloperRegisterForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="businessName">Business Name *</Label>
-                                <Input id="businessName" name="business_name" type="text" placeholder="Your Company LLC" value={businessName} onChange={(e) => setBusinessName(e.target.value)} required />
+                                <Input
+                                    id="businessName"
+                                    name="business_name"
+                                    type="text"
+                                    placeholder="Your Company LLC"
+                                    value={businessName}
+                                    onChange={(e) => setBusinessName(e.target.value)}
+                                    required
+                                    className="glass-input"
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="businessType">Business Type *</Label>
                                 <Select value={businessType} onValueChange={setBusinessType}>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="glass-input">
                                         <SelectValue placeholder="Select business type" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -186,41 +201,81 @@ export function DeveloperRegisterForm() {
 
                         <div className="space-y-2">
                             <Label htmlFor="email">Business Email *</Label>
-                            <Input id="email" name="email" type="email" placeholder="contact@yourcompany.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="contact@yourcompany.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="glass-input"
+                            />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="phone">Business Phone *</Label>
-                            <Input id="phone" name="phone" type="tel" placeholder="+1 (555) 123-4567" value={phone} onChange={(e) => setPhoneState(e.target.value)} required />
+                            <Input
+                                id="phone"
+                                name="phone"
+                                type="tel"
+                                placeholder="+1 (555) 123-4567"
+                                value={phone}
+                                onChange={(e) => setPhoneState(e.target.value)}
+                                required
+                                className="glass-input"
+                            />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="address">Business Address *</Label>
-                            <Input id="address" name="address" type="text" placeholder="123 Main St, Anytown, USA" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                            <Input
+                                id="address"
+                                name="address"
+                                type="text"
+                                placeholder="123 Main St, Anytown, USA"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                required
+                                className="glass-input"
+                            />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="website">Website URL *</Label>
-                            <Input id="website" name="website" type="url" placeholder="https://yourcompany.com" value={website} onChange={(e) => setWebsite(e.target.value)} required />
+                            <Input
+                                id="website"
+                                name="website"
+                                type="url"
+                                placeholder="https://yourcompany.com"
+                                value={website}
+                                onChange={(e) => setWebsite(e.target.value)}
+                                required
+                                className="glass-input"
+                            />
                         </div>
 
-                        <Separator className="my-6" />
+                        <div className="glass-separator my-6" />
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <button
+                            type="submit"
+                            className="glass-button-primary w-full px-6 py-3"
+                            disabled={isLoading}
+                        >
                             {isLoading ? "Creating Developer Account..." : "Create Developer Account"}
-                        </Button>
+                        </button>
 
-                        <div className="text-center">
-                            <span className="text-sm text-gray-600">
+                        <div className="text-center mt-6">
+                            <span className="text-sm text-muted-foreground">
                                 Looking to sell products instead?{" "}
-                                <Link href="/auth/business-register" className="text-purple-600 hover:underline">
+                                <Link href="/auth/business-register" className="text-primary hover:underline">
                                     Create a business account
                                 </Link>
                             </span>
                         </div>
                     </form>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     )
 }

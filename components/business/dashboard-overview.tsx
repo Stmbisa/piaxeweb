@@ -451,14 +451,14 @@ export function BusinessDashboardOverview() {
                                 <div key={store.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                                     <div className="flex items-center justify-between mb-3">
                                         <h4 className="font-semibold">{store.name}</h4>
-                                        <Badge className={store.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
-                                            {store.status}
+                                        <Badge className="bg-green-100 text-green-700">
+                                            Active
                                         </Badge>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-2">{store.description}</p>
                                     <p className="text-xs text-muted-foreground mb-3">{store.address}</p>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">{store.settings.currency}</span>
+                                        <span className="text-sm font-medium">UGX</span>
                                         <Button variant="ghost" size="sm">
                                             <ArrowUpRight className="w-4 h-4" />
                                         </Button>

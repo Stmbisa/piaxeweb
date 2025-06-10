@@ -121,7 +121,7 @@ export default withPWA({
       }
     },
     {
-      urlPattern: /^https:\/\/.*/i,
+      urlPattern: /^https:\/\/(?!api\.piaxe\.app|piaxe\.jettts\.com).*/i,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'https-calls',

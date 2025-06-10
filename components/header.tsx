@@ -220,7 +220,7 @@ export function Header() {
             >
               API
             </Link>
-            <Link href="/#about" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
+            <Link href="//about" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
               About
             </Link>
             <div className="flex flex-col gap-2 pt-2">

@@ -39,6 +39,7 @@ export interface User {
     business_email: string
     business_address: string
     status: 'active' | 'inactive' | 'pending'
+    setup_complete?: boolean
   }
 }
 

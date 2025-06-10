@@ -5,7 +5,6 @@ import { useAuth } from '@/lib/auth/context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Building2 } from 'lucide-react'
@@ -85,20 +84,25 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
     }
 
     return (
-        <Card className="w-full max-w-md mx-auto">
-            <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold text-center">Create account</CardTitle>
-                <CardDescription className="text-center">
-                    Join Piaxe to start making secure payments
-                </CardDescription>
-            </CardHeader>
+        <div className="glass-card w-full max-w-md mx-auto animate-glass-appear">
+            <div className="space-y-6 p-8">
+                <div className="text-center space-y-2">
+                    <h1 className="text-2xl font-bold text-foreground">Create account</h1>
+                    <p className="text-muted-foreground">
+                        Join Piaxe to start making secure payments
+                    </p>
+                </div>
 
-            <form onSubmit={handleSubmit}>
-                <CardContent className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
-                        <Alert variant="destructive">
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
+                        <div className="glass-card flex items-center text-red-400 p-4"
+                            style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '12px'
+                            }}>
+                            <span className="text-sm">{error}</span>
+                        </div>
                     )}
 
                     {/* Account Type Selection */}
@@ -138,6 +142,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 onChange={(e) => handleInputChange('firstName', e.target.value)}
                                 required
                                 disabled={isLoading}
+                                className="glass-input"
                             />
                         </div>
                         <div className="space-y-2">
@@ -150,6 +155,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 onChange={(e) => handleInputChange('lastName', e.target.value)}
                                 required
                                 disabled={isLoading}
+                                className="glass-input"
                             />
                         </div>
                     </div>
@@ -165,7 +171,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 placeholder="john@example.com"
                                 value={formData.email}
                                 onChange={(e) => handleInputChange('email', e.target.value)}
-                                className="pl-10"
+                                className="glass-input pl-10"
                                 required
                                 disabled={isLoading}
                             />
@@ -183,7 +189,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 placeholder="+1 (555) 000-0000"
                                 value={formData.phone}
                                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                                className="pl-10"
+                                className="glass-input pl-10"
                                 disabled={isLoading}
                             />
                         </div>
@@ -200,20 +206,18 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 placeholder="Create a strong password"
                                 value={formData.password}
                                 onChange={(e) => handleInputChange('password', e.target.value)}
-                                className="pl-10 pr-10"
+                                className="glass-input pl-10 pr-10"
                                 required
                                 disabled={isLoading}
                             />
-                            <Button
+                            <button
                                 type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-1 top-1 h-8 w-8 p-0"
+                                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
                                 onClick={() => setShowPassword(!showPassword)}
                                 disabled={isLoading}
                             >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
+                            </button>
                         </div>
                     </div>
 
@@ -228,48 +232,44 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                                 placeholder="Confirm your password"
                                 value={formData.confirmPassword}
                                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                                className="pl-10 pr-10"
+                                className="glass-input pl-10 pr-10"
                                 required
                                 disabled={isLoading}
                             />
-                            <Button
+                            <button
                                 type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-1 top-1 h-8 w-8 p-0"
+                                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 disabled={isLoading}
                             >
                                 {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
+                            </button>
                         </div>
                     </div>
-                </CardContent>
 
-                <CardFooter className="flex flex-col space-y-4">
-                    <Button
+                    <button
                         type="submit"
-                        className="w-full"
+                        className="glass-button-primary w-full px-6 py-3 mt-6"
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <>
+                            <span className="flex items-center justify-center">
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Creating account...
-                            </>
+                            </span>
                         ) : (
                             'Create account'
                         )}
-                    </Button>
+                    </button>
 
-                    <div className="text-center text-sm text-muted-foreground">
+                    <div className="text-center text-sm text-muted-foreground mt-4">
                         Already have an account?{' '}
                         <Link href="/auth/login" className="text-primary hover:underline">
                             Sign in here
                         </Link>
                     </div>
-                </CardFooter>
-            </form>
-        </Card>
+                </form>
+            </div>
+        </div>
     )
 }

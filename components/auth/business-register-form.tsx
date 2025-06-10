@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -214,77 +213,85 @@ export function BusinessRegisterForm() {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white">
-                <Card className="w-full max-w-md mx-4">
-                    <CardHeader className="text-center">
-                        <Building2 className="w-12 h-12 mx-auto text-purple-600 mb-4" />
-                        <CardTitle>Authentication Required</CardTitle>
-                        <CardDescription>
+            <div className="min-h-screen flex items-center justify-center liquid-glass-bg">
+                <div className="glass-card w-full max-w-md mx-4 animate-glass-appear">
+                    <div className="text-center space-y-4 p-8">
+                        <Building2 className="w-12 h-12 mx-auto text-primary mb-4" />
+                        <h1 className="text-xl font-bold text-foreground">Authentication Required</h1>
+                        <p className="text-muted-foreground">
                             You need to be logged in to create a business account
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Link href="/auth/login">
-                            <Button className="w-full">
-                                Login to Continue
-                            </Button>
-                        </Link>
-                        <div className="text-center">
-                            <span className="text-sm text-gray-600">
-                                Don't have an account?{" "}
-                                <Link href="/auth/register" className="text-purple-600 hover:underline">
-                                    Sign up
-                                </Link>
-                            </span>
+                        </p>
+                        <div className="space-y-4 pt-4">
+                            <Link href="/auth/login">
+                                <button className="glass-button-primary w-full px-6 py-3">
+                                    Login to Continue
+                                </button>
+                            </Link>
+                            <div className="text-center">
+                                <span className="text-sm text-muted-foreground">
+                                    Don't have an account?{" "}
+                                    <Link href="/auth/register" className="text-primary hover:underline">
+                                        Sign up
+                                    </Link>
+                                </span>
+                            </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         )
     }
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white">
-                <Card className="w-full max-w-md mx-4">
-                    <CardHeader className="text-center">
+            <div className="min-h-screen flex items-center justify-center liquid-glass-bg">
+                <div className="glass-card w-full max-w-md mx-4 animate-glass-appear">
+                    <div className="text-center space-y-4 p-8">
                         <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-4" />
-                        <CardTitle className="text-green-600">Business Account Created!</CardTitle>
-                        <CardDescription>
+                        <h1 className="text-xl font-bold text-green-600">Business Account Created!</h1>
+                        <p className="text-muted-foreground">
                             Your business account has been successfully created with your main store.
                             You can now manage products, inventory, and orders from your dashboard.
-                        </CardDescription>
-                    </CardHeader>
-                </Card>
+                        </p>
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white p-4">
-            <Card className="w-full max-w-2xl">
-                <CardHeader className="text-center">
-                    <Building2 className="w-16 h-16 mx-auto text-purple-600 mb-4" />
-                    <CardTitle className="text-2xl font-bold">Create Business Account</CardTitle>
-                    <CardDescription>
+        <div className="min-h-screen flex items-center justify-center liquid-glass-bg p-4">
+            <div className="glass-card-enhanced w-full max-w-2xl animate-glass-appear">
+                <div className="text-center space-y-4 mb-8">
+                    <Building2 className="w-16 h-16 mx-auto text-primary mb-4" />
+                    <h1 className="text-2xl font-bold text-foreground">Create Business Account</h1>
+                    <p className="text-muted-foreground">
                         Set up your business to start selling products and managing inventory with Piaxe
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+                    </p>
+                </div>
+                <div className="space-y-6">
                     {/* Progress indicator */}
                     <div className="flex items-center justify-center mb-8">
                         <div className="flex items-center space-x-2">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 1
+                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                    : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 1
                             </div>
-                            <div className={`w-12 h-1 ${step >= 2 ? 'bg-purple-600' : 'bg-gray-200'}`} />
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'
+                            <div className={`w-12 h-1 rounded-full transition-all duration-300 ${step >= 2 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-white/20'
+                                }`} />
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 2
+                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                    : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 2
                             </div>
-                            <div className={`w-12 h-1 ${step >= 3 ? 'bg-purple-600' : 'bg-gray-200'}`} />
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 3 ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'
+                            <div className={`w-12 h-1 rounded-full transition-all duration-300 ${step >= 3 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-white/20'
+                                }`} />
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 3
+                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                    : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 3
                             </div>
@@ -293,7 +300,12 @@ export function BusinessRegisterForm() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
+                            <div className="glass-card flex items-center space-x-2 text-red-400 p-4"
+                                style={{
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    borderRadius: '12px'
+                                }}>
                                 <AlertCircle className="w-5 h-5" />
                                 <span className="text-sm">{error}</span>
                             </div>
@@ -301,7 +313,7 @@ export function BusinessRegisterForm() {
 
                         {step === 1 && (
                             <div className="space-y-4">
-                                <div className="flex items-center space-x-2 text-purple-600 mb-4">
+                                <div className="flex items-center space-x-2 text-primary mb-4">
                                     <Building2 className="w-5 h-5" />
                                     <h3 className="font-semibold">Business Information</h3>
                                 </div>
@@ -316,14 +328,14 @@ export function BusinessRegisterForm() {
                                         value={formData.business_name}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full"
+                                        className="glass-input w-full"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="business_type">Business Type *</Label>
                                     <Select value={formData.business_type} onValueChange={(value) => handleSelectChange('business_type', value)}>
-                                        <SelectTrigger>
+                                        <SelectTrigger className="glass-input">
                                             <SelectValue placeholder="Select your business type" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -345,9 +357,14 @@ export function BusinessRegisterForm() {
                                     </Select>
                                 </div>
 
-                                <div className="bg-purple-50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-purple-900 mb-2">What you'll get:</h4>
-                                    <ul className="text-sm text-purple-700 space-y-1">
+                                <div className="glass-card p-4"
+                                    style={{
+                                        background: 'rgba(99, 102, 241, 0.1)',
+                                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                                        borderRadius: '12px'
+                                    }}>
+                                    <h4 className="font-semibold text-primary mb-2">What you'll get:</h4>
+                                    <ul className="text-sm text-muted-foreground space-y-1">
                                         <li>• Complete inventory management system</li>
                                         <li>• Customer relationship management (CRM)</li>
                                         <li>• Sales analytics and reporting</li>
@@ -356,19 +373,19 @@ export function BusinessRegisterForm() {
                                     </ul>
                                 </div>
 
-                                <Button
+                                <button
                                     type="button"
                                     onClick={handleNext}
-                                    className="w-full bg-purple-600 hover:bg-purple-700"
+                                    className="glass-button-primary w-full px-6 py-3"
                                 >
                                     Continue
-                                </Button>
+                                </button>
                             </div>
                         )}
 
                         {step === 2 && (
                             <div className="space-y-4">
-                                <div className="flex items-center space-x-2 text-purple-600 mb-4">
+                                <div className="flex items-center space-x-2 text-primary mb-4">
                                     <Mail className="w-5 h-5" />
                                     <h3 className="font-semibold">Contact Information</h3>
                                 </div>
@@ -384,6 +401,7 @@ export function BusinessRegisterForm() {
                                             value={formData.business_email}
                                             onChange={handleInputChange}
                                             required
+                                            className="glass-input"
                                         />
                                     </div>
 
@@ -397,6 +415,7 @@ export function BusinessRegisterForm() {
                                             value={formData.business_phone}
                                             onChange={handleInputChange}
                                             required
+                                            className="glass-input"
                                         />
                                     </div>
                                 </div>
@@ -411,7 +430,7 @@ export function BusinessRegisterForm() {
                                         onChange={handleInputChange}
                                         required
                                         rows={3}
-                                        className="w-full"
+                                        className="glass-input w-full"
                                     />
                                 </div>
 
@@ -424,25 +443,25 @@ export function BusinessRegisterForm() {
                                         placeholder="https://yourwebsite.com"
                                         value={formData.website || ""}
                                         onChange={handleInputChange}
+                                        className="glass-input"
                                     />
                                 </div>
 
                                 <div className="flex space-x-4">
-                                    <Button
+                                    <button
                                         type="button"
                                         onClick={handleBack}
-                                        variant="outline"
-                                        className="w-full"
+                                        className="glass-button-secondary w-full px-6 py-3"
                                     >
                                         Back
-                                    </Button>
-                                    <Button
+                                    </button>
+                                    <button
                                         type="button"
                                         onClick={handleNext}
-                                        className="w-full bg-purple-600 hover:bg-purple-700"
+                                        className="glass-button-primary w-full px-6 py-3"
                                     >
                                         Continue
-                                    </Button>
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -547,8 +566,9 @@ export function BusinessRegisterForm() {
                                                     setFormData(prev => ({
                                                         ...prev,
                                                         notification_preferences: {
-                                                            ...prev.notification_preferences,
-                                                            email_notifications: !!checked
+                                                            email_notifications: !!checked,
+                                                            sms_notifications: prev.notification_preferences?.sms_notifications || false,
+                                                            marketing_notifications: prev.notification_preferences?.marketing_notifications || false
                                                         }
                                                     }))
                                                 }}
@@ -565,8 +585,9 @@ export function BusinessRegisterForm() {
                                                     setFormData(prev => ({
                                                         ...prev,
                                                         notification_preferences: {
-                                                            ...prev.notification_preferences,
-                                                            sms_notifications: !!checked
+                                                            email_notifications: prev.notification_preferences?.email_notifications || false,
+                                                            sms_notifications: !!checked,
+                                                            marketing_notifications: prev.notification_preferences?.marketing_notifications || false
                                                         }
                                                     }))
                                                 }}
@@ -583,7 +604,8 @@ export function BusinessRegisterForm() {
                                                     setFormData(prev => ({
                                                         ...prev,
                                                         notification_preferences: {
-                                                            ...prev.notification_preferences,
+                                                            email_notifications: prev.notification_preferences?.email_notifications || false,
+                                                            sms_notifications: prev.notification_preferences?.sms_notifications || false,
                                                             marketing_notifications: !!checked
                                                         }
                                                     }))
@@ -630,17 +652,17 @@ export function BusinessRegisterForm() {
                             </div>
                         )}
 
-                        <div className="text-center">
-                            <span className="text-sm text-gray-600">
+                        <div className="text-center mt-6">
+                            <span className="text-sm text-muted-foreground">
                                 Need API access instead?{" "}
-                                <Link href="/auth/developer-register" className="text-purple-600 hover:underline">
+                                <Link href="/auth/developer-register" className="text-primary hover:underline">
                                     Create a developer account
                                 </Link>
                             </span>
                         </div>
                     </form>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     )
 }

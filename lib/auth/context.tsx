@@ -79,6 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
             localStorage.setItem(TOKEN_KEY, authData.access_token)
             localStorage.setItem(REFRESH_TOKEN_KEY, authData.refresh_token)
+
+            // Also set cookies for middleware
+            document.cookie = `piaxe_auth_token=${authData.access_token}; path=/; max-age=${30 * 24 * 60 * 60}` // 30 days
+            document.cookie = `piaxe_refresh_token=${authData.refresh_token}; path=/; max-age=${30 * 24 * 60 * 60}`
         }
         setToken(authData.access_token)
 
@@ -101,6 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem(TOKEN_KEY)
             localStorage.removeItem(REFRESH_TOKEN_KEY)
             localStorage.removeItem(USER_KEY)
+
+            // Also clear cookies
+            document.cookie = 'piaxe_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            document.cookie = 'piaxe_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         }
         setToken(null)
         setUser(null)

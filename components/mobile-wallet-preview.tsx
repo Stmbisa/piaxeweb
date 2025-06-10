@@ -7,9 +7,12 @@ import Image from "next/image"
 
 export function MobileWalletPreview() {
   return (
-    <section className="py-6 sm:py-8 bg-gradient-to-br from-background via-purple-50/20 to-blue-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-blue-950/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-6 sm:mb-8">
+    <section className="py-6 sm:py-8 bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-glass-float"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-secondary/5 rounded-full blur-3xl animate-glass-float-delayed"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-6 sm:mb-8 animate-glass-appear">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 sm:mb-4 text-foreground">
             Experience Piaxe on Mobile
           </h2>
@@ -99,24 +102,24 @@ export function MobileWalletPreview() {
 
         {/* Additional features section */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div className="text-center p-6 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="w-12 h-12 bg-primary/10 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <div className="glass-card text-center animate-glass-appear" style={{ animationDelay: "0.1s" }}>
+            <div className="glass-icon-button w-12 h-12 mx-auto mb-4">
               <Shield className="w-6 h-6 text-primary" />
             </div>
             <h3 className="font-semibold mb-2 text-foreground">Secure Escrow</h3>
             <p className="text-sm text-muted-foreground">Protected payments until terms are fulfilled</p>
           </div>
 
-          <div className="text-center p-6 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="w-12 h-12 bg-secondary/10 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <div className="glass-card text-center animate-glass-appear" style={{ animationDelay: "0.2s" }}>
+            <div className="glass-icon-button w-12 h-12 mx-auto mb-4">
               <Building2 className="w-6 h-6 text-secondary" />
             </div>
             <h3 className="font-semibold mb-2 text-foreground">Business Tools</h3>
             <p className="text-sm text-muted-foreground">Complete CRM and inventory management</p>
           </div>
 
-          <div className="text-center p-6 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50">
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <div className="glass-card text-center animate-glass-appear" style={{ animationDelay: "0.3s" }}>
+            <div className="glass-icon-button w-12 h-12 mx-auto mb-4">
               <CreditCard className="w-6 h-6 text-green-500" />
             </div>
             <h3 className="font-semibold mb-2 text-foreground">Multi-channel</h3>

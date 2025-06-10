@@ -7,79 +7,94 @@ import { BarcodePaymentDemo } from "@/components/barcode-payment-demo"
 
 export default function Home() {
   return (
-    <div className="bg-background text-foreground">
-      <HeroSection />
-      <MobileWalletPreview />
-      <BarcodePaymentDemo />
-      <SecurityFeatures />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/50 relative overflow-hidden">
+      {/* Beautiful liquid glass background orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-glass-float"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-glass-float-delayed"></div>
+      <div className="absolute top-3/4 left-1/3 w-64 h-64 bg-accent/10 rounded-full blur-2xl animate-glass-float opacity-60"></div>
 
-      <section className="container mx-auto px-4 py-4 sm:py-6 space-y-8">
-        <div className="grid gap-6 sm:gap-8 lg:gap-10">
-          <TargetSection
-            id="sme"
-            title="For SMEs and Brick & Mortar Businesses"
-            description="Our payment tools can help your business thrive. Accept payments, manage inventory, customer relationships, and soon HR - all with one setup."
-            features={[
-              "Accept digital payments from mobile money wallets, banks, and cards",
-              "Sell online on our ecommerce platform and on social media",
-              "Manage inventory and customer relationships (CRM) for free",
-              "Accept payments on social media as easy as it sounds",
-              "POS-free payment collection in physical stores using just mobile phones",
-            ]}
-            buttonText="Start Selling"
-            buttonLink="#business"
-            imageSrc="/images/business/sme-business.png"
-            imageAlt="SME business owner using Piaxe dashboard"
-          />
+      <div className="relative z-10">
+        <HeroSection />
+        <MobileWalletPreview />
+        <BarcodePaymentDemo />
+        <SecurityFeatures />
 
-          <TargetSection
-            id="consumers"
-            title="For Consumers"
-            description="Make secure escrow payments, manage your finances, and participate in social saving groups with complete peace of mind."
-            features={[
-              "Escrow payments for secure transactions - never be scammed again",
-              "Track and manage your payments in real-time",
-              "Join social saving groups with friends in protected environments",
-              "Send and receive money securely across platforms",
-              "Transfer money to non-users through escrow or normal transfers",
-            ]}
-            buttonText="Download App"
-            buttonLink="#download"
-            imageSrc="/images/business/consumer.png"
-            imageAlt="Consumer using Piaxe mobile app for secure payments"
-            imageRight
-          />
+        <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
+          <div className="grid gap-8 lg:gap-12">
+            <div className="glass-card animate-glass-appear" style={{ animationDelay: "0.1s" }}>
+              <TargetSection
+                id="sme"
+                title="For SMEs and Brick & Mortar Businesses"
+                description="Our payment tools can help your business thrive. Accept payments, manage inventory, customer relationships, and soon HR - all with one setup."
+                features={[
+                  "Accept digital payments from mobile money wallets, banks, and cards",
+                  "Sell online on our ecommerce platform and on social media",
+                  "Manage inventory and customer relationships (CRM) for free",
+                  "Accept payments on social media as easy as it sounds",
+                  "POS-free payment collection in physical stores using just mobile phones",
+                ]}
+                buttonText="Start Selling"
+                buttonLink="#business"
+                imageSrc="/images/business/sme-business.png"
+                imageAlt="SME business owner using Piaxe dashboard"
+              />
+            </div>
 
-          <TargetSection
-            id="developers"
-            title="For Online Businesses & Developers"
-            description="Integrate our robust API to process payments, disburse funds, and offer escrow services to your users."
-            features={[
-              "RESTful API for accepting and disbursing payments",
-              "Escrow payment API with customizable terms for secure transactions",
-              "Multi-channel payment collection (cards, mobile money, banks)",
-              "Payment requests that can accept from anyone or specific users",
-              "Webhook support for real-time notifications and comprehensive SDKs",
-            ]}
-            buttons={[
-              {
-                text: "Explore API",
-                link: "https://piaxe.jettts.com/api/docs/",
-                external: true
-              },
-              {
-                text: "Register as Developer",
-                link: "/auth/developer-register",
-                variant: "outline"
-              }
-            ]}
-            imageSrc="/images/business/developer-api.png"
-            imageAlt="Developer integrating Piaxe API"
-          />
+            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.2s" }}>
+              <TargetSection
+                id="consumers"
+                title="For Consumers"
+                description="Make secure escrow payments, manage your finances, and participate in social saving groups with complete peace of mind."
+                features={[
+                  "Escrow payments for secure transactions - never be scammed again",
+                  "Track and manage your payments in real-time",
+                  "Join social saving groups with friends in protected environments",
+                  "Send and receive money securely across platforms",
+                  "Transfer money to non-users through escrow or normal transfers",
+                ]}
+                buttonText="Download App"
+                buttonLink="#download"
+                imageSrc="/images/business/consumer.png"
+                imageAlt="Consumer using Piaxe mobile app for secure payments"
+                imageRight
+              />
+            </div>
+
+            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "0.3s" }}>
+              <TargetSection
+                id="developers"
+                title="For Online Businesses & Developers"
+                description="Integrate our robust API to process payments, disburse funds, and offer escrow services to your users."
+                features={[
+                  "RESTful API for accepting and disbursing payments",
+                  "Escrow payment API with customizable terms for secure transactions",
+                  "Multi-channel payment collection (cards, mobile money, banks)",
+                  "Payment requests that can accept from anyone or specific users",
+                  "Webhook support for real-time notifications and comprehensive SDKs",
+                ]}
+                buttons={[
+                  {
+                    text: "Explore API",
+                    link: "https://piaxe.jettts.com/api/docs/",
+                    external: true
+                  },
+                  {
+                    text: "Register as Developer",
+                    link: "/auth/developer-register",
+                    variant: "outline"
+                  }
+                ]}
+                imageSrc="/images/business/developer-api.png"
+                imageAlt="Developer integrating Piaxe API"
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className="glass-card-large animate-glass-appear" style={{ animationDelay: "0.4s" }}>
+          <Testimonials />
         </div>
-      </section>
-
-      <Testimonials />
+      </div>
     </div>
   )
 }

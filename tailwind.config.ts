@@ -53,7 +53,6 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Piaxe brand colors
         piaxe: {
           primary: "#06B6D4",
           secondary: "#4338CA",
@@ -86,7 +85,6 @@ const config = {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(0)" },
         },
-        // Glass-specific animations
         "glass-appear": {
           from: {
             opacity: "0",
@@ -133,7 +131,6 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
-        // Glass animations
         "glass-appear": "glass-appear 0.8s ease-out forwards",
         "glass-float": "glass-float 6s ease-in-out infinite",
         "glass-float-delayed": "glass-float-delayed 8s ease-in-out infinite",
