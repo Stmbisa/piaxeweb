@@ -148,7 +148,7 @@ export default function RootLayout({
                   "description": "Secure payment holding until transaction terms are met"
                 },
                 {
-                  "@type": "Offer", 
+                  "@type": "Offer",
                   "name": "POS-free Payments",
                   "description": "Accept payments in physical stores using only mobile phones"
                 },
