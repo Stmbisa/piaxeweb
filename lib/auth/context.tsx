@@ -41,6 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Load auth data from localStorage on mount
     useEffect(() => {
         const loadStoredAuth = async () => {
+            // Skip if we're on the server
+            if (typeof window === 'undefined') {
+                setIsLoading(false)
+                return
+            }
+
             try {
                 const storedToken = localStorage.getItem(TOKEN_KEY)
                 const storedUser = localStorage.getItem(USER_KEY)
@@ -70,14 +76,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const storeAuth = async (authData: AuthResponse) => {
-        localStorage.setItem(TOKEN_KEY, authData.access_token)
-        localStorage.setItem(REFRESH_TOKEN_KEY, authData.refresh_token)
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(TOKEN_KEY, authData.access_token)
+            localStorage.setItem(REFRESH_TOKEN_KEY, authData.refresh_token)
+        }
         setToken(authData.access_token)
 
         // Fetch user profile after authentication
         try {
             const profile = await authAPI.getProfile(authData.access_token)
-            localStorage.setItem(USER_KEY, JSON.stringify(profile))
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(USER_KEY, JSON.stringify(profile))
+            }
             setUser(profile)
         } catch (error) {
             console.error('Failed to fetch user profile:', error)
@@ -87,9 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const clearAuth = () => {
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(REFRESH_TOKEN_KEY)
-        localStorage.removeItem(USER_KEY)
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem(TOKEN_KEY)
+            localStorage.removeItem(REFRESH_TOKEN_KEY)
+            localStorage.removeItem(USER_KEY)
+        }
         setToken(null)
         setUser(null)
     }
@@ -134,6 +146,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const refreshAuth = async () => {
         try {
+            if (typeof window === 'undefined') {
+                throw new Error('Cannot refresh auth on server')
+            }
+
             const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
             if (!refreshToken) {
                 throw new Error('No refresh token available')
@@ -192,7 +208,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const profile = await authAPI.getProfile(token)
             setUser(profile)
-            localStorage.setItem(USER_KEY, JSON.stringify(profile))
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(USER_KEY, JSON.stringify(profile))
+            }
         } catch (error) {
             console.error('Failed to refresh profile status:', error)
             throw error
@@ -200,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const checkStores = async (): Promise<boolean> => {
-        if (!token) return false
+        if (!token || typeof window === 'undefined') return false
 
         try {
             const { shoppingInventoryAPI } = await import('../api/shopping-inventory')

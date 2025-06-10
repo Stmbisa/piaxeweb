@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth/context"
 import { shoppingInventoryAPI, type Store } from "@/lib/api/shopping-inventory"
@@ -22,7 +22,7 @@ const DASHBOARD_SECTIONS = [
     { id: 'settings', label: 'Settings', icon: 'Settings' },
 ]
 
-export default function StoreDashboard() {
+function StoreDashboardContent() {
     const [currentStore, setCurrentStore] = useState<Store | null>(null)
     const [activeSection, setActiveSection] = useState('overview')
     const [loading, setLoading] = useState(true)
@@ -183,5 +183,20 @@ function StoreOverview({ store }: { store: Store }) {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function StoreDashboard() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center space-y-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-muted-foreground">Loading store dashboard...</p>
+                </div>
+            </div>
+        }>
+            <StoreDashboardContent />
+        </Suspense>
     )
 }
