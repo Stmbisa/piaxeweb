@@ -15,13 +15,13 @@ export function HeroSection() {
               <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
               High-Class bank experiences for everyone
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               The payment system optimized for{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary animate-glass-shimmer">
                 low trust environments
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce
               all in one secure platform.
             </p>
