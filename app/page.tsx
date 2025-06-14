@@ -21,7 +21,7 @@ export default function Home() {
 
         <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
           <div className="grid gap-8 lg:gap-12">
-            <div className="glass-card animate-glass-appear" style={{ animationDelay: "0.1s" }}>
+            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.1s" }}>
               <TargetSection
                 id="sme"
                 title="For SMEs and Brick & Mortar Businesses"
@@ -40,7 +40,27 @@ export default function Home() {
               />
             </div>
 
-            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.2s" }}>
+            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "0.2s" }}>
+              <TargetSection
+                id="social-commerce"
+                title="Social Commerce - Sell Anywhere, Anytime"
+                description="Turn your social media presence into a powerful sales channel. Set up once, sell everywhere - no coding, no API integration, just pure social selling magic."
+                features={[
+                  "Sell on WhatsApp, Instagram, Facebook, TikTok, and any social platform",
+                  "Share product links that work across all social media channels",
+                  "Secure payment collection with escrow protection for buyers",
+                  "No technical knowledge required - just create your store and start sharing",
+                  "Real-time inventory sync across all your social selling channels",
+                ]}
+                buttonText="Start Social Selling"
+                buttonLink="/business/onboard"
+                imageSrc="/images/business/consumer-app.png"
+                imageAlt="Social commerce seller sharing products on social media"
+                imageRight
+              />
+            </div>
+
+            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.3s" }}>
               <TargetSection
                 id="consumers"
                 title="For Consumers"
@@ -56,11 +76,10 @@ export default function Home() {
                 buttonLink="#download"
                 imageSrc="/images/business/consumer.png"
                 imageAlt="Consumer using Piaxe mobile app for secure payments"
-                imageRight
               />
             </div>
 
-            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "0.3s" }}>
+            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "0.4s" }}>
               <TargetSection
                 id="developers"
                 title="For Online Businesses & Developers"
@@ -86,12 +105,13 @@ export default function Home() {
                 ]}
                 imageSrc="/images/business/developer-api.png"
                 imageAlt="Developer integrating Piaxe API"
+                imageRight
               />
             </div>
           </div>
         </section>
 
-        <div className="glass-card-large animate-glass-appear" style={{ animationDelay: "0.4s" }}>
+        <div className="glass-card-large animate-glass-appear" style={{ animationDelay: "0.5s" }}>
           <Testimonials />
         </div>
       </div>

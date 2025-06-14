@@ -52,6 +52,13 @@ export function Header() {
               SMEs
             </Link>
             <Link
+              href="/#social-commerce"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Learn about social commerce with Piaxe"
+            >
+              Social Commerce
+            </Link>
+            <Link
               href="/#developers"
               className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Explore Piaxe API for developers"
@@ -214,13 +221,20 @@ export function Header() {
               SMEs
             </Link>
             <Link
+              href="/#social-commerce"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Social Commerce
+            </Link>
+            <Link
               href="/#developers"
               className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base"
               onClick={() => setIsMenuOpen(false)}
             >
               API
             </Link>
-            <Link href="//about" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/about" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
               About
             </Link>
             <div className="flex flex-col gap-2 pt-2">
