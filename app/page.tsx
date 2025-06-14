@@ -46,8 +46,9 @@ export default function Home() {
                 title="Social Commerce - Sell Anywhere, Anytime"
                 description="Turn your social media presence into a powerful sales channel. Set up once, sell everywhere - no coding, no API integration, just pure social selling magic."
                 features={[
-                  "Sell on WhatsApp, Instagram, Facebook, TikTok, and any social platform",
-                  "Share product links that work across all social media channels",
+                  "Sell on WhatsApp, Instagram, Facebook, TikTok, Jiji and any social platform",
+                  "Share product links or QR Codes that work across all social media channels",
+                  "Dont worry about logistics, we have partners that make that so easy, just list and rest",
                   "Secure payment collection with escrow protection for buyers",
                   "No technical knowledge required - just create your store and start sharing",
                   "Real-time inventory sync across all your social selling channels",
