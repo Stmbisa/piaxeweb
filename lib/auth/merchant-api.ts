@@ -1,6 +1,6 @@
 // Merchant authentication API functions
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.piaxe.com'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export interface MerchantRegistrationData {
   business_name: string;
@@ -12,8 +12,8 @@ export interface MerchantRegistrationData {
 }
 
 export interface MerchantLoginData {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 export interface MerchantProfile {
@@ -31,256 +31,287 @@ export interface MerchantProfile {
 }
 
 export interface ApiKeyResetData {
-  current_password: string
-  new_api_key?: string
+  current_password: string;
+  new_api_key?: string;
 }
 
 export interface ClientIdResetData {
-  current_password: string
+  current_password: string;
 }
 
 export interface WebhookData {
-  url: string
-  events: string[]
-  description?: string
+  url: string;
+  events: string[];
+  description?: string;
 }
 
 // Register new merchant
 export async function registerMerchant(data: MerchantRegistrationData) {
   const response = await fetch(`${API_BASE_URL}/users/merchants/register`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Registration failed')
+    const error = await response.json();
+    throw new Error(error.message || "Registration failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Login merchant
 export async function loginMerchant(data: MerchantLoginData) {
   const response = await fetch(`${API_BASE_URL}/users/merchants/login`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Login failed')
+    const error = await response.json();
+    throw new Error(error.message || "Login failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Get merchant profile
-export async function getMerchantProfile(token: string): Promise<MerchantProfile> {
+export async function getMerchantProfile(
+  token: string
+): Promise<MerchantProfile> {
   const response = await fetch(`${API_BASE_URL}/users/merchant/profile`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Failed to fetch profile')
+    const error = await response.json();
+    throw new Error(error.message || "Failed to fetch profile");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Add admin to merchant account
-export async function addMerchantAdmin(merchantId: string, adminData: any, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchants/${merchantId}/add_admin`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(adminData),
-  })
+export async function addMerchantAdmin(
+  merchantId: string,
+  adminData: any,
+  token: string
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchants/${merchantId}/add_admin`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(adminData),
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Failed to add admin')
+    const error = await response.json();
+    throw new Error(error.message || "Failed to add admin");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Request API key reset
 export async function requestApiKeyReset(data: ApiKeyResetData, token: string) {
   const response = await fetch(`${API_BASE_URL}/users/merchant/api-key/reset`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'API key reset failed')
+    const error = await response.json();
+    throw new Error(error.message || "API key reset failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Confirm API key reset
-export async function confirmApiKeyReset(confirmationCode: string, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchant/api-key/reset/confirm`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ confirmation_code: confirmationCode }),
-  })
+export async function confirmApiKeyReset(
+  confirmationCode: string,
+  token: string
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchant/api-key/reset/confirm`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ confirmation_code: confirmationCode }),
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'API key reset confirmation failed')
+    const error = await response.json();
+    throw new Error(error.message || "API key reset confirmation failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Reset client ID
 export async function resetClientId(data: ClientIdResetData, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchants/client-id/reset`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchants/client-id/reset`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Client ID reset failed')
+    const error = await response.json();
+    throw new Error(error.message || "Client ID reset failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Get client ID
 export async function getClientId(token: string) {
   const response = await fetch(`${API_BASE_URL}/users/merchants/client-id`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Failed to get client ID')
+    const error = await response.json();
+    throw new Error(error.message || "Failed to get client ID");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Create webhook
 export async function createWebhook(data: WebhookData, token: string) {
   const response = await fetch(`${API_BASE_URL}/users/webhooks`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Webhook creation failed')
+    const error = await response.json();
+    throw new Error(error.message || "Webhook creation failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // List webhooks
 export async function listWebhooks(token: string) {
   const response = await fetch(`${API_BASE_URL}/users/merchant/webhooks`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Failed to list webhooks')
+    const error = await response.json();
+    throw new Error(error.message || "Failed to list webhooks");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Update webhook
-export async function updateWebhook(webhookId: string, data: Partial<WebhookData>, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchant/webhooks/${webhookId}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
+export async function updateWebhook(
+  webhookId: string,
+  data: Partial<WebhookData>,
+  token: string
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchant/webhooks/${webhookId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Webhook update failed')
+    const error = await response.json();
+    throw new Error(error.message || "Webhook update failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Delete webhook
 export async function deleteWebhook(webhookId: string, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchant/webhooks/${webhookId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchant/webhooks/${webhookId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Webhook deletion failed')
+    const error = await response.json();
+    throw new Error(error.message || "Webhook deletion failed");
   }
 
-  return response.json()
+  return response.json();
 }
 
 // Verify merchant
 export async function verifyMerchant(merchantId: string, token: string) {
-  const response = await fetch(`${API_BASE_URL}/users/merchant/verify/${merchantId}`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
+  const response = await fetch(
+    `${API_BASE_URL}/users/merchant/verify/${merchantId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.message || 'Merchant verification failed')
+    const error = await response.json();
+    throw new Error(error.message || "Merchant verification failed");
   }
 
-  return response.json()
+  return response.json();
 }
