@@ -4,8 +4,7 @@ import { useAuth } from "@/lib/auth/context";
 import { BusinessProtectedRoute } from "@/components/auth/business-protected-route";
 import { BusinessDashboardOverview } from "@/components/business/dashboard-overview";
 import { BusinessSidebar } from "@/components/business/sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { PanelLeft } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Force dynamic rendering since this page requires authentication
 export const dynamic = "force-dynamic";
