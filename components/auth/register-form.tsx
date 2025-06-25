@@ -179,14 +179,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && error !== "Passwords do not match" && (
-            <div
-              className="glass-card flex items-center text-red-400 p-4"
-              style={{
-                background: "rgba(239, 68, 68, 0.1)",
-                border: "1px solid rgba(239, 68, 68, 0.3)",
-                borderRadius: "12px",
-              }}
-            >
+            <div className="glass-card flex items-center text-red-400 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
               <span className="text-sm">{error}</span>
             </div>
           )}

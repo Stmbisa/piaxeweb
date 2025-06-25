@@ -6,8 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { InternalLayout } from "@/components/internal-layout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -190,9 +189,9 @@ export default function RootLayout({
             <QueryProvider>
               <div className="min-h-screen flex flex-col">
                 <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <PWAInstallPrompt />
+                <main className="flex-1 pt-14 sm:pt-16">
+                  <InternalLayout>{children}</InternalLayout>
+                </main>
               </div>
             </QueryProvider>
           </AuthProvider>
