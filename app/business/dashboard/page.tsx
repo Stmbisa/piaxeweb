@@ -20,13 +20,6 @@ export default function BusinessDashboard() {
         <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30 flex">
           <BusinessSidebar />
           <main className="flex-1 overflow-auto p-4 md:p-6">
-            <div className="mb-4">
-              {/* Example Trigger: visible on all screens for demo, customize as needed */}
-              <SidebarTrigger className="p-2">
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Sidebar</span>
-              </SidebarTrigger>
-            </div>
             <BusinessDashboardOverview />
           </main>
         </div>
