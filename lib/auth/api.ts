@@ -3,9 +3,7 @@ import {
   MerchantProfile,
   registerMerchant,
 } from "./merchant-api";
-
-// Authentication API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { API_ENDPOINTS } from "../config/env";
 
 export interface User {
   id: string;
@@ -85,7 +83,7 @@ class AuthAPI {
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/token`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(credentials),
@@ -114,7 +112,7 @@ class AuthAPI {
         phone_number: data.phone,
         account_type: data.accountType === "individual" ? "user" : "merchant",
       };
-      const response = await fetch(`${API_BASE_URL}/users/signup`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.SIGNUP, {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -171,20 +169,17 @@ class AuthAPI {
   }
 
   async logout(token: string): Promise<void> {
-    try {
-      await fetch(`${API_BASE_URL}/users/logout`, {
-        method: "POST",
-        headers: this.getHeaders(token),
-      });
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Don't throw on logout errors
-    }
+    fetch(API_ENDPOINTS.AUTH.LOGOUT, {
+      method: "POST",
+      headers: this.getHeaders(token),
+    }).catch((error) => {
+      console.error("Logout request error:", error);
+    });
   }
 
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/refresh`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify({ refresh_token: refreshToken }),
@@ -203,7 +198,7 @@ class AuthAPI {
 
   async getProfile(token: string): Promise<User> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/me`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.ME, {
         method: "GET",
         headers: this.getHeaders(token),
       });
@@ -221,7 +216,7 @@ class AuthAPI {
 
   async verifyEmail(token: string, verificationCode: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/verify-email`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.VERIFY_OTP, {
         method: "POST",
         headers: this.getHeaders(token),
         body: JSON.stringify({ verificationCode }),
@@ -239,7 +234,7 @@ class AuthAPI {
 
   async requestPasswordReset(email: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET, {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify({ email }),
@@ -259,7 +254,7 @@ class AuthAPI {
   async resetDeveloperApiKey(token: string): Promise<{ request_id: string }> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/merchant/api-key/reset`,
+        `${API_ENDPOINTS.AUTH.ME}/merchant/api-key/reset`,
         {
           method: "POST",
           headers: this.getHeaders(token),
@@ -285,7 +280,7 @@ class AuthAPI {
   ): Promise<{ api_key: string }> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/merchant/api-key/confirm`,
+        `${API_ENDPOINTS.AUTH.ME}/merchant/api-key/confirm`,
         {
           method: "POST",
           headers: this.getHeaders(token),
@@ -314,7 +309,7 @@ class AuthAPI {
   ): Promise<{ client_id: string }> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/merchants/client-id/reset`,
+        `${API_ENDPOINTS.AUTH.ME}/merchants/client-id/reset`,
         {
           method: "POST",
           headers: this.getHeaders(token),
@@ -395,10 +390,13 @@ class AuthAPI {
 
   async getBusinessProfile(token: string): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/business/profile`, {
-        method: "GET",
-        headers: this.getHeaders(token),
-      });
+      const response = await fetch(
+        `${API_ENDPOINTS.AUTH.ME}/business/profile`,
+        {
+          method: "GET",
+          headers: this.getHeaders(token),
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -418,11 +416,14 @@ class AuthAPI {
     developerData: MerchantRegistrationData
   ): Promise<MerchantProfile> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/merchants/register`, {
-        method: "POST",
-        headers: this.getHeaders(token),
-        body: JSON.stringify(developerData),
-      });
+      const response = await fetch(
+        `${API_ENDPOINTS.AUTH.ME}/merchants/register`,
+        {
+          method: "POST",
+          headers: this.getHeaders(token),
+          body: JSON.stringify(developerData),
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -438,10 +439,13 @@ class AuthAPI {
 
   async getDeveloperProfile(token: string): Promise<MerchantProfile> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/merchant/profile`, {
-        method: "GET",
-        headers: this.getHeaders(token),
-      });
+      const response = await fetch(
+        `${API_ENDPOINTS.AUTH.ME}/merchant/profile`,
+        {
+          method: "GET",
+          headers: this.getHeaders(token),
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();

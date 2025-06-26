@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { useAuth } from "@/lib/auth/context"
-import { Menu, X, User, LogOut, Building2, Store } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useAuth } from "@/lib/auth/context";
+import { Menu, X, User, LogOut, Building2, Store } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,29 +14,47 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user, isAuthenticated, isDeveloper, isBusiness, logout } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, isDeveloper, isBusiness, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await logout()
+      await logout();
+      window.location.href = "/auth/login";
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 sm:h-16 items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2" aria-label="Piaxe Home">
-            <Image src="/images/logo.png" alt="Piaxe Logo" width={32} height={32} className="w-7 h-7 sm:w-8 sm:h-8" priority />
-            <span className="font-bold text-lg sm:text-xl text-primary">Piaxe</span>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 sm:gap-2"
+            aria-label="Piaxe Home"
+          >
+            <Image
+              src="/images/logo.png"
+              alt="Piaxe Logo"
+              width={32}
+              height={32}
+              className="w-7 h-7 sm:w-8 sm:h-8"
+              priority
+            />
+            <span className="font-bold text-lg sm:text-xl text-primary">
+              Piaxe
+            </span>
           </Link>
-          <nav className="hidden md:flex gap-6" role="navigation" aria-label="Main navigation">
+          <nav
+            className="hidden md:flex gap-6"
+            role="navigation"
+            aria-label="Main navigation"
+          >
             <Link
               href="/#consumers"
               className="text-muted-foreground hover:text-foreground transition-colors"
@@ -79,8 +97,15 @@ export function Header() {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full">
-                    {(isDeveloper || isBusiness) ? <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full"
+                  >
+                    {isDeveloper || isBusiness ? (
+                      <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    ) : (
+                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -175,7 +200,10 @@ export function Header() {
                     <Link href="/profile">Profile Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-xs sm:text-sm">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-xs sm:text-sm"
+                  >
                     <LogOut className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Log out
                   </DropdownMenuItem>
@@ -208,7 +236,11 @@ export function Header() {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t" role="navigation" aria-label="Mobile navigation">
+        <div
+          className="md:hidden border-t"
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
           <div className="container py-3 sm:py-4 flex flex-col gap-3 sm:gap-4">
             <Link
               href="/#consumers"
@@ -217,7 +249,11 @@ export function Header() {
             >
               Consumers
             </Link>
-            <Link href="/#sme" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              href="/#sme"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base"
+              onClick={() => setIsMenuOpen(false)}
+            >
               SMEs
             </Link>
             <Link
@@ -234,7 +270,11 @@ export function Header() {
             >
               API
             </Link>
-            <Link href="/about" className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base" onClick={() => setIsMenuOpen(false)}>
+            <Link
+              href="/about"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base"
+              onClick={() => setIsMenuOpen(false)}
+            >
               About
             </Link>
             <div className="flex flex-col gap-2 pt-2">
@@ -245,7 +285,9 @@ export function Header() {
                   </Button>
                   {isDeveloper && (
                     <Button variant="outline" asChild className="w-full">
-                      <Link href="/developer/dashboard">Developer Dashboard</Link>
+                      <Link href="/developer/dashboard">
+                        Developer Dashboard
+                      </Link>
                     </Button>
                   )}
                   {isBusiness && (
@@ -256,24 +298,36 @@ export function Header() {
                   {!isDeveloper && !isBusiness && (
                     <>
                       <Button variant="outline" asChild className="w-full">
-                        <Link href="/auth/developer-register">Create Developer Account</Link>
+                        <Link href="/auth/developer-register">
+                          Create Developer Account
+                        </Link>
                       </Button>
                       <Button variant="outline" asChild className="w-full">
-                        <Link href="/auth/business-register">Create Business Account</Link>
+                        <Link href="/auth/business-register">
+                          Create Business Account
+                        </Link>
                       </Button>
                     </>
                   )}
                   {isDeveloper && !isBusiness && (
                     <Button variant="outline" asChild className="w-full">
-                      <Link href="/auth/business-register">Create Business Account</Link>
+                      <Link href="/auth/business-register">
+                        Create Business Account
+                      </Link>
                     </Button>
                   )}
                   {isBusiness && !isDeveloper && (
                     <Button variant="outline" asChild className="w-full">
-                      <Link href="/auth/developer-register">Create Developer Account</Link>
+                      <Link href="/auth/developer-register">
+                        Create Developer Account
+                      </Link>
                     </Button>
                   )}
-                  <Button variant="outline" onClick={handleLogout} className="w-full">
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="w-full"
+                  >
                     Log out
                   </Button>
                 </>
@@ -292,5 +346,5 @@ export function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }
