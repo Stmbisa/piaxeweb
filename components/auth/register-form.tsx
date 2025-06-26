@@ -220,7 +220,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
             <Label htmlFor="username">Username *</Label>
             <div className="relative">
               {formData.username.length === 0 && (
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="username"
@@ -228,7 +228,11 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 placeholder="Choose a unique username"
                 value={formData.username}
                 onChange={(e) => handleInputChange("username", e.target.value)}
-                className="glass-input pl-10"
+                className="glass-input"
+                style={{
+                  paddingLeft:
+                    formData.username.length === 0 ? "2.5rem" : "0.75rem",
+                }}
                 required
                 disabled={isLoading}
               />
@@ -270,7 +274,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
             <Label htmlFor="email">Email address *</Label>
             <div className="relative">
               {formData.email.length === 0 && (
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="email"
@@ -278,7 +282,11 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 placeholder="john@example.com"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="glass-input pl-10"
+                className="glass-input"
+                style={{
+                  paddingLeft:
+                    formData.email.length === 0 ? "2.5rem" : "0.75rem",
+                }}
                 required
                 disabled={isLoading}
               />
@@ -290,7 +298,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
             <Label htmlFor="phone">Phone number (optional)</Label>
             <div className="relative">
               {formData.phone.length === 0 && (
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="phone"
@@ -298,7 +306,11 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 placeholder="+1 (555) 000-0000"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="glass-input pl-10"
+                className="glass-input"
+                style={{
+                  paddingLeft:
+                    formData.phone.length === 0 ? "2.5rem" : "0.75rem",
+                }}
                 disabled={isLoading}
               />
             </div>
@@ -309,7 +321,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
             <Label htmlFor="password">Password *</Label>
             <div className="relative">
               {formData.password.length === 0 && (
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="password"
@@ -317,7 +329,11 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 placeholder="Create a strong password"
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
-                className="glass-input pl-10 pr-10"
+                className="glass-input pr-10"
+                style={{
+                  paddingLeft:
+                    formData.password.length === 0 ? "2.5rem" : "0.75rem",
+                }}
                 required
                 disabled={isLoading}
               />
@@ -362,7 +378,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
             <Label htmlFor="confirmPassword">Confirm password *</Label>
             <div className="relative">
               {formData.confirmPassword.length === 0 && (
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="confirmPassword"
@@ -372,11 +388,17 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 onChange={(e) =>
                   handleInputChange("confirmPassword", e.target.value)
                 }
-                className={`glass-input pl-10 pr-10 ${
+                className={`glass-input pr-10 ${
                   !passwordsMatch && formData.confirmPassword.length > 0
                     ? "border-red-500 focus:border-red-500"
                     : ""
                 }`}
+                style={{
+                  paddingLeft:
+                    formData.confirmPassword.length === 0
+                      ? "2.5rem"
+                      : "0.75rem",
+                }}
                 required
                 disabled={isLoading}
               />
