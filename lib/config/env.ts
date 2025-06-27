@@ -136,6 +136,14 @@ export const API_ENDPOINTS = {
           `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/${product_id}`,
         GET: (store_id: string, product_id: string) =>
           `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/${product_id}`,
+        BATCH: (store_id: string) =>
+          `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/batch`,
+        IMPORT: (store_id: string) =>
+          `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/import`,
+        IMPORT_STATUS: (store_id: string, task_id: string) =>
+          `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/import/${task_id}/status`,
+        SCAN: (store_id: string) =>
+          `${API_BASE_URL}/shopping_and_inventory/stores/${store_id}/products/scan`,
       },
     },
   },

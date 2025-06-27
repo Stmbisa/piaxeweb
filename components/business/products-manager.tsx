@@ -45,6 +45,13 @@ import {
   Eye,
   Copy,
   X,
+  Boxes,
+  AlertTriangle,
+  PackageX,
+  Banknote,
+  FileUp,
+  PlusSquare,
+  Scan,
 } from "lucide-react";
 import { API_ENDPOINTS } from "@/lib/config/env";
 import { useRouter } from "next/navigation";
@@ -55,6 +62,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 const PRODUCT_STATUS_COLORS: { [key: string]: string } = {
@@ -88,7 +96,7 @@ export function ProductsManager() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddOptions, setShowAddOptions] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [editLoading, setEditLoading] = useState(false);
@@ -247,7 +255,7 @@ export function ProductsManager() {
       );
       await loadProducts(selectedStore);
 
-      setShowAddForm(false);
+      setShowAddOptions(false);
       resetForm();
 
       toast({
@@ -449,16 +457,93 @@ export function ProductsManager() {
             <Download className="w-4 h-4" />
             Export
           </Button>
-          <Button
-            onClick={() => {
-              resetForm();
-              setShowAddForm(true);
-            }}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Product
-          </Button>
+          <Dialog open={showAddOptions} onOpenChange={setShowAddOptions}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Product
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[650px]">
+              <DialogHeader>
+                <DialogTitle>Choose an Add Product Method</DialogTitle>
+                <DialogDescription>
+                  Select a method for adding products to your inventory.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-6">
+                <Card
+                  className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors duration-200 h-full"
+                  onClick={() =>
+                    router.push(
+                      `/business/dashboard/products/add?store_id=${selectedStore}`
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      router.push(
+                        `/business/dashboard/products/add?store_id=${selectedStore}`
+                      );
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <PlusSquare className="w-10 h-10 mb-4 text-primary" />
+                  <p className="font-semibold text-lg">Single Product</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Add one product at a time.
+                  </p>
+                </Card>
+                <Card
+                  className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors duration-200 h-full"
+                  onClick={() =>
+                    router.push(
+                      `/business/dashboard/products/bulk-scan?store_id=${selectedStore}`
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      router.push(
+                        `/business/dashboard/products/bulk-scan?store_id=${selectedStore}`
+                      );
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <Scan className="w-10 h-10 mb-4 text-primary" />
+                  <p className="font-semibold text-lg">Batch Add</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Add multiple products at once.
+                  </p>
+                </Card>
+                <Card
+                  className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors duration-200 h-full"
+                  onClick={() =>
+                    router.push(
+                      `/business/dashboard/products/import?store_id=${selectedStore}`
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      router.push(
+                        `/business/dashboard/products/import?store_id=${selectedStore}`
+                      );
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <FileUp className="w-10 h-10 mb-4 text-primary" />
+                  <p className="font-semibold text-lg">Import from File</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Upload a CSV/Excel file.
+                  </p>
+                </Card>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -503,7 +588,7 @@ export function ProductsManager() {
                   {(filteredProducts || []).length}
                 </p>
               </div>
-              <Package className="w-8 h-8 text-blue-500" />
+              <Boxes className="w-8 h-8 text-blue-500" />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
           </CardContent>
@@ -525,7 +610,7 @@ export function ProductsManager() {
                   }
                 </p>
               </div>
-              <Package className="w-8 h-8 text-yellow-500" />
+              <AlertTriangle className="w-8 h-8 text-yellow-500" />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
           </CardContent>
@@ -545,7 +630,7 @@ export function ProductsManager() {
                   }
                 </p>
               </div>
-              <Package className="w-8 h-8 text-red-500" />
+              <PackageX className="w-8 h-8 text-red-500" />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
           </CardContent>
@@ -570,7 +655,7 @@ export function ProductsManager() {
                   )}
                 </p>
               </div>
-              <Package className="w-8 h-8 text-green-500" />
+              <Banknote className="w-8 h-8 text-green-500" />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-green-600"></div>
           </CardContent>
@@ -675,7 +760,7 @@ export function ProductsManager() {
               <Button
                 onClick={() => {
                   resetForm();
-                  setShowAddForm(true);
+                  setShowAddOptions(true);
                 }}
                 className="flex items-center gap-2"
               >
@@ -781,229 +866,6 @@ export function ProductsManager() {
           )}
         </CardContent>
       </Card>
-
-      {/* Add/Edit Product Modal */}
-      {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Add New Product</h2>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setShowAddForm(false);
-                  resetForm();
-                }}
-                disabled={editLoading}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="product_name">Product Name *</Label>
-                  <Input
-                    id="product_name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    placeholder="Enter product name"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select
-                    value={formData.location_id}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, location_id: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="General">General</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter product description"
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (UGX) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.base_price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        base_price: e.target.value,
-                      }))
-                    }
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="stock_quantity">Stock Quantity *</Label>
-                  <Input
-                    id="stock_quantity"
-                    type="number"
-                    min="0"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        quantity: parseInt(e.target.value) || 0,
-                      }))
-                    }
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU (Stock Keeping Unit)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="sku"
-                      value={formData.product_code}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          product_code: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter SKU"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generateSKU}
-                      className="flex items-center gap-1"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      Generate
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="barcode">Barcode</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="barcode"
-                      value={formData.barcode}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          barcode: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter barcode"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowBarcodeScanner(true)}
-                      className="flex items-center gap-1"
-                    >
-                      <ScanLine className="w-3 h-3" />
-                      Scan
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Product Location</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                    <Package className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <Select
-                    value={formData.location_id}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, location_id: value }))
-                    }
-                  >
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stores.map((store) => (
-                        <SelectItem key={store.id} value={store.id}>
-                          {store.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    resetForm();
-                  }}
-                  disabled={editLoading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddProduct}
-                  disabled={
-                    editLoading ||
-                    !formData.name ||
-                    !formData.location_id ||
-                    parseFloat(formData.base_price) <= 0
-                  }
-                >
-                  {editLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Product"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Barcode Scanner Modal */}
       {showBarcodeScanner && (

@@ -507,6 +507,114 @@ class ShoppingInventoryAPI {
     }
   }
 
+  // Batch Add Products
+  async batchAddProducts(
+    token: string,
+    storeId: string,
+    products: any[]
+  ): Promise<any> {
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.BATCH(storeId),
+        {
+          method: "POST",
+          headers: this.getHeaders(token),
+          body: JSON.stringify(products),
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Batch add products failed");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Batch add products error:", error);
+      throw error;
+    }
+  }
+
+  // Import Products from File
+  async importProducts(
+    token: string,
+    storeId: string,
+    file: File
+  ): Promise<any> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.IMPORT(storeId),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Import products failed");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Import products error:", error);
+      throw error;
+    }
+  }
+
+  // Check Import Status
+  async getImportStatus(
+    token: string,
+    storeId: string,
+    taskId: string
+  ): Promise<any> {
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.IMPORT_STATUS(storeId, taskId),
+        {
+          method: "GET",
+          headers: this.getHeaders(token),
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Check import status failed");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Check import status error:", error);
+      throw error;
+    }
+  }
+
+  // Scan and Add Product
+  async scanProduct(
+    token: string,
+    storeId: string,
+    product: any
+  ): Promise<any> {
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.SCAN(storeId),
+        {
+          method: "POST",
+          headers: this.getHeaders(token),
+          body: JSON.stringify(product),
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Scan product failed");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Scan product error:", error);
+      throw error;
+    }
+  }
+
   // Stock Management
   async updateStock(
     token: string,
