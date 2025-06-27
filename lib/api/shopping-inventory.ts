@@ -6,7 +6,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  base_price: string;
   currency: string;
   stock_quantity: number;
   category: string;
@@ -21,7 +21,7 @@ export interface Product {
 export interface ProductCreate {
   name: string;
   description: string;
-  price: number;
+  base_price: string;
   currency: string;
   stock_quantity: number;
   category: string;
@@ -33,7 +33,7 @@ export interface ProductCreate {
 export interface ProductUpdate {
   name?: string;
   description?: string;
-  price?: number;
+  base_price?: string;
   stock_quantity?: number;
   category?: string;
   images?: string[];
@@ -147,16 +147,21 @@ export interface OrderCreate {
 export interface Category {
   id: string;
   name: string;
-  description?: string;
-  parent_id?: string;
-  store_id: string;
+  description: string;
+  parent_id: string | null;
+  store_id: string | null;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
+  subcategories?: Category[];
 }
 
 export interface CategoryCreate {
   name: string;
-  description?: string;
-  parent_id?: string;
+  description: string;
+  parent_id?: string | null;
+  store_id?: string | null;
+  is_active?: boolean;
 }
 
 class ShoppingInventoryAPI {
@@ -334,23 +339,49 @@ class ShoppingInventoryAPI {
       if (params?.page) queryParams.append("page", params.page.toString());
       if (params?.limit) queryParams.append("limit", params.limit.toString());
 
-      const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products?${queryParams}`,
-        {
-          method: "GET",
-          headers: this.getHeaders(token),
-        }
-      );
+      const url = `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products?${queryParams}`;
+      console.log("Fetching products from URL:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: this.getHeaders(token),
+      });
+
+      console.log("Products API Response status:", response.status);
+      console.log("Products API Response headers:", response.headers);
 
       if (!response.ok) {
         const error = await response.json();
+        console.error("Products API Error:", error);
         throw new Error(error.message || "Failed to fetch products");
       }
 
-      return await response.json();
-    } catch (error) {
+      const data = await response.json();
+      console.log("Products API Response data:", data);
+
+      // Ensure we return a valid response object
+      const result = {
+        products: Array.isArray(data.products) ? data.products : [],
+        total: typeof data.total === "number" ? data.total : 0,
+        page: typeof data.page === "number" ? data.page : 1,
+        limit: typeof data.limit === "number" ? data.limit : 10,
+      };
+      console.log("Processed products result:", result);
+      return result;
+    } catch (error: any) {
       console.error("Products fetch error:", error);
-      throw error;
+      console.error("Full error details:", {
+        message: error?.message,
+        stack: error?.stack,
+        cause: error?.cause,
+      });
+      // Return default object instead of throwing
+      return {
+        products: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+      };
     }
   }
 
@@ -465,12 +496,11 @@ class ShoppingInventoryAPI {
   // Category Management
   async createCategory(
     token: string,
-    storeId: string,
     categoryData: CategoryCreate
   ): Promise<Category> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/categories/create`,
+        `${API_BASE_URL}/shopping_and_inventory/categories`,
         {
           method: "POST",
           headers: this.getHeaders(token),
@@ -490,25 +520,42 @@ class ShoppingInventoryAPI {
     }
   }
 
-  async getCategories(token: string, storeId: string): Promise<Category[]> {
+  async getCategories(token: string): Promise<Category[]> {
     try {
+      console.log("Fetching categories");
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/categories`,
+        `${API_BASE_URL}/shopping_and_inventory/categories`,
         {
           method: "GET",
           headers: this.getHeaders(token),
         }
       );
 
+      console.log("Categories API Response status:", response.status);
+      console.log("Categories API Response headers:", response.headers);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error("Categories API Error:", error);
         throw new Error(error.message || "Failed to fetch categories");
       }
 
-      return await response.json();
-    } catch (error) {
+      const data = await response.json();
+      console.log("Categories API Response data:", data);
+
+      // Ensure we always return an array
+      const categories = Array.isArray(data) ? data : [];
+      console.log("Processed categories:", categories);
+      return categories;
+    } catch (error: any) {
       console.error("Categories fetch error:", error);
-      throw error;
+      console.error("Full error details:", {
+        message: error?.message,
+        stack: error?.stack,
+        cause: error?.cause,
+      });
+      // Return empty array instead of throwing
+      return [];
     }
   }
 
