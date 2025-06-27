@@ -46,6 +46,7 @@ import {
   Copy,
   X,
 } from "lucide-react";
+import { API_ENDPOINTS } from "@/lib/config/env";
 
 const PRODUCT_STATUS_COLORS: { [key: string]: string } = {
   active: "bg-green-100 text-green-700 border-green-200",
@@ -58,11 +59,12 @@ interface ProductFormData {
   name: string;
   description: string;
   base_price: string;
-  stock_quantity: number;
-  category: string;
-  sku?: string;
+  quantity: number;
+  low_stock_threshold: number;
+  product_code?: string;
   barcode?: string;
-  images: string[];
+  qr_code?: string;
+  location_id: string;
 }
 
 export function ProductsManager() {
@@ -82,11 +84,12 @@ export function ProductsManager() {
     name: "",
     description: "",
     base_price: "0",
-    stock_quantity: 0,
-    category: "",
-    sku: "",
+    quantity: 0,
+    low_stock_threshold: 5,
+    product_code: "",
     barcode: "",
-    images: [],
+    qr_code: "",
+    location_id: "",
   });
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
@@ -105,16 +108,18 @@ export function ProductsManager() {
         product.description
           .toLowerCase()
           .includes((searchTerm || "").toLowerCase()) ||
-        (product.sku &&
-          product.sku.toLowerCase().includes((searchTerm || "").toLowerCase()));
+        (product.product_code &&
+          product.product_code
+            .toLowerCase()
+            .includes((searchTerm || "").toLowerCase()));
       const matchesCategory =
         !categoryFilter ||
         categoryFilter === "all" ||
-        product.category === categoryFilter;
+        product.location.name === categoryFilter;
       const matchesStatus =
         !statusFilter ||
         statusFilter === "all" ||
-        product.status === statusFilter;
+        product.is_active === (statusFilter === "active");
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
@@ -157,8 +162,9 @@ export function ProductsManager() {
       setLoading(true);
       const params: any = {};
       if (categoryFilter && categoryFilter !== "all")
-        params.category = categoryFilter;
-      if (statusFilter && statusFilter !== "all") params.status = statusFilter;
+        params.location = categoryFilter;
+      if (statusFilter && statusFilter !== "all")
+        params.is_active = statusFilter === "active";
       if (searchTerm) params.search = searchTerm;
 
       const productsResponse = await shoppingInventoryAPI.getProducts(
@@ -325,11 +331,12 @@ export function ProductsManager() {
       name: "",
       description: "",
       base_price: "0",
-      stock_quantity: 0,
-      category: "",
-      sku: "",
+      quantity: 0,
+      low_stock_threshold: 5,
+      product_code: "",
       barcode: "",
-      images: [],
+      qr_code: "",
+      location_id: "",
     });
   };
 
@@ -339,18 +346,19 @@ export function ProductsManager() {
       name: product.name,
       description: product.description,
       base_price: product.base_price,
-      stock_quantity: product.stock_quantity,
-      category: product.category,
-      sku: product.sku || "",
+      quantity: product.quantity,
+      low_stock_threshold: product.low_stock_threshold,
+      product_code: product.product_code || "",
       barcode: product.barcode || "",
-      images: product.images || [],
+      qr_code: product.qr_code || "",
+      location_id: product.location.name,
     });
     setShowAddForm(true);
   };
 
   const generateSKU = () => {
     const sku = "SKU" + Math.random().toString(36).substr(2, 9).toUpperCase();
-    setFormData((prev) => ({ ...prev, sku }));
+    setFormData((prev) => ({ ...prev, product_code: sku }));
   };
 
   const simulateBarcodeScanning = () => {
@@ -370,9 +378,11 @@ export function ProductsManager() {
       products
         .map(
           (p) =>
-            `"${p.name}","${p.description}",${p.base_price},${
-              p.stock_quantity
-            },"${p.category}","${p.sku || ""}","${p.status}"`
+            `"${p.name}","${p.description}",${p.base_price},${p.quantity},"${
+              p.location.name
+            }","${p.product_code || ""}","${
+              p.is_active ? "Active" : "Inactive"
+            }`
         )
         .join("\n");
 
@@ -392,9 +402,9 @@ export function ProductsManager() {
     });
   };
 
-  const getStockStatusColor = (quantity: number) => {
+  const getStockStatusColor = (quantity: number, threshold: number) => {
     if (quantity === 0) return "text-red-600";
-    if (quantity <= 5) return "text-yellow-600";
+    if (quantity <= threshold) return "text-yellow-600";
     return "text-green-600";
   };
 
@@ -507,7 +517,8 @@ export function ProductsManager() {
                 <p className="text-3xl font-bold text-yellow-500">
                   {
                     (filteredProducts || []).filter(
-                      (p) => p.stock_quantity > 0 && p.stock_quantity <= 5
+                      (p) =>
+                        p.quantity > 0 && p.quantity <= p.low_stock_threshold
                     ).length
                   }
                 </p>
@@ -527,9 +538,8 @@ export function ProductsManager() {
                 </p>
                 <p className="text-3xl font-bold text-red-500">
                   {
-                    (filteredProducts || []).filter(
-                      (p) => p.stock_quantity === 0
-                    ).length
+                    (filteredProducts || []).filter((p) => p.quantity === 0)
+                      .length
                   }
                 </p>
               </div>
@@ -552,8 +562,7 @@ export function ProductsManager() {
                     (filteredProducts || []).reduce(
                       (sum, p) =>
                         sum +
-                        parseFloat(p.base_price || "0") *
-                          (p.stock_quantity || 0),
+                        parseFloat(p.base_price || "0") * (p.quantity || 0),
                       0
                     )
                   )}
@@ -569,60 +578,72 @@ export function ProductsManager() {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              {searchTerm.length === 0 && (
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
+              )}
               <Input
-                placeholder="Search products by name, description, or SKU..."
+                placeholder="Search products by name, description, or code..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="w-full h-10"
+                style={{
+                  paddingLeft: searchTerm.length === 0 ? "2.5rem" : "0.75rem",
+                }}
               />
             </div>
 
-            <Select
-              value={categoryFilter}
-              onValueChange={setCategoryFilter}
-              disabled={loadingCategories}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue
-                  placeholder={loadingCategories ? "Loading..." : "Category"}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {(categories || []).map((category) => (
-                  <SelectItem
-                    key={category?.id || "default"}
-                    value={category?.name || "unknown"}
-                  >
-                    {category?.name || "Unknown Category"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center justify-center gap-4">
+              <div className="h-10 flex items-center">
+                <Select
+                  value={categoryFilter}
+                  onValueChange={setCategoryFilter}
+                  disabled={loadingCategories}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue
+                      placeholder={
+                        loadingCategories ? "Loading..." : "All Categories"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {(categories || []).map((category) => (
+                      <SelectItem
+                        key={category?.id || "default"}
+                        value={category?.name || "unknown"}
+                      >
+                        {category?.name || "Unknown Category"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="out_of_stock">Out of Stock</SelectItem>
-              </SelectContent>
-            </Select>
+              <div className="h-10 flex items-center">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <Button
-              variant="outline"
-              onClick={() => loadProducts(selectedStore)}
-              className="flex items-center gap-2 whitespace-nowrap"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
+              <Button
+                variant="outline"
+                onClick={() => loadProducts(selectedStore)}
+                className="flex items-center gap-2 whitespace-nowrap h-10"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -670,22 +691,12 @@ export function ProductsManager() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                      {(product.images || []).length > 0 ? (
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      ) : (
-                        <Package className="w-8 h-8 text-muted-foreground" />
-                      )}
+                      <Package className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <Badge
-                      className={
-                        PRODUCT_STATUS_COLORS[product.status || "default"]
-                      }
+                      variant={product.is_active ? "default" : "secondary"}
                     >
-                      {(product.status || "unknown").replace(/_/g, " ")}
+                      {product.is_active ? "Active" : "Inactive"}
                     </Badge>
                   </div>
 
@@ -700,23 +711,25 @@ export function ProductsManager() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-bold text-lg">
-                          UGX {formatCurrency(product.base_price || "0")}
+                          {product.currency}{" "}
+                          {formatCurrency(product.base_price)}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {product.category}
+                          {product.location.name}
                         </p>
                       </div>
                       <div className="text-right">
                         <p
                           className={`font-semibold ${getStockStatusColor(
-                            product.stock_quantity
+                            product.quantity,
+                            product.low_stock_threshold
                           )}`}
                         >
-                          {product.stock_quantity} units
+                          {product.quantity} units
                         </p>
-                        {product.sku && (
+                        {product.product_code && (
                           <p className="text-xs text-muted-foreground">
-                            SKU: {product.sku}
+                            Code: {product.product_code}
                           </p>
                         )}
                       </div>
@@ -787,9 +800,9 @@ export function ProductsManager() {
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
                   <Select
-                    value={formData.category}
+                    value={formData.location_id}
                     onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, category: value }))
+                      setFormData((prev) => ({ ...prev, location_id: value }))
                     }
                   >
                     <SelectTrigger>
@@ -848,11 +861,11 @@ export function ProductsManager() {
                     id="stock_quantity"
                     type="number"
                     min="0"
-                    value={formData.stock_quantity}
+                    value={formData.quantity}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        stock_quantity: parseInt(e.target.value) || 0,
+                        quantity: parseInt(e.target.value) || 0,
                       }))
                     }
                     placeholder="0"
@@ -866,11 +879,11 @@ export function ProductsManager() {
                   <div className="flex gap-2">
                     <Input
                       id="sku"
-                      value={formData.sku}
+                      value={formData.product_code}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          sku: e.target.value,
+                          product_code: e.target.value,
                         }))
                       }
                       placeholder="Enter SKU"
@@ -915,23 +928,28 @@ export function ProductsManager() {
               </div>
 
               <div className="space-y-2">
-                <Label>Product Images</Label>
+                <Label>Product Location</Label>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                    {formData.images.length > 0 ? (
-                      <img
-                        src={formData.images[0]}
-                        alt="Product"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <Camera className="w-6 h-6 text-muted-foreground" />
-                    )}
+                    <Package className="w-6 h-6 text-muted-foreground" />
                   </div>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Upload className="w-4 h-4" />
-                    Upload Images
-                  </Button>
+                  <Select
+                    value={formData.location_id}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, location_id: value }))
+                    }
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stores.map((store) => (
+                        <SelectItem key={store.id} value={store.id}>
+                          {store.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -952,7 +970,7 @@ export function ProductsManager() {
                   }
                   disabled={
                     !formData.name ||
-                    !formData.category ||
+                    !formData.location_id ||
                     parseFloat(formData.base_price) <= 0
                   }
                 >

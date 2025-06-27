@@ -1,19 +1,34 @@
 // Shopping and Inventory API utilities
+import { API_ENDPOINTS } from "@/lib/config/env";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Product Types
+export interface ProductLocation {
+  id: string;
+  store_id: string;
+  name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   base_price: string;
   currency: string;
-  stock_quantity: number;
-  category: string;
-  images: string[];
-  sku?: string;
-  barcode?: string;
-  status: "active" | "inactive" | "out_of_stock";
+  quantity: number;
+  low_stock_threshold: number;
+  product_code: string;
+  barcode: string;
+  qr_code: string | null;
+  location: ProductLocation;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -23,23 +38,32 @@ export interface ProductCreate {
   description: string;
   base_price: string;
   currency: string;
-  stock_quantity: number;
-  category: string;
-  images?: string[];
-  sku?: string;
+  quantity: number;
+  low_stock_threshold?: number;
+  product_code?: string;
   barcode?: string;
+  qr_code?: string;
+  location_id: string;
 }
 
 export interface ProductUpdate {
   name?: string;
   description?: string;
   base_price?: string;
-  stock_quantity?: number;
-  category?: string;
-  images?: string[];
-  sku?: string;
+  quantity?: number;
+  low_stock_threshold?: number;
+  product_code?: string;
   barcode?: string;
-  status?: "active" | "inactive" | "out_of_stock";
+  qr_code?: string;
+  location_id?: string;
+  is_active?: boolean;
+}
+
+export interface ProductsResponse {
+  total: number;
+  page: number;
+  limit: number;
+  products: Product[];
 }
 
 // Store Types
@@ -325,12 +349,7 @@ class ShoppingInventoryAPI {
       page?: number;
       limit?: number;
     }
-  ): Promise<{
-    products: Product[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  ): Promise<ProductsResponse> {
     try {
       const queryParams = new URLSearchParams();
       if (params?.category) queryParams.append("category", params.category);
@@ -339,7 +358,9 @@ class ShoppingInventoryAPI {
       if (params?.page) queryParams.append("page", params.page.toString());
       if (params?.limit) queryParams.append("limit", params.limit.toString());
 
-      const url = `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products?${queryParams}`;
+      const url =
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.LIST(storeId) +
+        `?${queryParams}`;
       console.log("Fetching products from URL:", url);
 
       const response = await fetch(url, {
@@ -347,40 +368,20 @@ class ShoppingInventoryAPI {
         headers: this.getHeaders(token),
       });
 
-      console.log("Products API Response status:", response.status);
-      console.log("Products API Response headers:", response.headers);
-
       if (!response.ok) {
         const error = await response.json();
-        console.error("Products API Error:", error);
         throw new Error(error.message || "Failed to fetch products");
       }
 
       const data = await response.json();
-      console.log("Products API Response data:", data);
-
-      // Ensure we return a valid response object
-      const result = {
-        products: Array.isArray(data.products) ? data.products : [],
-        total: typeof data.total === "number" ? data.total : 0,
-        page: typeof data.page === "number" ? data.page : 1,
-        limit: typeof data.limit === "number" ? data.limit : 10,
-      };
-      console.log("Processed products result:", result);
-      return result;
-    } catch (error: any) {
+      return data;
+    } catch (error) {
       console.error("Products fetch error:", error);
-      console.error("Full error details:", {
-        message: error?.message,
-        stack: error?.stack,
-        cause: error?.cause,
-      });
-      // Return default object instead of throwing
       return {
-        products: [],
         total: 0,
         page: 1,
         limit: 10,
+        products: [],
       };
     }
   }
