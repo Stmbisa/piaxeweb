@@ -16,21 +16,44 @@ export interface ProductLocation {
   updated_at: string;
 }
 
-export interface Product {
-  id: string;
+export interface ProductCategory {
   name: string;
   description: string;
-  base_price: string;
-  currency: string;
-  quantity: number;
-  low_stock_threshold: number;
-  product_code: string;
-  barcode: string;
+  parent_id: string | null;
+  store_id: string | null;
+  is_active: boolean;
+  id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Product {
+  product_id: string;
+  id: string; // Keep for backward compatibility
+  name: string;
+  description: string;
+  sku: string | null;
+  barcode: string | null;
+  product_code: string | null;
+  piaxe_token: string | null;
   qr_code: string | null;
-  location: ProductLocation;
+  external_qr_code: string | null;
+  category: ProductCategory | null;
+  base_price: string;
+  manual_price: string | null;
+  currency: string;
+  store_price: string | null;
+  in_stock_quantity: number;
+  total_quantity_in_store: number;
+  low_stock_threshold: number;
+  images: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  specifications: Record<string, any>;
+  variants: any[];
+  location: ProductLocation; // Keep for backward compatibility
+  quantity: number; // Keep for backward compatibility
 }
 
 export interface ProductCreate {
@@ -44,19 +67,30 @@ export interface ProductCreate {
   barcode?: string;
   qr_code?: string;
   location_id: string;
+  category_id?: string;
+  images?: string[];
+  specifications?: Record<string, any>;
 }
 
 export interface ProductUpdate {
   name?: string;
   description?: string;
   base_price?: string;
+  manual_price?: string | null;
+  store_price?: string | null;
   quantity?: number;
   low_stock_threshold?: number;
   product_code?: string;
   barcode?: string;
+  sku?: string;
   qr_code?: string;
   location_id?: string;
+  category_id?: string;
+  currency?: string;
   is_active?: boolean;
+  images?: string[];
+  specifications?: Record<string, any>;
+  variants?: any[];
 }
 
 export interface ProductsResponse {
@@ -199,14 +233,11 @@ class ShoppingInventoryAPI {
   // Store Management
   async createStore(token: string, storeData: StoreCreate): Promise<Store> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores`,
-        {
-          method: "POST",
-          headers: this.getHeaders(token),
-          body: JSON.stringify(storeData),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.SHOPPING.STORES.CREATE, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        body: JSON.stringify(storeData),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -222,13 +253,10 @@ class ShoppingInventoryAPI {
 
   async getStores(token: string): Promise<Store[]> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores`,
-        {
-          method: "GET",
-          headers: this.getHeaders(token),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.SHOPPING.STORES.LIST, {
+        method: "GET",
+        headers: this.getHeaders(token),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -244,13 +272,10 @@ class ShoppingInventoryAPI {
 
   async getStore(token: string, storeId: string): Promise<Store> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`,
-        {
-          method: "GET",
-          headers: this.getHeaders(token),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.SHOPPING.STORES.GET(storeId), {
+        method: "GET",
+        headers: this.getHeaders(token),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -271,7 +296,7 @@ class ShoppingInventoryAPI {
   ): Promise<Store> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`,
+        API_ENDPOINTS.SHOPPING.STORES.UPDATE(storeId),
         {
           method: "PUT",
           headers: this.getHeaders(token),
@@ -294,7 +319,7 @@ class ShoppingInventoryAPI {
   async deleteStore(token: string, storeId: string): Promise<void> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}`,
+        API_ENDPOINTS.SHOPPING.STORES.DELETE(storeId),
         {
           method: "DELETE",
           headers: this.getHeaders(token),
@@ -319,7 +344,7 @@ class ShoppingInventoryAPI {
   ): Promise<Product> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/create`,
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.CREATE,
         {
           method: "POST",
           headers: this.getHeaders(token),
@@ -358,9 +383,9 @@ class ShoppingInventoryAPI {
       if (params?.page) queryParams.append("page", params.page.toString());
       if (params?.limit) queryParams.append("limit", params.limit.toString());
 
-      const url =
-        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.LIST(storeId) +
-        `?${queryParams}`;
+      const url = `${API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.LIST(
+        storeId
+      )}?${queryParams}`;
       console.log("Fetching products from URL:", url);
 
       const response = await fetch(url, {
@@ -393,7 +418,7 @@ class ShoppingInventoryAPI {
   ): Promise<Product> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`,
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.GET(storeId, productId),
         {
           method: "GET",
           headers: this.getHeaders(token),
@@ -419,8 +444,13 @@ class ShoppingInventoryAPI {
     productData: ProductUpdate
   ): Promise<Product> {
     try {
+      console.log("Sending update request with data:", {
+        url: API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.UPDATE(storeId, productId),
+        data: productData,
+      });
+
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`,
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.UPDATE(storeId, productId),
         {
           method: "PUT",
           headers: this.getHeaders(token),
@@ -429,13 +459,26 @@ class ShoppingInventoryAPI {
       );
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Product update failed");
+        const errorData = await response.json();
+        console.error("Product update failed with response:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          requestData: productData,
+        });
+        throw new Error(
+          errorData.message || errorData.detail || "Product update failed"
+        );
       }
 
       return await response.json();
-    } catch (error) {
-      console.error("Product update error:", error);
+    } catch (error: any) {
+      console.error("Product update error details:", {
+        error: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+        requestData: productData,
+      });
       throw error;
     }
   }
@@ -447,7 +490,7 @@ class ShoppingInventoryAPI {
   ): Promise<void> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores/${storeId}/products/${productId}`,
+        API_ENDPOINTS.SHOPPING.STORES.PRODUCTS.DELETE(storeId, productId),
         {
           method: "DELETE",
           headers: this.getHeaders(token),

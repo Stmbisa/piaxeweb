@@ -47,6 +47,15 @@ import {
   X,
 } from "lucide-react";
 import { API_ENDPOINTS } from "@/lib/config/env";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const PRODUCT_STATUS_COLORS: { [key: string]: string } = {
   active: "bg-green-100 text-green-700 border-green-200",
@@ -65,6 +74,8 @@ interface ProductFormData {
   barcode?: string;
   qr_code?: string;
   location_id: string;
+  manual_price?: string;
+  store_price?: string;
 }
 
 export function ProductsManager() {
@@ -79,7 +90,8 @@ export function ProductsManager() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     description: "",
@@ -90,11 +102,14 @@ export function ProductsManager() {
     barcode: "",
     qr_code: "",
     location_id: "",
+    manual_price: "",
+    store_price: "",
   });
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   const { token } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     loadData();
@@ -249,56 +264,6 @@ export function ProductsManager() {
     }
   };
 
-  const handleEditProduct = async () => {
-    if (!token || !selectedStore || !editingProduct) return;
-
-    try {
-      await shoppingInventoryAPI.updateProduct(
-        token,
-        selectedStore,
-        editingProduct.id,
-        formData
-      );
-      await loadProducts(selectedStore);
-
-      setEditingProduct(null);
-      resetForm();
-
-      toast({
-        title: "Success",
-        description: "Product updated successfully",
-      });
-    } catch (error) {
-      console.error("Error updating product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update product",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteProduct = async (productId: string) => {
-    if (!token || !selectedStore) return;
-
-    try {
-      await shoppingInventoryAPI.deleteProduct(token, selectedStore, productId);
-      await loadProducts(selectedStore);
-
-      toast({
-        title: "Success",
-        description: "Product deleted successfully",
-      });
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete product",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleStockUpdate = async (productId: string, newQuantity: number) => {
     if (!token || !selectedStore) return;
 
@@ -337,23 +302,9 @@ export function ProductsManager() {
       barcode: "",
       qr_code: "",
       location_id: "",
+      manual_price: "",
+      store_price: "",
     });
-  };
-
-  const openEditForm = (product: Product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      description: product.description,
-      base_price: product.base_price,
-      quantity: product.quantity,
-      low_stock_threshold: product.low_stock_threshold,
-      product_code: product.product_code || "",
-      barcode: product.barcode || "",
-      qr_code: product.qr_code || "",
-      location_id: product.location.name,
-    });
-    setShowAddForm(true);
   };
 
   const generateSKU = () => {
@@ -414,6 +365,58 @@ export function ProductsManager() {
     return !isNaN(numAmount) ? numAmount.toLocaleString() : "0";
   };
 
+  const handleDeleteConfirm = async () => {
+    if (!token || !selectedStore || !deletingProduct) return;
+
+    try {
+      await shoppingInventoryAPI.deleteProduct(
+        token,
+        selectedStore,
+        deletingProduct.product_id
+      );
+      await loadProducts(selectedStore);
+      setDeletingProduct(null);
+
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+        variant: "default",
+      });
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete product",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const DeleteConfirmDialog = () => (
+    <Dialog
+      open={!!deletingProduct}
+      onOpenChange={(open) => !open && setDeletingProduct(null)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Product</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete "{deletingProduct?.name}"? This
+            action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex gap-2 justify-end mt-4">
+          <Button variant="outline" onClick={() => setDeletingProduct(null)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteConfirm}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (loading && stores.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -449,7 +452,6 @@ export function ProductsManager() {
           <Button
             onClick={() => {
               resetForm();
-              setEditingProduct(null);
               setShowAddForm(true);
             }}
             className="flex items-center gap-2"
@@ -673,7 +675,6 @@ export function ProductsManager() {
               <Button
                 onClick={() => {
                   resetForm();
-                  setEditingProduct(null);
                   setShowAddForm(true);
                 }}
                 className="flex items-center gap-2"
@@ -687,7 +688,15 @@ export function ProductsManager() {
               {(filteredProducts || []).map((product) => (
                 <div
                   key={product.id}
-                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors group relative"
+                  role="button"
+                  onClick={() =>
+                    router.push(
+                      `/business/dashboard/products/${
+                        product.product_id || product.id
+                      }?store_id=${selectedStore}`
+                    )
+                  }
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
@@ -735,20 +744,30 @@ export function ProductsManager() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex items-center justify-between pt-2 border-t opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => openEditForm(product)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/business/dashboard/products/${
+                              product.product_id || product.id
+                            }?store_id=${selectedStore}`
+                          );
+                        }}
                         className="flex items-center gap-1"
                       >
-                        <Edit2 className="w-3 h-3" />
-                        Edit
+                        <Eye className="w-3 h-3" />
+                        View
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteProduct(product.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeletingProduct(product);
+                        }}
                         className="flex items-center gap-1 text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -768,16 +787,14 @@ export function ProductsManager() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {editingProduct ? "Edit Product" : "Add New Product"}
-              </h2>
+              <h2 className="text-2xl font-bold">Add New Product</h2>
               <Button
                 variant="ghost"
                 onClick={() => {
                   setShowAddForm(false);
-                  setEditingProduct(null);
                   resetForm();
                 }}
+                disabled={editLoading}
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -958,23 +975,29 @@ export function ProductsManager() {
                   variant="outline"
                   onClick={() => {
                     setShowAddForm(false);
-                    setEditingProduct(null);
                     resetForm();
                   }}
+                  disabled={editLoading}
                 >
                   Cancel
                 </Button>
                 <Button
-                  onClick={
-                    editingProduct ? handleEditProduct : handleAddProduct
-                  }
+                  onClick={handleAddProduct}
                   disabled={
+                    editLoading ||
                     !formData.name ||
                     !formData.location_id ||
                     parseFloat(formData.base_price) <= 0
                   }
                 >
-                  {editingProduct ? "Update Product" : "Add Product"}
+                  {editLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Product"
+                  )}
                 </Button>
               </div>
             </div>
@@ -1013,6 +1036,8 @@ export function ProductsManager() {
           </div>
         </div>
       )}
+
+      {DeleteConfirmDialog()}
     </div>
   );
 }
