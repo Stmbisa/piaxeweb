@@ -60,8 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         const profile = await authAPI.getProfile(storedToken)
                         setUser(profile)
                     } catch (error) {
+                        console.log('Stored token invalid, attempting refresh...')
                         // Token is invalid, try to refresh
-                        await refreshAuth()
+                        try {
+                            await refreshAuth()
+                        } catch (refreshError) {
+                            console.log('Token refresh failed, clearing auth')
+                            clearAuth()
+                        }
                     }
                 }
             } catch (error) {
@@ -168,7 +174,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error('Token refresh failed:', error)
             clearAuth()
-            throw error
+            // Only throw if it's not a network error - let the app continue with logged out state
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+            if (!errorMessage.includes('Network error')) {
+                throw error
+            }
         }
     }
 

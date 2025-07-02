@@ -191,12 +191,18 @@ class AuthAPI {
       });
 
       if (!response.ok) {
-        throw new Error("Token refresh failed");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.detail || errorData.message || `Token refresh failed (${response.status})`;
+        throw new Error(errorMessage);
       }
 
       return await response.json();
     } catch (error) {
       console.error("Token refresh error:", error);
+      // If it's a network error, provide a more helpful message
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to refresh authentication. Please check your connection.');
+      }
       throw error;
     }
   }
@@ -209,12 +215,18 @@ class AuthAPI {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get user profile");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.detail || errorData.message || `Failed to get user profile (${response.status})`;
+        throw new Error(errorMessage);
       }
 
       return await response.json();
     } catch (error) {
       console.error("Profile fetch error:", error);
+      // If it's a network error, provide a more helpful message
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to fetch user profile. Please check your connection.');
+      }
       throw error;
     }
   }

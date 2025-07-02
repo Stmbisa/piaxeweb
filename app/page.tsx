@@ -4,6 +4,7 @@ import { TargetSection } from "@/components/target-section"
 import { SecurityFeatures } from "@/components/security-features"
 import { Testimonials } from "@/components/testimonials"
 import { BarcodePaymentDemo } from "@/components/barcode-payment-demo"
+import { FAQs } from "@/components/faqs"
 
 export default function Home() {
   return (
@@ -114,6 +115,10 @@ export default function Home() {
 
         <div className="glass-card-large animate-glass-appear" style={{ animationDelay: "0.5s" }}>
           <Testimonials />
+        </div>
+
+        <div className="animate-glass-appear" style={{ animationDelay: "0.6s" }}>
+          <FAQs />
         </div>
       </div>
     </div>

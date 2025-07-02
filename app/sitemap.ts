@@ -18,7 +18,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
-    
+
+    // FAQ section anchor
+    {
+      url: `${baseUrl}/#faqs`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+
     // Authentication pages
     {
       url: `${baseUrl}/auth/register`,
@@ -44,7 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.9,
     },
-    
+
     // Main product pages
     {
       url: `${baseUrl}/developers`,
