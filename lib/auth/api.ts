@@ -5,7 +5,7 @@ import {
 } from "./merchant-api";
 
 // Authentication API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.piaxe.me';
 
 export interface User {
   id: string;

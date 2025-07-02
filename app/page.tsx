@@ -113,6 +113,68 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Support Section */}
+        <section id="support" className="container mx-auto px-4 py-8 sm:py-12">
+          <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.4s" }}>
+            <div className="text-center max-w-3xl mx-auto p-8 sm:p-12">
+              <div className="flex items-center justify-center mb-6">
+                <div className="p-4 rounded-full bg-primary/10">
+                  <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">Need Help?</h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Our comprehensive support center is here to help you succeed. From quick answers to personalized assistance, we've got you covered.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div className="text-center p-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold mb-1">Knowledge Base</h3>
+                  <p className="text-sm text-muted-foreground">Instant answers to common questions</p>
+                </div>
+                <div className="text-center p-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold mb-1">Live Support</h3>
+                  <p className="text-sm text-muted-foreground">Get help from our expert team</p>
+                </div>
+                <div className="text-center p-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold mb-1">Documentation</h3>
+                  <p className="text-sm text-muted-foreground">Complete guides and tutorials</p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/support"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Visit Support Center
+                </a>
+                <a
+                  href="/support#new-ticket"
+                  className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/10 transition-colors"
+                >
+                  Create Support Ticket
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div className="glass-card-large animate-glass-appear" style={{ animationDelay: "0.5s" }}>
           <Testimonials />
         </div>

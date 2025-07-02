@@ -66,6 +66,13 @@ export function Header() {
               API
             </Link>
             <Link
+              href="/support"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Get help and support"
+            >
+              Support
+            </Link>
+            <Link
               href="/#faqs"
               className="text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Frequently Asked Questions"
@@ -240,6 +247,13 @@ export function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               API
+            </Link>
+            <Link
+              href="/support"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-accent rounded-md text-sm sm:text-base"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Support
             </Link>
             <Link
               href="/#faqs"

@@ -1,5 +1,5 @@
 // Shopping and Inventory API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.piaxe.me';
 
 // Product Types
 export interface Product {

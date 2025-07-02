@@ -1,6 +1,6 @@
 // Merchant authentication API functions
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.piaxe.me';
 
 export interface MerchantRegistrationData {
   business_name: string;

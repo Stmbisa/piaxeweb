@@ -170,310 +170,323 @@ export function BusinessDashboardOverview() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-16">
-                <div className="text-center">
+            <div className="min-h-screen bg-gradient-to-br from-background via-purple-50/20 to-blue-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-blue-950/30 flex items-center justify-center py-16">
+                <div className="glass-card-enhanced text-center p-8 animate-glass-appear">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading your dashboard...</p>
+                    <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                        Loading Dashboard
+                    </h3>
+                    <p className="text-muted-foreground">Preparing your business insights...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="p-8 space-y-8">
+        <div className="p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3 lg:space-y-4 min-h-screen bg-gradient-to-br from-background via-purple-50/20 to-blue-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-blue-950/30">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">
+            <div className="glass-card-enhanced flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 animate-glass-appear">
+                <div className="mb-2 sm:mb-0">
+                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                         Welcome back, {businessProfile?.business_name || 'Business Owner'}!
                     </h1>
-                    <p className="text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-0.5 text-xs sm:text-sm">
                         Here's what's happening with your business today
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        View Reports
+                <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                    <Button variant="outline" className="glass-button flex items-center gap-1.5 hover:scale-105 transition-transform text-xs h-8 sm:h-9 flex-1 sm:flex-none px-2 sm:px-3">
+                        <BarChart3 className="w-3 h-3" />
+                        <span className="hidden sm:inline">View Reports</span>
+                        <span className="sm:hidden">Reports</span>
                     </Button>
-                    <Button className="flex items-center gap-2">
-                        <Plus className="w-4 h-4" />
-                        Quick Action
+                    <Button className="glass-button-primary flex items-center gap-1.5 hover:scale-105 transition-transform text-xs h-8 sm:h-9 flex-1 sm:flex-none px-2 sm:px-3">
+                        <Plus className="w-3 h-3" />
+                        <span className="hidden sm:inline">Quick Action</span>
+                        <span className="sm:hidden">Action</span>
                     </Button>
                 </div>
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="relative overflow-hidden">
-                    <CardContent className="p-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                <div className="glass-card-primary relative overflow-hidden animate-glass-appear hover:animate-glass-pulse group cursor-pointer">
+                    <div className="p-2 sm:p-3">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Stores</p>
-                                <p className="text-3xl font-bold text-blue-600">{stats.stores}</p>
-                                <div className="flex items-center gap-1 mt-2">
-                                    <TrendingUp className="w-4 h-4 text-green-600" />
-                                    <span className="text-sm text-green-600 font-medium">+12%</span>
-                                    <span className="text-sm text-muted-foreground">from last month</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-muted-foreground">Total Stores</p>
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 dark:text-blue-400 truncate">{stats.stores}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600 dark:text-green-400" />
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">+12%</span>
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">this month</span>
                                 </div>
                             </div>
-                            <div className="p-3 bg-blue-50 rounded-full">
-                                <StoreIcon className="w-6 h-6 text-blue-600" />
+                            <div className="glass-icon-button w-8 h-8 sm:w-10 sm:h-10 p-1.5 sm:p-2 bg-blue-50/50 dark:bg-blue-950/50 rounded-full group-hover:scale-110 transition-transform ml-1.5">
+                                <StoreIcon className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
                             </div>
                         </div>
-                    </CardContent>
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-                </Card>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 opacity-80"></div>
+                </div>
 
-                <Card className="relative overflow-hidden">
-                    <CardContent className="p-6">
+                <div className="glass-card-secondary relative overflow-hidden animate-glass-appear hover:animate-glass-pulse group cursor-pointer" style={{animationDelay: '0.1s'}}>
+                    <div className="p-2 sm:p-3">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">Products</p>
-                                <p className="text-3xl font-bold text-green-600">{stats.products}</p>
-                                <div className="flex items-center gap-1 mt-2">
-                                    <TrendingUp className="w-4 h-4 text-green-600" />
-                                    <span className="text-sm text-green-600 font-medium">+5%</span>
-                                    <span className="text-sm text-muted-foreground">this week</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-muted-foreground">Products</p>
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 dark:text-green-400 truncate">{stats.products}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600 dark:text-green-400" />
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">+5%</span>
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">this week</span>
                                 </div>
                             </div>
-                            <div className="p-3 bg-green-50 rounded-full">
-                                <Package className="w-6 h-6 text-green-600" />
+                            <div className="glass-icon-button w-8 h-8 sm:w-10 sm:h-10 p-1.5 sm:p-2 bg-green-50/50 dark:bg-green-950/50 rounded-full group-hover:scale-110 transition-transform ml-1.5">
+                                <Package className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
                             </div>
                         </div>
-                    </CardContent>
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-green-600"></div>
-                </Card>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500 to-green-600 opacity-80"></div>
+                </div>
 
-                <Card className="relative overflow-hidden">
-                    <CardContent className="p-6">
+                <div className="glass-card relative overflow-hidden animate-glass-appear hover:animate-glass-pulse group cursor-pointer" style={{animationDelay: '0.2s'}}>
+                    <div className="p-2 sm:p-3">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-                                <p className="text-3xl font-bold text-purple-600">UGX {stats.revenue.toLocaleString()}</p>
-                                <div className="flex items-center gap-1 mt-2">
-                                    <TrendingUp className="w-4 h-4 text-green-600" />
-                                    <span className="text-sm text-green-600 font-medium">+18%</span>
-                                    <span className="text-sm text-muted-foreground">vs last month</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-muted-foreground">Monthly Revenue</p>
+                                <p className="text-sm sm:text-lg lg:text-xl font-bold text-purple-600 dark:text-purple-400 truncate">UGX {stats.revenue.toLocaleString()}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                    <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600 dark:text-green-400" />
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">+18%</span>
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">vs last month</span>
                                 </div>
                             </div>
-                            <div className="p-3 bg-purple-50 rounded-full">
-                                <DollarSign className="w-6 h-6 text-purple-600" />
+                            <div className="glass-icon-button w-8 h-8 sm:w-10 sm:h-10 p-1.5 sm:p-2 bg-purple-50/50 dark:bg-purple-950/50 rounded-full group-hover:scale-110 transition-transform ml-1.5">
+                                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
                             </div>
                         </div>
-                    </CardContent>
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-purple-600"></div>
-                </Card>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-purple-600 opacity-80"></div>
+                </div>
 
-                <Card className="relative overflow-hidden">
-                    <CardContent className="p-6">
+                <div className="glass-card relative overflow-hidden animate-glass-appear hover:animate-glass-pulse group cursor-pointer" style={{animationDelay: '0.3s'}}>
+                    <div className="p-2 sm:p-3">
                         <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-                                <p className="text-3xl font-bold text-orange-600">{stats.orders}</p>
-                                <div className="flex items-center gap-1 mt-2">
-                                    <TrendingDown className="w-4 h-4 text-red-600" />
-                                    <span className="text-sm text-red-600 font-medium">-3%</span>
-                                    <span className="text-sm text-muted-foreground">from yesterday</span>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-muted-foreground">Total Orders</p>
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600 dark:text-orange-400 truncate">{stats.orders}</p>
+                                <div className="flex items-center gap-1 mt-1">
+                                    <TrendingDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-red-600 dark:text-red-400" />
+                                    <span className="text-xs text-red-600 dark:text-red-400 font-medium">-3%</span>
+                                    <span className="text-xs text-muted-foreground hidden sm:inline">from yesterday</span>
                                 </div>
                             </div>
-                            <div className="p-3 bg-orange-50 rounded-full">
-                                <ShoppingBag className="w-6 h-6 text-orange-600" />
+                            <div className="glass-icon-button w-8 h-8 sm:w-10 sm:h-10 p-1.5 sm:p-2 bg-orange-50/50 dark:bg-orange-950/50 rounded-full group-hover:scale-110 transition-transform ml-1.5">
+                                <ShoppingBag className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
-                    </CardContent>
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-orange-600"></div>
-                </Card>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-orange-500 to-orange-600 opacity-80"></div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
                 {/* Recent Activity */}
                 <div className="lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Clock className="w-5 h-5" />
-                                Recent Activity
-                            </CardTitle>
-                            <CardDescription>
+                    <div className="glass-card-enhanced animate-glass-appear" style={{animationDelay: '0.4s'}}>
+                        <div className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <h3 className="text-sm sm:text-base font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                    Recent Activity
+                                </h3>
+                            </div>
+                            <p className="text-muted-foreground mb-2 sm:mb-3 text-xs sm:text-sm">
                                 Latest updates from your business operations
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {recentActivity.map((activity) => (
-                                    <div key={activity.id} className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                                        <div className={`p-2 rounded-full ${getActivityColor(activity.type)}`}>
+                            </p>
+                            <div className="space-y-1.5 sm:space-y-2">
+                                {recentActivity.map((activity, index) => (
+                                    <div key={activity.id} className="glass-card flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:scale-105 transition-all duration-300 cursor-pointer group" style={{animationDelay: `${0.1 * index}s`}}>
+                                        <div className={`p-1.5 rounded-full glass-icon-button group-hover:scale-110 transition-transform ${getActivityColor(activity.type)}`}>
                                             {getActivityIcon(activity.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-semibold text-sm">{activity.title}</h4>
-                                            <p className="text-sm text-muted-foreground">{activity.description}</p>
+                                            <h4 className="font-semibold text-xs sm:text-sm truncate">{activity.title}</h4>
+                                            <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-end gap-0.5">
                                             {getStatusBadge(activity.status)}
                                             <span className="text-xs text-muted-foreground">{activity.time}</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <Button variant="outline" className="w-full mt-4">
-                                <Eye className="w-4 h-4 mr-2" />
+                            <Button variant="outline" className="glass-button w-full mt-2 sm:mt-3 hover:scale-105 transition-transform text-xs sm:text-sm h-8 sm:h-9">
+                                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                 View All Activity
                             </Button>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Quick Actions & Alerts */}
-                <div className="space-y-6">
+                <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                     {/* Quick Actions */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Zap className="w-5 h-5" />
-                                Quick Actions
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                <Button variant="outline" className="w-full justify-start">
-                                    <Plus className="w-4 h-4 mr-2" />
+                    <div className="glass-card-primary animate-glass-appear" style={{animationDelay: '0.5s'}}>
+                        <div className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <h3 className="text-sm sm:text-base font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                    Quick Actions
+                                </h3>
+                            </div>
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <Button variant="outline" className="glass-button w-full justify-start hover:scale-105 transition-transform text-xs sm:text-sm h-7 sm:h-8">
+                                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                     Add New Product
                                 </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                    <Users className="w-4 h-4 mr-2" />
+                                <Button variant="outline" className="glass-button w-full justify-start hover:scale-105 transition-transform text-xs sm:text-sm h-7 sm:h-8">
+                                    <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                     Add Staff Member
                                 </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                    <StoreIcon className="w-4 h-4 mr-2" />
+                                <Button variant="outline" className="glass-button w-full justify-start hover:scale-105 transition-transform text-xs sm:text-sm h-7 sm:h-8">
+                                    <StoreIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                     Create New Store
                                 </Button>
-                                <Button variant="outline" className="w-full justify-start">
-                                    <BarChart3 className="w-4 h-4 mr-2" />
+                                <Button variant="outline" className="glass-button w-full justify-start hover:scale-105 transition-transform text-xs sm:text-sm h-7 sm:h-8">
+                                    <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                                     View Analytics
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
 
                     {/* Alerts & Notifications */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <AlertCircle className="w-5 h-5" />
-                                Alerts & Notifications
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                    <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-medium text-yellow-900">Low Stock Alert</p>
-                                        <p className="text-xs text-yellow-700">3 products are running low</p>
+                    <div className="glass-card-secondary animate-glass-appear" style={{animationDelay: '0.6s'}}>
+                        <div className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <AlertCircle className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <h3 className="text-sm sm:text-base font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                    Alerts & Notifications
+                                </h3>
+                            </div>
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <div className="glass-card flex items-center gap-2 p-2 sm:p-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-200/50 hover:scale-105 transition-all duration-300 cursor-pointer">
+                                    <AlertCircle className="w-3 h-3 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-yellow-900 dark:text-yellow-100 truncate">Low Stock Alert</p>
+                                        <p className="text-xs text-yellow-700 dark:text-yellow-300">3 products running low</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-medium text-green-900">Monthly Goal</p>
-                                        <p className="text-xs text-green-700">87% of revenue target achieved</p>
+                                <div className="glass-card flex items-center gap-2 p-2 sm:p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-200/50 hover:scale-105 transition-all duration-300 cursor-pointer">
+                                    <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400 flex-shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-green-900 dark:text-green-100 truncate">Monthly Goal</p>
+                                        <p className="text-xs text-green-700 dark:text-green-300">87% target achieved</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                    <div>
-                                        <p className="text-sm font-medium text-blue-900">Upcoming Tasks</p>
-                                        <p className="text-xs text-blue-700">2 staff reviews scheduled</p>
+                                <div className="glass-card flex items-center gap-2 p-2 sm:p-3 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-200/50 hover:scale-105 transition-all duration-300 cursor-pointer">
+                                    <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-blue-900 dark:text-blue-100 truncate">Upcoming Tasks</p>
+                                        <p className="text-xs text-blue-700 dark:text-blue-300">2 staff reviews scheduled</p>
                                     </div>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
 
                     {/* Business Performance */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="w-5 h-5" />
-                                Business Health
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Revenue Growth</span>
-                                    <span className="text-sm text-green-600 font-semibold">+18%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-green-500 h-2 rounded-full w-[75%]"></div>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Customer Satisfaction</span>
-                                    <span className="text-sm text-blue-600 font-semibold">92%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-blue-500 h-2 rounded-full w-[92%]"></div>
+                    <div className="glass-card animate-glass-appear" style={{animationDelay: '0.7s'}}>
+                        <div className="p-3 sm:p-4">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <h3 className="text-sm sm:text-base font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                    Business Health
+                                </h3>
+                            </div>
+                            <div className="space-y-2 sm:space-y-3">
+                                <div className="glass-card p-2 sm:p-3 hover:scale-105 transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <span className="text-xs font-medium">Revenue Growth</span>
+                                        <span className="text-xs text-green-600 dark:text-green-400 font-semibold">+18%</span>
+                                    </div>
+                                    <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-1.5">
+                                        <div className="bg-gradient-to-r from-green-500 to-green-600 h-1.5 rounded-full w-[75%] shadow-lg shadow-green-500/30"></div>
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Inventory Turnover</span>
-                                    <span className="text-sm text-purple-600 font-semibold">85%</span>
+                                <div className="glass-card p-2 sm:p-3 hover:scale-105 transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <span className="text-xs font-medium">Customer Satisfaction</span>
+                                        <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold">92%</span>
+                                    </div>
+                                    <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-1.5">
+                                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full w-[92%] shadow-lg shadow-blue-500/30"></div>
+                                    </div>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-purple-500 h-2 rounded-full w-[85%]"></div>
+
+                                <div className="glass-card p-2 sm:p-3 hover:scale-105 transition-all duration-300">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <span className="text-xs font-medium">Inventory Turnover</span>
+                                        <span className="text-xs text-purple-600 dark:text-purple-400 font-semibold">85%</span>
+                                    </div>
+                                    <div className="w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full h-1.5">
+                                        <div className="bg-gradient-to-r from-purple-500 to-purple-600 h-1.5 rounded-full w-[85%] shadow-lg shadow-purple-500/30"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Store Overview */}
             {stores.length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <StoreIcon className="w-5 h-5" />
-                            Your Stores
-                        </CardTitle>
-                        <CardDescription>
+                <div className="glass-card-enhanced animate-glass-appear" style={{animationDelay: '0.8s'}}>
+                    <div className="p-3 sm:p-4 lg:p-5">
+                        <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                            <StoreIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <h2 className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                Your Stores
+                            </h2>
+                        </div>
+                        <p className="text-muted-foreground mb-2 sm:mb-3 text-xs sm:text-sm">
                             Manage and monitor all your store locations
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {stores.map((store) => (
-                                <div key={store.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <h4 className="font-semibold">{store.name}</h4>
-                                        <Badge className="bg-green-100 text-green-700">
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+                            {stores.map((store, index) => (
+                                <div key={store.id} className="glass-card-primary p-3 sm:p-4 hover:scale-105 transition-all duration-300 cursor-pointer group animate-glass-appear" style={{animationDelay: `${0.1 * index}s`}}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h4 className="font-semibold text-sm sm:text-base group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">{store.name}</h4>
+                                        <Badge className="glass-button bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30 text-xs px-1.5 py-0.5">
                                             Active
                                         </Badge>
                                     </div>
-                                    <p className="text-sm text-muted-foreground mb-2">{store.description}</p>
-                                    <p className="text-xs text-muted-foreground mb-3">{store.address}</p>
+                                    <p className="text-xs text-muted-foreground mb-1.5 line-clamp-2">{store.description}</p>
+                                    <p className="text-xs text-muted-foreground mb-2 truncate">{store.address}</p>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">UGX</span>
-                                        <Button variant="ghost" size="sm">
-                                            <ArrowUpRight className="w-4 h-4" />
+                                        <span className="text-xs font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">UGX Store</span>
+                                        <Button variant="ghost" size="sm" className="glass-icon-button group-hover:scale-110 transition-transform h-6 w-6 sm:h-7 sm:w-7 p-0">
+                                            <ArrowUpRight className="w-3 h-3" />
                                         </Button>
                                     </div>
                                 </div>
                             ))}
 
-                            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-center hover:border-gray-400 transition-colors cursor-pointer">
-                                <Plus className="w-8 h-8 text-gray-400 mb-2" />
-                                <h4 className="font-semibold text-gray-600">Add New Store</h4>
-                                <p className="text-sm text-gray-500">Expand your business</p>
+                            <div className="glass-card-dashed p-3 sm:p-4 flex flex-col items-center justify-center text-center hover:scale-105 transition-all duration-300 cursor-pointer group animate-glass-appear min-h-[120px] sm:min-h-[140px]" style={{animationDelay: `${0.1 * stores.length}s`}}>
+                                <div className="glass-icon-button p-2 sm:p-3 mb-2 group-hover:scale-110 transition-transform">
+                                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+                                </div>
+                                <h4 className="font-semibold text-gray-600 dark:text-gray-300 mb-1 text-xs sm:text-sm">Add New Store</h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Expand your business</p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             )}
         </div>
     )
