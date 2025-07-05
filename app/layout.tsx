@@ -25,10 +25,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: {
     default: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
-    template: "%s | Piaxe - Secure Payment Solutions",
+    template: "%s | Piaxe - payment system for supplychains Solutions",
   },
   description:
-    "Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce all in one platform. Perfect for consumers, SMEs, and online businesses in Uganda and East Africa.",
+    "Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce all in one platform. Perfect for consumers, SMEs, and online businesses",
   keywords: [
     "escrow payments",
     "mobile money",
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
         url: "/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Piaxe - Secure Payment Solutions",
+        alt: "Piaxe - Payment system for supplychains",
       },
     ],
   },
@@ -92,9 +92,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  verification: {
-    google: "your-google-verification-code",
   },
   generator: "Next.js",
 };
@@ -147,7 +144,7 @@ export default function RootLayout({
                 "@type": "ContactPoint",
                 telephone: "+256757951430",
                 contactType: "customer service",
-                availableLanguage: ["English", "Luganda", "Swahili", ],
+                availableLanguage: ["English", "Luganda", "Swahili",],
               },
               address: {
                 "@type": "PostalAddress",

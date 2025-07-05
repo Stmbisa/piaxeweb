@@ -7,8 +7,8 @@ export const metadata: Metadata = {
     title: "About Us",
     description: "Learn about Piaxe's mission to disrupt payments across Africa and ther low trust environments with secure escrow solutions and many other innovative fintechs features.",
     openGraph: {
-        title: "About Piaxe - Revolutionizing Secure Payments",
-        description: "Discover how Piaxe is transforming payment systems in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
+        title: "About Piaxe - Disrupting Payments",
+        description: "Discover how Piaxe is transforming payment systems starting with Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
     }
 }
 
