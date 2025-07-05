@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Piaxe - Secure Payment System for Low Trust Environments",
+    default: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
     template: "%s | Piaxe - Secure Payment Solutions",
   },
   description:
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     locale: "en_UG",
     url: "https://piaxe.com",
     siteName: "Piaxe",
-    title: "Piaxe - Secure Payment System for Low Trust Environments",
+    title: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
     description:
       "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
     images: [
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@piaxe",
     creator: "@piaxe",
-    title: "Piaxe - Secure Payment System for Low Trust Environments",
+    title: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
     description:
       "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
     images: ["/images/twitter-image.png"],
@@ -141,13 +141,13 @@ export default function RootLayout({
               logo: "https://piaxe.com/images/logo.png",
               sameAs: [
                 "https://twitter.com/piaxe",
-                "https://linkedin.com/company/piaxe",
+                "https://www.linkedin.com/company/piaxe-me",
               ],
               contactPoint: {
                 "@type": "ContactPoint",
-                telephone: "+256-XXX-XXXXX",
+                telephone: "+256757951430",
                 contactType: "customer service",
-                availableLanguage: ["English", "Luganda"],
+                availableLanguage: ["English", "Luganda", "Swahili", ],
               },
               address: {
                 "@type": "PostalAddress",
