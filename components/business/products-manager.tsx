@@ -52,9 +52,11 @@ import {
   FileUp,
   PlusSquare,
   Scan,
+  ImageIcon,
 } from "lucide-react";
 import { API_ENDPOINTS } from "@/lib/config/env";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -84,6 +86,7 @@ interface ProductFormData {
   location_id: string;
   manual_price?: string;
   store_price?: string;
+  images?: string[];
 }
 
 export function ProductsManager() {
@@ -112,6 +115,7 @@ export function ProductsManager() {
     location_id: "",
     manual_price: "",
     store_price: "",
+    images: [],
   });
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
@@ -312,6 +316,7 @@ export function ProductsManager() {
       location_id: "",
       manual_price: "",
       store_price: "",
+      images: [],
     });
   };
 
@@ -333,7 +338,7 @@ export function ProductsManager() {
 
   const exportProducts = () => {
     const csvContent =
-      "Product Name,Description,Price,Stock,Category,SKU,Status\n" +
+      "Product Name,Description,Price,Stock,Category,SKU,Status,Image URL\n" +
       products
         .map(
           (p) =>
@@ -341,7 +346,7 @@ export function ProductsManager() {
               p.location.name
             }","${p.product_code || ""}","${
               p.is_active ? "Active" : "Inactive"
-            }`
+            }","${p.images && p.images.length > 0 ? p.images[0] : ""}"`
         )
         .join("\n");
 
@@ -784,8 +789,31 @@ export function ProductsManager() {
                   }
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                      <Package className="w-8 h-8 text-muted-foreground" />
+                    <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          width={64}
+                          height={64}
+                          className="object-cover w-full h-full"
+                          onError={(e) => {
+                            // Fallback to icon if image fails to load
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.parentElement?.classList.add(
+                              "flex"
+                            );
+                            e.currentTarget.parentElement?.classList.add(
+                              "items-center"
+                            );
+                            e.currentTarget.parentElement?.classList.add(
+                              "justify-center"
+                            );
+                          }}
+                        />
+                      ) : (
+                        <Package className="w-8 h-8 text-muted-foreground" />
+                      )}
                     </div>
                     <Badge
                       variant={product.is_active ? "default" : "secondary"}

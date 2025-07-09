@@ -10,6 +10,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['ik.imagekit.io'],
   },
   output: 'standalone',
 }
