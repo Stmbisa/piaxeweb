@@ -1,11 +1,11 @@
 import BulkScanPage from "@/components/business/bulk-scan-page";
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { store_id: string };
+  searchParams: { store_id?: string };
 }) {
-  const storeId = searchParams.store_id;
+  const { store_id: storeId } = await searchParams;
 
   if (!storeId) {
     return <div>Error: Store ID is missing.</div>;
