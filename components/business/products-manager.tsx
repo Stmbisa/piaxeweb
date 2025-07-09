@@ -554,29 +554,27 @@ export function ProductsManager() {
 
       {/* Store Selection */}
       {Array.isArray(stores) && stores.length > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <label
-                htmlFor="store-select"
-                className="font-medium whitespace-nowrap"
-              >
-                Select Store:
-              </label>
-              <Select value={selectedStore} onValueChange={handleStoreChange}>
-                <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder="Choose a store" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stores.map((store) => (
-                    <SelectItem key={store.id} value={store.id}>
-                      {store.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
+        <Card className="overflow-visible">
+          <div className="h-[72px] flex items-center justify-center px-6">
+            <label
+              htmlFor="store-select"
+              className="font-medium whitespace-nowrap mr-4"
+            >
+              Select Store:
+            </label>
+            <Select value={selectedStore} onValueChange={handleStoreChange}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Choose a store" />
+              </SelectTrigger>
+              <SelectContent>
+                {stores.map((store) => (
+                  <SelectItem key={store.id} value={store.id}>
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </Card>
       )}
 
@@ -668,9 +666,9 @@ export function ProductsManager() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+      <Card className="overflow-visible">
+        <div className="h-[72px] flex items-center px-6">
+          <div className="flex w-full flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative flex-1">
               {searchTerm.length === 0 && (
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
@@ -686,7 +684,7 @@ export function ProductsManager() {
               />
             </div>
 
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center gap-4">
               <div className="h-10 flex items-center">
                 <Select
                   value={categoryFilter}
@@ -737,7 +735,7 @@ export function ProductsManager() {
               </Button>
             </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
       {/* Products Grid */}
