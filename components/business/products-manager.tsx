@@ -490,22 +490,22 @@ export function ProductsManager() {
                   tabIndex={0}
                 >
                   <PlusSquare className="w-10 h-10 mb-4 text-primary" />
-                  <p className="font-semibold text-lg">Single Product</p>
+                  <p className="font-semibold text-lg">Batch Add</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Add one product at a time.
+                    Add one or more products at a time.
                   </p>
                 </Card>
                 <Card
                   className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors duration-200 h-full"
                   onClick={() =>
                     router.push(
-                      `/business/dashboard/products/bulk-scan?store_id=${selectedStore}`
+                      `/business/dashboard/products/scan?store_id=${selectedStore}`
                     )
                   }
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       router.push(
-                        `/business/dashboard/products/bulk-scan?store_id=${selectedStore}`
+                        `/business/dashboard/products/scan?store_id=${selectedStore}`
                       );
                     }
                   }}
@@ -513,9 +513,9 @@ export function ProductsManager() {
                   tabIndex={0}
                 >
                   <Scan className="w-10 h-10 mb-4 text-primary" />
-                  <p className="font-semibold text-lg">Batch Add</p>
+                  <p className="font-semibold text-lg">Scan Barcode</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Add multiple products at once.
+                    Add products using a barcode scanner.
                   </p>
                 </Card>
                 <Card
