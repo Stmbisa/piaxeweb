@@ -16,9 +16,9 @@ export default function BusinessDashboardLayout({
   return (
     <BusinessProtectedRoute>
       <SidebarProvider>
-        <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30 flex">
+        <div className="min-h-screen flex">
           <BusinessSidebar />
-          <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+          <main className="flex-1 w-full max-w-none">{children}</main>
         </div>
       </SidebarProvider>
     </BusinessProtectedRoute>

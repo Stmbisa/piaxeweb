@@ -1,4 +1,4 @@
-import BulkScanPage from "@/components/business/bulk-scan-page";
+import ScanProductsPage from "@/components/business/scan-products-page";
 
 export default async function Page({
   searchParams,
@@ -11,5 +11,5 @@ export default async function Page({
     return <div>Error: Store ID is missing.</div>;
   }
 
-  return <BulkScanPage storeId={storeId} />;
+  return <ScanProductsPage storeId={storeId} />;
 }
