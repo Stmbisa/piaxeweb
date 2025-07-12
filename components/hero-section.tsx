@@ -28,12 +28,12 @@ export function HeroSection() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4 animate-glass-appear" style={{ animationDelay: "0.2s" }}>
-            <button className="glass-button-primary px-8 rounded-full shadow-lg">
+            <a href="#mobile-preview" className="glass-button-primary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
               Download App
-            </button>
-            <button className="glass-button-secondary px-8 rounded-full shadow-lg">
+            </a>
+            <a href="#sme" className="glass-button-secondary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
               Learn More
-            </button>
+            </a>
           </div>
 
           <div className="flex flex-wrap justify-center items-center gap-8 pt-12 text-muted-foreground animate-glass-appear" style={{ animationDelay: "0.3s" }}>

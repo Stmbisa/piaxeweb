@@ -75,7 +75,7 @@ export default function Home() {
                   "Transfer money to non-users through escrow or normal transfers",
                 ]}
                 buttonText="Download App"
-                buttonLink="#download"
+                buttonLink="#mobile-preview"
                 imageSrc="/images/business/consumer.png"
                 imageAlt="Consumer using Piaxe mobile app for secure payments"
               />
@@ -160,13 +160,13 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
                   href="/support"
-                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                  className="glass-button-primary px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-all duration-300"
                 >
                   Visit Support Center
                 </a>
                 <a
                   href="/support#new-ticket"
-                  className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/10 transition-colors"
+                  className="glass-button-secondary px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-all duration-300"
                 >
                   Create Support Ticket
                 </a>

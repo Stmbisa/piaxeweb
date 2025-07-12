@@ -55,23 +55,31 @@ export function TargetSection({
           </ul>
           {buttonsToRender.length > 0 && (
             <div className="pt-2 sm:pt-4 flex flex-wrap gap-2 sm:gap-3">
-              {buttonsToRender.map((button, index) => (
-                <Button
-                  key={index}
-                  asChild
-                  size="sm"
-                  variant={button.variant || "default"}
-                  className="rounded-full px-4 sm:px-8 text-xs sm:text-sm"
-                >
-                  {button.external ? (
-                    <a href={button.link} target="_blank" rel="noopener noreferrer">
-                      {button.text}
-                    </a>
-                  ) : (
-                    <a href={button.link}>{button.text}</a>
-                  )}
-                </Button>
-              ))}
+              {buttonsToRender.map((button, index) => {
+                const isDownloadApp = button.text === "Download App";
+                const isStartSelling = button.text === "Start Selling" || button.text === "Start Social Selling";
+                
+                let buttonClass = "rounded-full px-4 sm:px-8 text-xs sm:text-sm font-medium shadow-lg hover:scale-105 transition-all duration-300";
+                
+                if (isDownloadApp || isStartSelling) {
+                  buttonClass = `glass-button-primary ${buttonClass}`;
+                } else {
+                  buttonClass = `glass-button-secondary ${buttonClass}`;
+                }
+                
+                const finalLink = isDownloadApp ? "#mobile-preview" : button.link;
+                
+                return (
+                  <a
+                    key={index}
+                    href={finalLink}
+                    className={buttonClass}
+                    {...(button.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  >
+                    {button.text}
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>

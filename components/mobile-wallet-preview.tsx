@@ -7,7 +7,7 @@ import Image from "next/image"
 
 export function MobileWalletPreview() {
   return (
-    <section className="py-6 sm:py-8 bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
+    <section id="mobile-preview" className="py-6 sm:py-8 bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-glass-float"></div>
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-secondary/5 rounded-full blur-3xl animate-glass-float-delayed"></div>
 
