@@ -24,11 +24,11 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
-    template: "%s | Piaxe - payment system for supplychains Solutions",
+    default: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
+    template: "%s | Piaxe - Payment System for Supply Chains",
   },
   description:
-    "Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce all in one platform. Perfect for consumers, SMEs, and online businesses",
+    "Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce all in one platform. Perfect for consumers, SMEs, and online businesses in Uganda, East Africa and Beyond.",
   keywords: [
     "escrow payments",
     "mobile money",
@@ -48,6 +48,8 @@ export const metadata: Metadata = {
     "low trust environment",
     "API integration",
     "payment processing",
+    "East Africa fintech",
+    "supply chain payments",
   ],
   authors: [{ name: "Piaxe Team" }],
   creator: "Piaxe",
@@ -61,7 +63,7 @@ export const metadata: Metadata = {
     locale: "en_UG",
     url: "https://piaxe.com",
     siteName: "Piaxe",
-    title: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
+    title: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
     description:
       "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
     images: [
@@ -69,7 +71,7 @@ export const metadata: Metadata = {
         url: "/images/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Piaxe - Payment system for supplychains",
+        alt: "Piaxe - Payment system for supply chains",
       },
     ],
   },
@@ -77,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@piaxe",
     creator: "@piaxe",
-    title: "Piaxe - Payment System for for supplychains optimized for Low Trust Environments",
+    title: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
     description:
       "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
     images: ["/images/twitter-image.png"],
@@ -122,9 +124,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Piaxe" />
+        <meta name="application-name" content="Piaxe" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-TileColor" content="#06B6D4" />
         <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="apple-mobile-web-app-oriented" content="portrait" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

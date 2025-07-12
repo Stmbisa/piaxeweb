@@ -525,6 +525,31 @@ html {
   animation: glass-shimmer 2s infinite;
 }
 
+/* Enhanced gradient text styles */
+.text-gradient-primary {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)) 0%, 
+    #3b82f6 50%, 
+    hsl(var(--secondary)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+}
+
+/* Ensure gradient text is visible in all themes */
+.text-transparent.bg-clip-text {
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+@supports not (-webkit-background-clip: text) {
+  .text-transparent.bg-clip-text {
+    color: hsl(var(--primary)) !important;
+    -webkit-text-fill-color: unset !important;
+  }
+}
+
 /* Enhanced liquid glass styles for sidebar */
   .glass-card-enhanced {
     backdrop-filter: blur(20px) saturate(180%);

@@ -35,7 +35,7 @@ export default function Home() {
                   "POS-free payment collection in physical stores using just mobile phones",
                 ]}
                 buttonText="Start Selling"
-                buttonLink="#business"
+                buttonLink="/business/onboard"
                 imageSrc="/images/business/sme-business.png"
                 imageAlt="SME business owner using Piaxe dashboard"
               />

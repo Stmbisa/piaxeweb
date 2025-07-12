@@ -1,8 +1,8 @@
 {
-    "name": "Piaxe - Secure Payment System",
+    "name": "Piaxe - Secure Payment System for Low Trust Environments",
     "short_name": "Piaxe",
-    "description": "Secure payment system optimized for low trust environments with escrow protection, POS-free payments, and business tools.",
-    "start_url": "/",
+    "description": "Secure payment system optimized for low trust environments with escrow protection, POS-free payments, and comprehensive business tools for Uganda and East Africa.",
+    "start_url": "/?utm_source=pwa",
     "display": "standalone",
     "background_color": "#06B6D4",
     "theme_color": "#06B6D4",
@@ -10,50 +10,69 @@
     "categories": [
         "finance",
         "business",
-        "productivity"
+        "productivity",
+        "payments",
+        "fintech"
     ],
     "lang": "en",
     "scope": "/",
+    "prefer_related_applications": false,
     "icons": [
         {
             "src": "/icons/icon-72x72.png",
             "sizes": "72x72",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-96x96.png",
             "sizes": "96x96",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-128x128.png",
             "sizes": "128x128",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-144x144.png",
             "sizes": "144x144",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-152x152.png",
             "sizes": "152x152",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
             "src": "/icons/icon-384x384.png",
             "sizes": "384x384",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ],
     "shortcuts": [
@@ -84,10 +103,18 @@
     ],
     "screenshots": [
         {
-            "src": "/images/screenshot-1.png",
-            "sizes": "1280x720",
+            "src": "/images/screenshot-wide.png",
+            "sizes": "2560x1440",
             "type": "image/png",
-            "label": "Piaxe Home Screen"
+            "form_factor": "wide",
+            "label": "Piaxe Dashboard - Wide Screen"
+        },
+        {
+            "src": "/images/screenshot-mobile.png",
+            "sizes": "375x812",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Piaxe Mobile App"
         }
     ]
 }

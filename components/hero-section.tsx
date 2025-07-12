@@ -17,7 +17,7 @@ export function HeroSection() {
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               The payment system optimized for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary animate-glass-shimmer">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-secondary relative">
                 low trust environments
               </span>
             </h1>
