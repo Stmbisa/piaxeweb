@@ -22,6 +22,24 @@ export interface BatchProductInput {
   images?: string[]; // Array of image URLs
 }
 
+// Add ScanProductInput interface similar to mobile implementation
+export interface ScanProductInput {
+  code?: string;
+  location_id?: string;
+  code_type?: string;
+  name?: string;
+  description?: string;
+  base_price?: number;
+  currency?: string;
+  category_id?: string;
+  images?: string[];
+  store_category_id?: string;
+  sku?: string;
+  qr_code?: string;
+  barcode?: string;
+  is_ecommerce_enabled?: boolean;
+}
+
 export interface ProductLocation {
   id: string;
   store_id: string;
@@ -135,6 +153,60 @@ export const batchAddProducts = async (
       stack: error.stack,
     });
     throw new Error(error.message || "Failed to add products");
+  }
+};
+
+/**
+ * Add a product using barcode scanning
+ * @param token User auth token
+ * @param storeId Store ID
+ * @param productData Product data to add
+ * @returns Promise with the API response
+ */
+export const scanProduct = async (
+  token: string,
+  storeId: string,
+  productData: ScanProductInput
+): Promise<Product> => {
+  try {
+    console.log("Scanning and adding product:", {
+      storeId,
+      productData,
+    });
+
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+    const endpoint = `${API_URL}/shopping_and_inventory/stores/${storeId}/products/scan`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(productData),
+    });
+
+    if (!response.ok) {
+      let errorMessage = `Failed to scan and add product. Status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.detail || errorMessage;
+      } catch (e) {
+        // Unable to parse error as JSON, use default message
+      }
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log("Successfully scanned and added product:", data);
+
+    return data;
+  } catch (error: any) {
+    console.error("Scan product error:", {
+      message: error.message,
+      stack: error.stack,
+    });
+    throw new Error(error.message || "Failed to scan and add product");
   }
 };
 
