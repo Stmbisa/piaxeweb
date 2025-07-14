@@ -131,10 +131,132 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
 
+  // Add these imports
+  const codeInputRef = useRef<HTMLInputElement>(null);
+  const skuInputRef = useRef<HTMLInputElement>(null);
+  const [activeInputField, setActiveInputField] = useState<string>("code");
+  const [lastKeyTime, setLastKeyTime] = useState<number>(0);
+  const [barcodeBuffer, setBarcodeBuffer] = useState<string>("");
+  const [isListeningForScan, setIsListeningForScan] = useState<boolean>(false);
+
   // Load data when component mounts
   useEffect(() => {
     loadData();
   }, []);
+
+  // Add this effect for barcode scanner detection
+  useEffect(() => {
+    // Barcode scanners typically send data very quickly, like keyboard input but faster
+    const SCAN_THRESHOLD = 50; // milliseconds between keypresses to be considered a scan
+    const SCAN_TIMEOUT = 100; // milliseconds after last keypress to process the scan
+    let scanTimer: NodeJS.Timeout;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isListeningForScan) return;
+
+      const currentTime = new Date().getTime();
+      const isRapidInput = currentTime - lastKeyTime < SCAN_THRESHOLD;
+
+      // Only process printable characters and Enter key
+      if (e.key.length === 1 || e.key === "Enter") {
+        if (e.key === "Enter") {
+          // Enter key usually signifies the end of a barcode scan
+          if (barcodeBuffer) {
+            // Process the complete barcode
+            processBarcodeInput(barcodeBuffer);
+            setBarcodeBuffer("");
+          }
+        } else if (isRapidInput || barcodeBuffer.length === 0) {
+          // If this is rapid input or the start of a new scan, add to buffer
+          setBarcodeBuffer((prev) => prev + e.key);
+
+          // Clear any existing timeout
+          if (scanTimer) clearTimeout(scanTimer);
+
+          // Set a timeout to process the barcode after a short delay
+          scanTimer = setTimeout(() => {
+            if (barcodeBuffer) {
+              processBarcodeInput(barcodeBuffer);
+              setBarcodeBuffer("");
+            }
+          }, SCAN_TIMEOUT);
+        } else {
+          // If not rapid input and not the first character, reset the buffer
+          setBarcodeBuffer(e.key);
+        }
+
+        setLastKeyTime(currentTime);
+      }
+    };
+
+    const processBarcodeInput = (barcode: string) => {
+      if (barcode.length < 4) return; // Too short to be a valid barcode
+
+      console.log("Barcode detected:", barcode);
+
+      // Update the appropriate field based on active input
+      if (activeInputField === "code") {
+        handleChange("code", barcode);
+
+        // Also update the specific code type
+        if (formData.code_type === "barcode") {
+          handleChange("barcode", barcode);
+        } else if (formData.code_type === "qrcode") {
+          handleChange("qr_code", barcode);
+        }
+
+        toast({
+          title: "Barcode Scanned",
+          description: `Barcode ${barcode} has been added`,
+        });
+      } else if (activeInputField === "sku") {
+        handleChange("sku", barcode);
+
+        toast({
+          title: "SKU Scanned",
+          description: `SKU ${barcode} has been added`,
+        });
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (scanTimer) clearTimeout(scanTimer);
+    };
+  }, [
+    isListeningForScan,
+    lastKeyTime,
+    barcodeBuffer,
+    activeInputField,
+    formData.code_type,
+  ]);
+
+  // Add this function to focus the appropriate input and enable scanning
+  const enableScanMode = (field: string) => {
+    setActiveInputField(field);
+    setIsListeningForScan(true);
+
+    // Focus the appropriate input
+    if (field === "code" && codeInputRef.current) {
+      codeInputRef.current.focus();
+    } else if (field === "sku" && skuInputRef.current) {
+      skuInputRef.current.focus();
+    }
+
+    toast({
+      title: "Scanner Ready",
+      description: "Please scan a barcode now",
+    });
+  };
+
+  // Add this function to disable scan mode
+  const disableScanMode = () => {
+    setIsListeningForScan(false);
+    setBarcodeBuffer("");
+  };
 
   const loadData = async () => {
     if (!token) return;
@@ -454,6 +576,28 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {/* Add this section at the top of the card content to provide instructions */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-6">
+            <h3 className="font-medium flex items-center gap-2 mb-2">
+              <Barcode className="h-4 w-4" />
+              Using a Barcode Scanner
+            </h3>
+            <p className="text-sm text-muted-foreground mb-2">
+              This page supports physical barcode scanners that work as keyboard
+              emulators.
+            </p>
+            <ol className="text-sm text-muted-foreground list-decimal pl-5 space-y-1">
+              <li>
+                Click the "Scan" button next to the field you want to scan into
+              </li>
+              <li>
+                When the field highlights, scan your barcode with your scanner
+              </li>
+              <li>The value will be automatically entered into the field</li>
+              <li>Click "Cancel Scan" when you're done scanning</li>
+            </ol>
+          </div>
+
           {/* Product Details Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -590,26 +734,47 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
             <div className="flex gap-2">
               <Input
                 id="code"
+                ref={codeInputRef}
                 value={formData.code}
                 onChange={(e) => handleChange("code", e.target.value)}
+                onFocus={() => setActiveInputField("code")}
                 placeholder="Enter or scan code"
-                className="flex-1"
+                className={`flex-1 ${
+                  isListeningForScan && activeInputField === "code"
+                    ? "border-primary border-2"
+                    : ""
+                }`}
                 aria-label="Product Code"
                 title="Product Code"
               />
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => startScanning("code")}
+                variant={
+                  isListeningForScan && activeInputField === "code"
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() => {
+                  if (isListeningForScan && activeInputField === "code") {
+                    disableScanMode();
+                  } else {
+                    enableScanMode("code");
+                  }
+                }}
                 className="flex items-center gap-1"
               >
                 <Camera className="h-4 w-4" />
-                Scan
+                {isListeningForScan && activeInputField === "code"
+                  ? "Cancel Scan"
+                  : "Scan"}
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">
-              This will be saved as a{" "}
-              {formData.code_type === "barcode" ? "barcode" : "QR code"}
+              {isListeningForScan && activeInputField === "code"
+                ? "Scanner active: Please scan a barcode now or click Cancel Scan when done"
+                : `This will be saved as a ${
+                    formData.code_type === "barcode" ? "barcode" : "QR code"
+                  }`}
             </p>
           </div>
 
@@ -630,23 +795,47 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
             <div className="flex gap-2">
               <Input
                 id="sku"
+                ref={skuInputRef}
                 value={formData.sku}
                 onChange={(e) => handleChange("sku", e.target.value)}
+                onFocus={() => setActiveInputField("sku")}
                 placeholder="Enter SKU"
-                className="flex-1"
+                className={`flex-1 ${
+                  isListeningForScan && activeInputField === "sku"
+                    ? "border-primary border-2"
+                    : ""
+                }`}
                 aria-label="SKU"
                 title="SKU"
               />
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => startScanning("sku")}
+                variant={
+                  isListeningForScan && activeInputField === "sku"
+                    ? "default"
+                    : "outline"
+                }
+                onClick={() => {
+                  if (isListeningForScan && activeInputField === "sku") {
+                    disableScanMode();
+                  } else {
+                    enableScanMode("sku");
+                  }
+                }}
                 className="flex items-center gap-1"
               >
                 <Camera className="h-4 w-4" />
-                Scan
+                {isListeningForScan && activeInputField === "sku"
+                  ? "Cancel Scan"
+                  : "Scan"}
               </Button>
             </div>
+            {isListeningForScan && activeInputField === "sku" && (
+              <p className="text-sm text-muted-foreground">
+                Scanner active: Please scan a barcode now or click Cancel Scan
+                when done
+              </p>
+            )}
           </div>
 
           {/* Expiry Date Section */}
