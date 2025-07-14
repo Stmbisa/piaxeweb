@@ -6,6 +6,14 @@
 // Base API URL from environment variables
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// ImageKit configuration
+export const IMAGEKIT_CONFIG = {
+  PUBLIC_KEY: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
+  PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY || "",
+  URL_ENDPOINT: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || "",
+  AUTHENTICATION_ENDPOINT: `${API_BASE_URL}/api/imagekit-auth`,
+};
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth endpoints
