@@ -1,4 +1,5 @@
 import ImportProductsPage from "@/components/business/import-products-page";
+import { BusinessProtectedRoute } from "@/components/auth/business-protected-route";
 
 export default async function Page({
   searchParams,
@@ -11,5 +12,9 @@ export default async function Page({
     return <div>Error: Store ID is missing.</div>;
   }
 
-  return <ImportProductsPage storeId={storeId} />;
+  return (
+    <BusinessProtectedRoute>
+      <ImportProductsPage storeId={storeId} />
+    </BusinessProtectedRoute>
+  );
 }

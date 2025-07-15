@@ -64,13 +64,6 @@ const SIDEBAR_ITEMS: SidebarItemDef[] = [
     badge: "New",
   },
   {
-    id: "inventory",
-    label: "Inventory",
-    href: "/business/dashboard/inventory",
-    icon: Package,
-    badge: "Hot",
-  },
-  {
     id: "staff",
     label: "Staff Management",
     href: "/business/dashboard/staff",

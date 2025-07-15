@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
 import { shoppingInventoryAPI } from "@/lib/api/shopping-inventory";
+import { BusinessProtectedRoute } from "@/components/auth/business-protected-route";
 import {
   Card,
   CardContent,
@@ -502,269 +503,276 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/business/dashboard/products")}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {product.name}
-            </h1>
-            <p className="text-muted-foreground">{product.description}</p>
+    <BusinessProtectedRoute>
+      <div className="p-8 space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push("/business/dashboard/products")}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {product.name}
+              </h1>
+              <p className="text-muted-foreground">{product.description}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowEditDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the product and remove all associated data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => setShowEditDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Edit2 className="w-4 h-4" />
-            Edit
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="flex items-center gap-2">
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  product and remove all associated data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Images */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Product Images</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {product.images && product.images.length > 0 ? (
-              <div className="space-y-4">
-                <div className="aspect-square relative rounded-lg overflow-hidden bg-muted">
-                  <Image
-                    src={selectedImage || product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                {product.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-4">
-                    {product.images.map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedImage(image)}
-                        className={`aspect-square relative rounded-lg overflow-hidden bg-muted ${
-                          selectedImage === image ? "ring-2 ring-primary" : ""
-                        }`}
-                        aria-label={`View ${product.name} image ${index + 1}`}
-                      >
-                        <Image
-                          src={image}
-                          alt={`${product.name} ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="aspect-square flex items-center justify-center bg-muted rounded-lg">
-                <div className="text-center">
-                  <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground">No images available</p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Right Column - Details */}
-        <div className="space-y-6">
-          {/* Status and Price */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-start mb-4">
-                <Badge variant={product.is_active ? "default" : "secondary"}>
-                  {product.is_active ? "Active" : "Inactive"}
-                </Badge>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Price</p>
-                  <p className="text-2xl font-bold">
-                    {product.currency}{" "}
-                    {parseFloat(product.base_price).toLocaleString()}
-                  </p>
-                  {product.store_price &&
-                    product.store_price !== product.base_price && (
-                      <p className="text-sm text-muted-foreground">
-                        Store Price: {product.currency}{" "}
-                        {parseFloat(product.store_price).toLocaleString()}
-                      </p>
-                    )}
-                </div>
-              </div>
-
-              <Separator className="my-4" />
-
-              {/* Stock Information */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">In Stock</span>
-                  <span
-                    className={`font-semibold ${getStockStatusColor(
-                      product.in_stock_quantity,
-                      product.low_stock_threshold
-                    )}`}
-                  >
-                    {product.in_stock_quantity} units
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Total in Store</span>
-                  <span className="font-semibold">
-                    {product.total_quantity_in_store} units
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Low Stock Alert</span>
-                  <span className="font-semibold">
-                    {product.low_stock_threshold} units
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Product Information */}
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Images */}
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Product Information</CardTitle>
+              <CardTitle>Product Images</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {product.category && (
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Category</p>
-                    <p className="font-medium">{product.category.name}</p>
+            <CardContent>
+              {product.images && product.images.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="aspect-square relative rounded-lg overflow-hidden bg-muted">
+                    <Image
+                      src={selectedImage || product.images[0]}
+                      alt={product.name}
+                      fill
+                      className="object-contain"
+                    />
                   </div>
-                </div>
-              )}
-
-              {product.product_code && (
-                <div className="flex items-center gap-2">
-                  <Box className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Product Code
-                    </p>
-                    <p className="font-medium">{product.product_code}</p>
-                  </div>
-                </div>
-              )}
-
-              {product.barcode && (
-                <div className="flex items-center gap-2">
-                  <Barcode className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Barcode</p>
-                    <p className="font-medium">{product.barcode}</p>
-                  </div>
-                </div>
-              )}
-
-              {product.qr_code && (
-                <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">QR Code</p>
-                    <p className="font-medium">{product.qr_code}</p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Timestamps */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Created</p>
-                  <p className="font-medium">
-                    {formatDate(product.created_at)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Last Updated</p>
-                  <p className="font-medium">
-                    {formatDate(product.updated_at)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Specifications */}
-          {Object.keys(product.specifications).length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Specifications</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {Object.entries(product.specifications).map(
-                    ([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          {key}
-                        </span>
-                        <span className="font-medium">{value as string}</span>
-                      </div>
-                    )
+                  {product.images.length > 1 && (
+                    <div className="grid grid-cols-4 gap-4">
+                      {product.images.map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(image)}
+                          className={`aspect-square relative rounded-lg overflow-hidden bg-muted ${
+                            selectedImage === image ? "ring-2 ring-primary" : ""
+                          }`}
+                          aria-label={`View ${product.name} image ${index + 1}`}
+                        >
+                          <Image
+                            src={image}
+                            alt={`${product.name} ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   )}
+                </div>
+              ) : (
+                <div className="aspect-square flex items-center justify-center bg-muted rounded-lg">
+                  <div className="text-center">
+                    <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-muted-foreground">No images available</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Right Column - Details */}
+          <div className="space-y-6">
+            {/* Status and Price */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-start mb-4">
+                  <Badge variant={product.is_active ? "default" : "secondary"}>
+                    {product.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Price</p>
+                    <p className="text-2xl font-bold">
+                      {product.currency}{" "}
+                      {parseFloat(product.base_price).toLocaleString()}
+                    </p>
+                    {product.store_price &&
+                      product.store_price !== product.base_price && (
+                        <p className="text-sm text-muted-foreground">
+                          Store Price: {product.currency}{" "}
+                          {parseFloat(product.store_price).toLocaleString()}
+                        </p>
+                      )}
+                  </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                {/* Stock Information */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">In Stock</span>
+                    <span
+                      className={`font-semibold ${getStockStatusColor(
+                        product.in_stock_quantity,
+                        product.low_stock_threshold
+                      )}`}
+                    >
+                      {product.in_stock_quantity} units
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Total in Store</span>
+                    <span className="font-semibold">
+                      {product.total_quantity_in_store} units
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Low Stock Alert</span>
+                    <span className="font-semibold">
+                      {product.low_stock_threshold} units
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
-        </div>
-      </div>
 
-      {EditDialog()}
-    </div>
+            {/* Product Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {product.category && (
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Category</p>
+                      <p className="font-medium">{product.category.name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {product.product_code && (
+                  <div className="flex items-center gap-2">
+                    <Box className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Product Code
+                      </p>
+                      <p className="font-medium">{product.product_code}</p>
+                    </div>
+                  </div>
+                )}
+
+                {product.barcode && (
+                  <div className="flex items-center gap-2">
+                    <Barcode className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Barcode</p>
+                      <p className="font-medium">{product.barcode}</p>
+                    </div>
+                  </div>
+                )}
+
+                {product.qr_code && (
+                  <div className="flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">QR Code</p>
+                      <p className="font-medium">{product.qr_code}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Timestamps */}
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Created</p>
+                    <p className="font-medium">
+                      {formatDate(product.created_at)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Last Updated
+                    </p>
+                    <p className="font-medium">
+                      {formatDate(product.updated_at)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Specifications */}
+            {Object.keys(product.specifications).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Specifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {Object.entries(product.specifications).map(
+                      ([key, value]) => (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {key}
+                          </span>
+                          <span className="font-medium">{value as string}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
+        {EditDialog()}
+      </div>
+    </BusinessProtectedRoute>
   );
 }
