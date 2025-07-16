@@ -101,6 +101,14 @@ export function StoreManager() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStore, setEditingStore] = useState<StoreResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [storeToDelete, setStoreToDelete] = useState<StoreResponse | null>(
+    null
+  );
+  const [deleteConfirmStage, setDeleteConfirmStage] = useState(1);
+  const [confirmDeleteText, setConfirmDeleteText] = useState("");
   const [formData, setFormData] = useState<StoreFormData>({
     name: "",
     description: "",
@@ -208,6 +216,7 @@ export function StoreManager() {
     }
 
     try {
+      setIsCreating(true);
       // Clean the business hours data for API submission
       const cleanBusinessHours: Record<
         string,
@@ -254,6 +263,8 @@ export function StoreManager() {
         description: error.message || "Failed to create store",
         variant: "destructive",
       });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -319,6 +330,7 @@ export function StoreManager() {
     }
 
     try {
+      setIsUpdating(true);
       // Clean the business hours data for API submission
       const cleanBusinessHours: Record<
         string,
@@ -374,23 +386,21 @@ export function StoreManager() {
         description: error.message || "Failed to update store",
         variant: "destructive",
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleDeleteStore = async (storeId: string) => {
     if (!token) return;
 
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this store? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
     try {
+      setIsDeleting(true);
       await deleteStore(token, storeId);
       setStores((prev) => prev.filter((store) => store.id !== storeId));
+      setStoreToDelete(null);
+      setDeleteConfirmStage(1);
+
       toast({
         title: "Success",
         description: "Store deleted successfully",
@@ -402,6 +412,8 @@ export function StoreManager() {
         description: error.message || "Failed to delete store",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -474,9 +486,26 @@ export function StoreManager() {
       business_hours: {
         ...prev.business_hours,
         [day]: {
-          open: closed ? "closed" : "09:00",
-          close: closed ? "closed" : "17:00",
+          open: closed ? "closed" : prev.business_hours[day]?.open || "09:00",
+          close: closed ? "closed" : prev.business_hours[day]?.close || "17:00",
           closed,
+        },
+      },
+    }));
+  };
+
+  const handleTimeChange = (
+    day: DayOfWeek,
+    field: "open" | "close",
+    time: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      business_hours: {
+        ...prev.business_hours,
+        [day]: {
+          ...prev.business_hours[day],
+          [field]: time,
         },
       },
     }));
@@ -735,25 +764,20 @@ export function StoreManager() {
                   <h3 className="text-lg font-semibold text-foreground">
                     Business Hours
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     {Object.entries(formData.business_hours).map(
                       ([day, dayData]) => (
                         <div
                           key={day}
-                          className="flex items-center justify-between gap-4"
+                          className="flex flex-col sm:flex-row sm:items-center gap-2"
                         >
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium text-foreground">
-                              {day}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                              {dayData.closed
-                                ? "Closed"
-                                : `${dayData.open} - ${dayData.close}`}
-                            </span>
+                          <div className="flex items-center justify-between sm:w-1/3">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-medium text-foreground">
+                                {day}
+                              </span>
+                            </div>
                             <Switch
                               checked={dayData.closed}
                               onCheckedChange={(checked) =>
@@ -765,6 +789,61 @@ export function StoreManager() {
                               aria-label={`Toggle ${day} business hours`}
                             />
                           </div>
+
+                          {!dayData.closed && (
+                            <div className="flex items-center gap-2 sm:w-2/3">
+                              <div className="flex-1">
+                                <Label
+                                  htmlFor={`${day}-open`}
+                                  className="text-xs text-muted-foreground block mb-1"
+                                >
+                                  Opens
+                                </Label>
+                                <Input
+                                  id={`${day}-open`}
+                                  type="time"
+                                  value={dayData.open}
+                                  onChange={(e) =>
+                                    handleTimeChange(
+                                      day as DayOfWeek,
+                                      "open",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={dayData.closed}
+                                  className="h-8"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Label
+                                  htmlFor={`${day}-close`}
+                                  className="text-xs text-muted-foreground block mb-1"
+                                >
+                                  Closes
+                                </Label>
+                                <Input
+                                  id={`${day}-close`}
+                                  type="time"
+                                  value={dayData.close}
+                                  onChange={(e) =>
+                                    handleTimeChange(
+                                      day as DayOfWeek,
+                                      "close",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={dayData.closed}
+                                  className="h-8"
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {dayData.closed && (
+                            <div className="flex-1 text-muted-foreground text-sm italic sm:ml-4">
+                              Closed
+                            </div>
+                          )}
                         </div>
                       )
                     )}
@@ -888,10 +967,20 @@ export function StoreManager() {
                     setShowAddForm(false);
                     resetForm();
                   }}
+                  disabled={isCreating}
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleAddStore}>Create Store</Button>
+                <Button onClick={handleAddStore} disabled={isCreating}>
+                  {isCreating ? (
+                    <>
+                      <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Store"
+                  )}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -1129,7 +1218,10 @@ export function StoreManager() {
                       backdropFilter: "blur(10px)",
                       color: "rgb(239, 68, 68)",
                     }}
-                    onClick={() => handleDeleteStore(store.id)}
+                    onClick={() => {
+                      setStoreToDelete(store);
+                      setDeleteConfirmStage(1);
+                    }}
                     title="Delete store"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -1276,25 +1368,20 @@ export function StoreManager() {
               <h3 className="text-lg font-semibold text-foreground">
                 Business Hours
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 {Object.entries(formData.business_hours).map(
                   ([day, dayData]) => (
                     <div
                       key={day}
-                      className="flex items-center justify-between gap-4"
+                      className="flex flex-col sm:flex-row sm:items-center gap-2"
                     >
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium text-foreground">
-                          {day}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {dayData.closed
-                            ? "Closed"
-                            : `${dayData.open} - ${dayData.close}`}
-                        </span>
+                      <div className="flex items-center justify-between sm:w-1/3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium text-foreground">
+                            {day}
+                          </span>
+                        </div>
                         <Switch
                           checked={dayData.closed}
                           onCheckedChange={(checked) =>
@@ -1303,6 +1390,61 @@ export function StoreManager() {
                           aria-label={`Toggle ${day} business hours`}
                         />
                       </div>
+
+                      {!dayData.closed && (
+                        <div className="flex items-center gap-2 sm:w-2/3">
+                          <div className="flex-1">
+                            <Label
+                              htmlFor={`edit-${day}-open`}
+                              className="text-xs text-muted-foreground block mb-1"
+                            >
+                              Opens
+                            </Label>
+                            <Input
+                              id={`edit-${day}-open`}
+                              type="time"
+                              value={dayData.open}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  day as DayOfWeek,
+                                  "open",
+                                  e.target.value
+                                )
+                              }
+                              disabled={dayData.closed}
+                              className="h-8"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <Label
+                              htmlFor={`edit-${day}-close`}
+                              className="text-xs text-muted-foreground block mb-1"
+                            >
+                              Closes
+                            </Label>
+                            <Input
+                              id={`edit-${day}-close`}
+                              type="time"
+                              value={dayData.close}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  day as DayOfWeek,
+                                  "close",
+                                  e.target.value
+                                )
+                              }
+                              disabled={dayData.closed}
+                              className="h-8"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {dayData.closed && (
+                        <div className="flex-1 text-muted-foreground text-sm italic sm:ml-4">
+                          Closed
+                        </div>
+                      )}
                     </div>
                   )
                 )}
@@ -1423,10 +1565,104 @@ export function StoreManager() {
                 setEditingStore(null);
                 resetForm();
               }}
+              disabled={isUpdating}
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdateStore}>Update Store</Button>
+            <Button onClick={handleUpdateStore} disabled={isUpdating}>
+              {isUpdating ? (
+                <>
+                  <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                  Updating...
+                </>
+              ) : (
+                "Update Store"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Store Delete Confirmation Dialog */}
+      <Dialog
+        open={!!storeToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setStoreToDelete(null);
+            setDeleteConfirmStage(1);
+            setConfirmDeleteText("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              {deleteConfirmStage === 1 ? "Delete Store" : "Confirm Deletion"}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteConfirmStage === 1
+                ? `Are you sure you want to delete "${storeToDelete?.name}"? This will remove all products, inventory, and sales data associated with this store.`
+                : `This action cannot be undone. Please type "${storeToDelete?.name}" to confirm deletion.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteConfirmStage === 2 && (
+            <div className="my-4">
+              <Label
+                htmlFor="confirm-delete-input"
+                className="text-sm font-medium"
+              >
+                Store name confirmation
+              </Label>
+              <Input
+                id="confirm-delete-input"
+                placeholder={`Type "${storeToDelete?.name}" to confirm`}
+                className="mt-1"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+              />
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 justify-end mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStoreToDelete(null);
+                setDeleteConfirmStage(1);
+                setConfirmDeleteText("");
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+
+            {deleteConfirmStage === 1 ? (
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteConfirmStage(2)}
+              >
+                Proceed
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                onClick={() => handleDeleteStore(storeToDelete!.id)}
+                disabled={
+                  isDeleting || confirmDeleteText !== storeToDelete?.name
+                }
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Store"
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
