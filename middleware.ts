@@ -3,12 +3,20 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   // Normalize host: redirect www to apex domain for canonical consistency
-  const host = request.headers.get('host') || ''
-  if (host.startsWith('www.')) {
-    const url = request.nextUrl.clone()
-    url.host = host.replace(/^www\./, '')
-    return NextResponse.redirect(url, 308)
-  }
+  // const host = request.headers.get('host') || ''
+  // if (host.startsWith('www.')) {
+  //   const url = request.nextUrl.clone()
+  //   url.host = host.replace(/^www\./, '')
+  //   return NextResponse.redirect(url, 308)
+  // }
+  // Get the pathname of the request (e.g. /, /dashboard, /about, etc.)
+
+
+  // Host canonicalization removed.
+  // Previous logic redirected www -> apex while Vercel (domain settings) redirected apex -> www,
+  // creating an infinite redirect loop (ERR_TOO_MANY_REDIRECTS).
+  // Decide on ONE place for canonical redirects (either platform config OR middleware) — not both.
+  // !!!!! If we later want to enforce a single host, reintroduce logic that matches the platform direction only.
   // Get the pathname of the request (e.g. /, /dashboard, /about, etc.)
   const path = request.nextUrl.pathname
 
