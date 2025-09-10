@@ -29,11 +29,10 @@ interface RegisterFormProps {
 // Helper component for password criteria
 const PasswordCriterion = ({ met, text }: { met: boolean; text: string }) => (
   <p
-    className={`flex items-center text-xs transition-colors ${
-      met
+    className={`flex items-center text-xs transition-colors ${met
         ? "text-green-600 dark:text-green-500"
         : "text-red-600 dark:text-red-500"
-    }`}
+      }`}
   >
     {met ? (
       <Check className="h-3 w-3 mr-1.5 flex-shrink-0" />
@@ -173,7 +172,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-foreground">Create account</h1>
           <p className="text-muted-foreground">
-            Join Piaxe to start making secure payments
+            Join piaxis to start making secure payments
           </p>
         </div>
 
@@ -379,11 +378,10 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                 onChange={(e) =>
                   handleInputChange("confirmPassword", e.target.value)
                 }
-                className={`glass-input pl-10 pr-10 ${
-                  !passwordsMatch && formData.confirmPassword.length > 0
+                className={`glass-input pl-10 pr-10 ${!passwordsMatch && formData.confirmPassword.length > 0
                     ? "border-red-500 focus:border-red-500"
                     : ""
-                }`}
+                  }`}
                 required
                 disabled={isLoading}
               />

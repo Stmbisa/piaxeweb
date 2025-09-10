@@ -58,7 +58,7 @@ const mockApiKeys: ApiKey[] = [
 
 const codeExamples = {
   payment: `// Initialize Payment
-const payment = await piaxe.payments.create({
+const payment = await piaxis.payments.create({
   amount: 50000,
   currency: 'UGX',
   reference: 'order_123',
@@ -73,7 +73,7 @@ const payment = await piaxe.payments.create({
 console.log(payment.payment_url);`,
 
   escrow: `// Create Escrow Transaction
-const escrow = await piaxe.escrow.create({
+const escrow = await piaxis.escrow.create({
   amount: 100000,
   currency: 'UGX',
   buyer_phone: '+256701234567',
@@ -85,11 +85,11 @@ const escrow = await piaxe.escrow.create({
 console.log(escrow.transaction_id);`,
 
   webhook: `// Webhook Handler
-app.post('/webhooks/piaxe', (req, res) => {
-  const signature = req.headers['piaxe-signature'];
+app.post('/webhooks/piaxis', (req, res) => {
+  const signature = req.headers['piaxis-signature'];
   const payload = req.body;
 
-  if (piaxe.webhooks.verify(payload, signature)) {
+  if (piaxis.webhooks.verify(payload, signature)) {
     const event = payload.event;
 
     switch(event.type) {
@@ -145,7 +145,7 @@ export function DeveloperPortal() {
               Developer Portal
             </h1>
             <p className="text-lg text-muted-foreground">
-              Build powerful payment solutions with Piaxe API
+              Build powerful payment solutions with piaxis API
             </p>
           </div>
 
@@ -208,7 +208,7 @@ export function DeveloperPortal() {
                     Quick Start Guide
                   </CardTitle>
                   <CardDescription>
-                    Get started with Piaxe API in minutes
+                    Get started with piaxis API in minutes
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -222,7 +222,7 @@ export function DeveloperPortal() {
                     <div className="space-y-2">
                       <h4 className="font-medium">2. Install SDK</h4>
                       <code className="text-sm bg-muted px-2 py-1 rounded">
-                        npm install piaxe-sdk
+                        npm install piaxis-sdk
                       </code>
                     </div>
                     <div className="space-y-2">

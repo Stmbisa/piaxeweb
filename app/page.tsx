@@ -9,6 +9,43 @@ import { FAQs } from "@/components/faqs"
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/50 relative overflow-hidden">
+      {/* FAQ Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'What is piaxis and how does it work?',
+                acceptedAnswer: { '@type': 'Answer', text: 'piaxis is a modern fintech platform that enables secure payments, escrow services, and social commerce. We provide payment processing for businesses, secure escrow transactions for consumers, and API services for developers to integrate payments into their applications.' }
+              },
+              {
+                '@type': 'Question',
+                name: 'How secure are escrow payments on piaxis?',
+                acceptedAnswer: { '@type': 'Answer', text: 'Our escrow service acts as a trusted intermediary, holding funds securely until both parties fulfill their obligations. This eliminates fraud risk; all transactions are encrypted and monitored.' }
+              },
+              {
+                '@type': 'Question',
+                name: 'Can I sell products on social media using piaxis?',
+                acceptedAnswer: { '@type': 'Answer', text: 'Yes. Our social commerce feature lets you sell on popular platforms using product links with built-in payment processing.' }
+              },
+              {
+                '@type': 'Question',
+                name: 'What payment methods does piaxis support?',
+                acceptedAnswer: { '@type': 'Answer', text: 'We support mobile money wallets, bank transfers, cards, and digital payment platforms.' }
+              },
+              {
+                '@type': 'Question',
+                name: 'How do social saving groups work?',
+                acceptedAnswer: { '@type': 'Answer', text: 'Social saving groups let you save with friends in a protected environment with transparent contribution tracking and rule governance.' }
+              }
+            ]
+          })
+        }}
+      />
       {/* Beautiful liquid glass background orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-glass-float"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-glass-float-delayed"></div>
@@ -37,7 +74,7 @@ export default function Home() {
                 buttonText="Start Selling"
                 buttonLink="/business/onboard"
                 imageSrc="/images/business/sme-business.png"
-                imageAlt="SME business owner using Piaxe dashboard"
+                imageAlt="SME business owner using piaxis dashboard"
               />
             </div>
 
@@ -77,7 +114,7 @@ export default function Home() {
                 buttonText="Download App"
                 buttonLink="#mobile-preview"
                 imageSrc="/images/business/consumer.png"
-                imageAlt="Consumer using Piaxe mobile app for secure payments"
+                imageAlt="Consumer using piaxis mobile app for secure payments"
               />
             </div>
 
@@ -96,7 +133,7 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Explore API",
-                    link: "https://piaxe.jettts.com/api/docs/",
+                    link: "https://api.piaxe.me/api/docs/",
                     external: true
                   },
                   {
@@ -106,7 +143,7 @@ export default function Home() {
                   }
                 ]}
                 imageSrc="/images/business/developer-api.png"
-                imageAlt="Developer integrating Piaxe API"
+                imageAlt="Developer integrating piaxis API"
                 imageRight
               />
             </div>

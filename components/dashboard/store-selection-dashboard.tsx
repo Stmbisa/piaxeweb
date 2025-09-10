@@ -91,7 +91,7 @@ export function StoreSelectionDashboard({ onStoreSelect }: StoreSelectionDashboa
                         <div className="glass-icon-button w-16 h-16 mx-auto mb-6">
                             <StoreIcon className="w-8 h-8 text-primary" />
                         </div>
-                        <h2 className="text-2xl font-bold mb-2 text-foreground">Welcome to Piaxe Business!</h2>
+                        <h2 className="text-2xl font-bold mb-2 text-foreground">Welcome to piaxis Business!</h2>
                         <p className="text-muted-foreground mb-8">
                             You don't have any stores yet. Let's create your first store to get started.
                         </p>
@@ -131,8 +131,8 @@ export function StoreSelectionDashboard({ onStoreSelect }: StoreSelectionDashboa
 
         return (
             <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxe-primary/10 rounded-full blur-3xl animate-glass-float opacity-70"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxe-secondary/10 rounded-full blur-3xl animate-glass-float-delayed opacity-70"></div>
+                <div className="absolute top-1/4 left-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxis-primary/10 rounded-full blur-3xl animate-glass-float opacity-70"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxis-secondary/10 rounded-full blur-3xl animate-glass-float-delayed opacity-70"></div>
 
                 <div className="relative z-10 p-4 md:p-6">
                     <div className="max-w-4xl mx-auto">
@@ -143,7 +143,7 @@ export function StoreSelectionDashboard({ onStoreSelect }: StoreSelectionDashboa
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
                             {[
-                                { title: "Manage Products", icon: Package, section: "products", color: "text-piaxe-primary", delay: "0.1s" },
+                                { title: "Manage Products", icon: Package, section: "products", color: "text-piaxis-primary", delay: "0.1s" },
                                 { title: "View Orders", icon: ShoppingBag, section: "orders", color: "text-green-500", delay: "0.2s" },
                                 { title: "Analytics", icon: BarChart3, section: "analytics", color: "text-purple-500", delay: "0.3s" },
                             ].map((item) => (
@@ -217,8 +217,8 @@ export function StoreSelectionDashboard({ onStoreSelect }: StoreSelectionDashboa
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
-            <div className="absolute top-1/4 left-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxe-primary/10 rounded-full blur-3xl animate-glass-float opacity-70"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxe-secondary/10 rounded-full blur-3xl animate-glass-float-delayed opacity-70"></div>
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxis-primary/10 rounded-full blur-3xl animate-glass-float opacity-70"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 md:w-96 md:h-96 bg-piaxis-secondary/10 rounded-full blur-3xl animate-glass-float-delayed opacity-70"></div>
 
             <div className="relative z-10 p-4 md:p-6">
                 <div className="max-w-5xl mx-auto">

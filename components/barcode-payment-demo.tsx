@@ -55,7 +55,7 @@ export function BarcodePaymentDemo() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                Complete payment securely through Piaxe's escrow system
+                                Complete payment securely through piaxis's escrow system
                             </p>
                         </CardContent>
                     </Card>

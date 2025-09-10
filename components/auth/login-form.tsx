@@ -47,7 +47,7 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
           <p className="text-muted-foreground">
-            Sign in to your Piaxe account to continue
+            Sign in to your piaxis account to continue
           </p>
         </div>
 

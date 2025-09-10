@@ -53,7 +53,7 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        piaxe: {
+        piaxis: {
           primary: "#06B6D4",
           secondary: "#4338CA",
           light: "#DCDBE4",

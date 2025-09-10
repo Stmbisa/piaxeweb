@@ -12,27 +12,27 @@ interface FAQ {
 
 const faqs: FAQ[] = [
     {
-        question: "What is Piaxe and how does it work?",
-        answer: "Piaxe is a modern fintech platform that enables secure payments, escrow services, and social commerce. We provide payment processing for businesses, secure escrow transactions for consumers, and API services for developers to integrate payments into their applications.",
+        question: "What is piaxis and how does it work?",
+        answer: "piaxis is a modern fintech platform that enables secure payments, escrow services, and social commerce. We provide payment processing for businesses, secure escrow transactions for consumers, and API services for developers to integrate payments into their applications.",
         category: "General"
     },
     {
-        question: "How secure are escrow payments on Piaxe?",
+        question: "How secure are escrow payments on piaxis?",
         answer: "Our escrow service acts as a trusted intermediary, holding funds securely until both parties fulfill their obligations, obligations are set by the sender, can be location, delivery confirmation, sequential steps, multiparty approval, ... This eliminates the risk of fraud and ensures that sellers deliver goods/services before payment is released. All transactions are encrypted and monitored for security.",
         category: "Security"
     },
     {
-        question: "Can I sell products on social media using Piaxe?",
+        question: "Can I sell products on social media using piaxis?",
         answer: "Yes! Our social commerce feature allows you to sell on WhatsApp, Instagram, Facebook, TikTok, and other platforms without any technical setup. Simply create product links that work across all social media channels with built-in payment processing, you dont even have to own products yourself, just partner with someone put their locations and logistics and payments shall be handled for you.",
         category: "Business"
     },
     {
-        question: "What payment methods does Piaxe support?",
+        question: "What payment methods does piaxis support?",
         answer: "We support multiple payment methods including mobile money wallets, bank transfers, debit/credit cards, and digital payment platforms. This ensures your customers can pay using their preferred method.",
         category: "Payments"
     },
     {
-        question: "Is there a fee for using Piaxe services?",
+        question: "Is there a fee for using piaxis services?",
         answer: "We offer competitive transaction fees that vary by service type. Basic features like social saving groups have no fees, while payment processing and escrow services have small transaction fees. Contact us for detailed pricing information.",
         category: "Pricing"
     },
@@ -42,7 +42,7 @@ const faqs: FAQ[] = [
         category: "Features"
     },
     {
-        question: "Can developers integrate Piaxe into their applications?",
+        question: "Can developers integrate piaxis into their applications?",
         answer: "Absolutely! We provide a comprehensive RESTful API with SDKs, webhooks, and detailed documentation. Developers can integrate payment processing, escrow services, and disbursement capabilities into their applications.",
         category: "Developer"
     },
@@ -57,7 +57,7 @@ const faqs: FAQ[] = [
         category: "Business"
     },
     {
-        question: "What countries does Piaxe support?",
+        question: "What countries does piaxis support?",
         answer: "We currently operate in select African markets with plans for expansion. Check our website for the most current list of supported countries and payment methods available in your region.",
         category: "General"
     },
@@ -150,7 +150,7 @@ export function FAQs() {
                     </h2>
                     <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
                         Find answers to common questions about our payment solutions, security features,
-                        and how to get started with Piaxe.
+                        and how to get started with piaxis.
                     </p>
                 </div>
 
@@ -194,7 +194,7 @@ export function FAQs() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
-                            href="mailto:support@piaxe.com"
+                            href="mailto:support@piaxis.com"
                             className="glass-button-primary inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
                         >
                             Contact Support

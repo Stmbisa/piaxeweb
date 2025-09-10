@@ -80,7 +80,7 @@ export function PaymentSettings() {
     const [posMode, setPosMode] = useState(false)
 
     const apiKey = "pk_live_51H2J3KLmNoPQrSt2K3L4mN5oPQrSt6K7L8mN9oPQrSt0K1L2mN3oPQrSt4K5L6"
-    const webhookUrl = "https://api.piaxe.com/webhooks/payments"
+    const webhookUrl = "https://api.piaxe.me/webhooks/payments"
 
     const getStatusColor = (status: PaymentMethod['status']) => {
         switch (status) {
@@ -303,7 +303,7 @@ export function PaymentSettings() {
                         <CardHeader>
                             <CardTitle>API Configuration</CardTitle>
                             <CardDescription>
-                                Integrate Piaxe payments into your applications
+                                Integrate piaxis payments into your applications
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -362,7 +362,7 @@ export function PaymentSettings() {
                             <div className="p-4 bg-gray-50 border rounded-lg">
                                 <h4 className="font-semibold mb-2">API Documentation</h4>
                                 <p className="text-sm text-muted-foreground mb-3">
-                                    Learn how to integrate Piaxe payments into your applications
+                                    Learn how to integrate piaxis payments into your applications
                                 </p>
                                 <Button variant="outline" size="sm">
                                     View API Docs

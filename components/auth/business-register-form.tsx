@@ -266,7 +266,7 @@ export function BusinessRegisterForm() {
                     <Building2 className="w-16 h-16 mx-auto text-primary mb-4" />
                     <h1 className="text-2xl font-bold text-foreground">Create Business Account</h1>
                     <p className="text-muted-foreground">
-                        Set up your business to start selling products and managing inventory with Piaxe
+                        Set up your business to start selling products and managing inventory with piaxis
                     </p>
                 </div>
                 <div className="space-y-6">
@@ -274,24 +274,24 @@ export function BusinessRegisterForm() {
                     <div className="flex items-center justify-center mb-8">
                         <div className="flex items-center space-x-2">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 1
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                                    : 'bg-white/20 text-muted-foreground border border-white/30'
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 1
                             </div>
                             <div className={`w-12 h-1 rounded-full transition-all duration-300 ${step >= 2 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-white/20'
                                 }`} />
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 2
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                                    : 'bg-white/20 text-muted-foreground border border-white/30'
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 2
                             </div>
                             <div className={`w-12 h-1 rounded-full transition-all duration-300 ${step >= 3 ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-white/20'
                                 }`} />
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${step >= 3
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
-                                    : 'bg-white/20 text-muted-foreground border border-white/30'
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                : 'bg-white/20 text-muted-foreground border border-white/30'
                                 }`}>
                                 3
                             </div>

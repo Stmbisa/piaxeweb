@@ -8,6 +8,7 @@ import { QueryProvider } from "@/lib/providers/query-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { siteConfig, absoluteUrl, defaultImages } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,66 +24,35 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
-    template: "%s | Piaxe - Payment System for Supply Chains",
+    default: `${siteConfig.name} - Payment System for Supply Chains Optimized for Low Trust Environments`,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "Piaxe offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce all in one platform. Perfect for consumers, SMEs, and online businesses in Uganda, East Africa and Beyond.",
-  keywords: [
-    "escrow payments",
-    "mobile money",
-    "digital payments",
-    "payment API",
-    "secure transactions",
-    "SME payments",
-    "Uganda payments",
-    "financial technology",
-    "fintech",
-    "POS-free payments",
-    "CRM",
-    "fundraising",
-    "social commerce",
-    "payment gateway",
-    "secure payments",
-    "low trust environment",
-    "API integration",
-    "payment processing",
-    "East Africa fintech",
-    "supply chain payments",
-  ],
-  authors: [{ name: "Piaxe Team" }],
-  creator: "Piaxe",
-  publisher: "Piaxe",
-  metadataBase: new URL("https://piaxe.com"),
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: [{ name: `${siteConfig.name} Team` }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
   alternates: {
-    canonical: "https://piaxe.com",
+    canonical: siteConfig.url,
   },
   openGraph: {
     type: "website",
     locale: "en_UG",
-    url: "https://piaxe.com",
-    siteName: "Piaxe",
-    title: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
-    description:
-      "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
-    images: [
-      {
-        url: "/images/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Piaxe - Payment system for supply chains",
-      },
-    ],
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} - Payment System for Supply Chains Optimized for Low Trust Environments`,
+    description: siteConfig.description,
+    images: defaultImages(),
   },
   twitter: {
     card: "summary_large_image",
-    site: "@piaxe",
-    creator: "@piaxe",
-    title: "Piaxe - Payment System for Supply Chains Optimized for Low Trust Environments",
-    description:
-      "Revolutionizing payments in Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
-    images: ["/images/twitter-image.png"],
+    site: siteConfig.twitter,
+    creator: siteConfig.twitter,
+    title: `${siteConfig.name} - Payment System for Supply Chains Optimized for Low Trust Environments`,
+    description: siteConfig.description,
+    images: [absoluteUrl('/images/twitter-image.png')],
   },
   robots: {
     index: true,
@@ -96,6 +66,7 @@ export const metadata: Metadata = {
     },
   },
   generator: "Next.js",
+  category: 'finance',
 };
 
 export default function RootLayout({
@@ -123,62 +94,70 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Piaxe" />
-        <meta name="application-name" content="Piaxe" />
+        <meta name="apple-mobile-web-app-title" content="piaxis" />
+        <meta name="application-name" content="piaxis" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-TileColor" content="#06B6D4" />
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <meta name="apple-touch-fullscreen" content="yes" />
         <meta name="apple-mobile-web-app-oriented" content="portrait" />
+        {/* Organization / WebSite structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "FinancialService",
-              name: "Piaxe",
-              description:
-                "Secure payment system optimized for low trust environments with escrow protection, POS-free payments, and business tools.",
-              url: "https://piaxe.com",
-              logo: "https://piaxe.com/images/logo.png",
-              sameAs: [
-                "https://twitter.com/piaxe",
-                "https://www.linkedin.com/company/piaxe-me",
-              ],
-              contactPoint: {
-                "@type": "ContactPoint",
-                telephone: "+256757951430",
-                contactType: "customer service",
-                availableLanguage: ["English", "Luganda", "Swahili",],
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "FinancialService",
+                name: siteConfig.name,
+                description: siteConfig.description,
+                url: siteConfig.url,
+                logo: absoluteUrl('/images/logo.png'),
+                sameAs: [
+                  "https://twitter.com/piaxis",
+                  "https://www.linkedin.com/company/piaxis-me",
+                ],
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  telephone: "+256757951430",
+                  contactType: "customer service",
+                  availableLanguage: ["English", "Luganda", "Swahili"],
+                },
+                address: {
+                  "@type": "PostalAddress",
+                  addressCountry: "UG",
+                  addressRegion: "Central Region",
+                  addressLocality: "Kampala",
+                },
+                offers: [
+                  { "@type": "Offer", name: "Escrow Payment Protection" },
+                  { "@type": "Offer", name: "POS-free Payments" },
+                  { "@type": "Offer", name: "Payment API" },
+                ],
               },
-              address: {
-                "@type": "PostalAddress",
-                addressCountry: "UG",
-                addressRegion: "Central Region",
-                addressLocality: "Kampala",
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: siteConfig.name,
+                url: siteConfig.url,
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: `${siteConfig.url}/search?q={search_term_string}`,
+                  "query-input": "required name=search_term_string"
+                }
               },
-              offers: [
-                {
-                  "@type": "Offer",
-                  name: "Escrow Payment Protection",
-                  description:
-                    "Secure payment holding until transaction terms are met",
-                },
-                {
-                  "@type": "Offer",
-                  name: "POS-free Payments",
-                  description:
-                    "Accept payments in physical stores using only mobile phones",
-                },
-                {
-                  "@type": "Offer",
-                  name: "Payment API",
-                  description:
-                    "Integrate secure payment processing into your applications",
-                },
-              ],
-            }),
+              {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                name: siteConfig.name,
+                operatingSystem: "Android, iOS, Web",
+                applicationCategory: "FinanceApplication",
+                description: siteConfig.description,
+                url: siteConfig.url,
+                offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
+              }
+            ])
           }}
         />
       </head>

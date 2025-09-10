@@ -236,7 +236,7 @@ export function SupportCenter() {
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-2">How to make a payment</h3>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Learn the different ways to send money using Piaxe
+                      Learn the different ways to send money using piaxis
                     </p>
                     <Badge variant="secondary" className="text-xs">Payment</Badge>
                   </CardContent>

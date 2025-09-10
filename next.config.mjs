@@ -13,7 +13,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'piaxe.com',
+        hostname: 'gopiaxis.com',
       },
     ],
   },
@@ -42,7 +42,7 @@ const nextConfig = {
 export default withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
-  
+  // disable:true // always disable temporalily before building
   register: true,
   skipWaiting: true,
   reloadOnOnline: true,

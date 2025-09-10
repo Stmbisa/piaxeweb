@@ -207,10 +207,10 @@ export function EscrowFulfillment() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Shield className="w-5 h-5 text-primary" />
-                        How Piaxe Escrow Protects Unregistered Users
+                        How piaxis Escrow Protects Unregistered Users
                     </CardTitle>
                     <CardDescription>
-                        Secure payments for buyers who don't have Piaxe accounts
+                        Secure payments for buyers who don't have piaxis accounts
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

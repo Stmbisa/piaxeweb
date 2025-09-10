@@ -636,7 +636,7 @@ export function BusinessOnboardingFlow() {
         <div className="space-y-6">
             <div className="text-center">
                 <CheckCircle className="w-20 h-20 mx-auto text-green-600 mb-6" />
-                <h2 className="text-3xl font-bold mb-4">Welcome to Piaxe Business!</h2>
+                <h2 className="text-3xl font-bold mb-4">Welcome to piaxis Business!</h2>
                 <p className="text-lg text-muted-foreground mb-6">
                     Your business account is set up and ready to go
                 </p>

@@ -2,8 +2,8 @@ import { Metadata } from 'next'
 import { SupportCenter } from '@/components/support/support-center'
 
 export const metadata: Metadata = {
-    title: 'Support Center | Piaxe',
-    description: 'Get help with your Piaxe account, payments, and technical issues. Browse our knowledge base or create a support ticket.',
+    title: 'Support Center | piaxis',
+    description: 'Get help with your piaxis account, payments, and technical issues. Browse our knowledge base or create a support ticket.',
 }
 
 export default function SupportPage() {

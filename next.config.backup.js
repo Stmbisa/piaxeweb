@@ -16,16 +16,16 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'piaxe.com',
+        hostname: 'gopiaxis.com.com',
       },
     ],
   },
   // Enable standalone output for better deployment
   output: 'standalone',
-  
+
   // PWA configuration
   swcMinify: true,
-  
+
   // Security headers
   async headers() {
     return [

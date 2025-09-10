@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  // Normalize host: redirect www to apex domain for canonical consistency
+  const host = request.headers.get('host') || ''
+  if (host.startsWith('www.')) {
+    const url = request.nextUrl.clone()
+    url.host = host.replace(/^www\./, '')
+    return NextResponse.redirect(url, 308)
+  }
   // Get the pathname of the request (e.g. /, /dashboard, /about, etc.)
   const path = request.nextUrl.pathname
 
@@ -15,7 +22,7 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedPath) {
     // Check for auth token in cookies
-    const token = request.cookies.get('piaxe_auth_token')?.value
+    const token = request.cookies.get('piaxis_auth_token')?.value
 
     if (!token) {
       // Redirect to login with a return URL

@@ -126,10 +126,10 @@ export function KnowledgeBase({ searchQuery: initialSearchQuery = "" }: Knowledg
         prev.map(article =>
           article.id === articleId
             ? {
-                ...article,
-                helpful_votes: helpful ? article.helpful_votes + 1 : article.helpful_votes,
-                not_helpful_votes: !helpful ? article.not_helpful_votes + 1 : article.not_helpful_votes,
-              }
+              ...article,
+              helpful_votes: helpful ? article.helpful_votes + 1 : article.helpful_votes,
+              not_helpful_votes: !helpful ? article.not_helpful_votes + 1 : article.not_helpful_votes,
+            }
             : article
         )
       );
@@ -174,7 +174,7 @@ export function KnowledgeBase({ searchQuery: initialSearchQuery = "" }: Knowledg
         </div>
         <h2 className="text-3xl font-bold mb-2">Knowledge Base</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Find answers to common questions and learn how to use Piaxe effectively
+          Find answers to common questions and learn how to use piaxis effectively
         </p>
       </div>
 

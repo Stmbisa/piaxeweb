@@ -45,7 +45,7 @@ export function PersonalDashboard() {
             // Check once if user has stores
             try {
                 const { shoppingInventoryAPI } = await import('../../lib/api/shopping-inventory')
-                const token = localStorage.getItem('piaxe_auth_token')
+                const token = localStorage.getItem('piaxis_auth_token')
                 if (token) {
                     const stores = await shoppingInventoryAPI.getStores(token)
                     if (stores.length > 0) {
@@ -262,11 +262,10 @@ export function PersonalDashboard() {
                                     {transactions.map((transaction: any) => (
                                         <div key={transaction.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/10 transition-colors">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                                    transaction.transaction_type === 'deposit' ? 'bg-green-500/10' :
-                                                    transaction.transaction_type === 'withdrawal' ? 'bg-red-500/10' :
-                                                    'bg-blue-500/10'
-                                                }`}>
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${transaction.transaction_type === 'deposit' ? 'bg-green-500/10' :
+                                                        transaction.transaction_type === 'withdrawal' ? 'bg-red-500/10' :
+                                                            'bg-blue-500/10'
+                                                    }`}>
                                                     {transaction.transaction_type === 'deposit' ? (
                                                         <ArrowDownLeft className="w-4 h-4 text-green-500" />
                                                     ) : transaction.transaction_type === 'withdrawal' ? (
@@ -285,13 +284,12 @@ export function PersonalDashboard() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className={`text-sm font-semibold ${
-                                                    transaction.transaction_type === 'deposit' ? 'text-green-600' :
-                                                    transaction.transaction_type === 'withdrawal' ? 'text-red-600' :
-                                                    'text-foreground'
-                                                }`}>
+                                                <p className={`text-sm font-semibold ${transaction.transaction_type === 'deposit' ? 'text-green-600' :
+                                                        transaction.transaction_type === 'withdrawal' ? 'text-red-600' :
+                                                            'text-foreground'
+                                                    }`}>
                                                     {transaction.transaction_type === 'deposit' ? '+' :
-                                                     transaction.transaction_type === 'withdrawal' ? '-' : ''}
+                                                        transaction.transaction_type === 'withdrawal' ? '-' : ''}
                                                     {transaction.currency} {parseFloat(transaction.amount).toLocaleString()}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground capitalize">
@@ -330,7 +328,7 @@ export function PersonalDashboard() {
                             <div>
                                 <h3 className="font-semibold mb-2 text-foreground">Developer API</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Integrate Piaxe's payment system into your applications with our developer API
+                                    Integrate piaxis's payment system into your applications with our developer API
                                 </p>
                                 <Link href="/auth/developer-register">
                                     <button className="glass-button-secondary text-secondary-foreground hover:text-secondary-foreground flex items-center gap-2">

@@ -1,6 +1,6 @@
 {
-    "name": "Piaxe - Secure Payment System for Low Trust Environments",
-    "short_name": "Piaxe",
+    "name": "piaxis - Secure Payment System for Low Trust Environments",
+    "short_name": "piaxis",
     "description": "Secure payment system optimized for low trust environments with escrow protection, POS-free payments, and comprehensive business tools for Uganda and East Africa.",
     "start_url": "/?utm_source=pwa",
     "display": "standalone",
@@ -67,54 +67,54 @@
             "purpose": "any maskable"
         }
     ],
-        },
+},
+{
+    "src": "/icons/icon-512x512.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any maskable"
+}
+],
+"shortcuts": [
+{
+    "name": "Send Payment",
+    "short_name": "Send",
+    "description": "Send secure escrow payment",
+    "url": "/payment-links",
+    "icons": [
         {
-            "src": "/icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
-        }
-    ],
-    "shortcuts": [
-        {
-            "name": "Send Payment",
-            "short_name": "Send",
-            "description": "Send secure escrow payment",
-            "url": "/payment-links",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Business Dashboard",
-            "short_name": "Business",
-            "description": "Access business dashboard",
-            "url": "/business/dashboard",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        }
-    ],
-    "screenshots": [
-        {
-            "src": "/images/screenshot-wide.png",
-            "sizes": "2560x1440",
-            "type": "image/png",
-            "form_factor": "wide",
-            "label": "Piaxe Dashboard - Wide Screen"
-        },
-        {
-            "src": "/images/screenshot-mobile.png",
-            "sizes": "375x812",
-            "type": "image/png",
-            "form_factor": "narrow",
-            "label": "Piaxe Mobile App"
+            "src": "/icons/icon-96x96.png",
+            "sizes": "96x96"
         }
     ]
+},
+{
+    "name": "Business Dashboard",
+    "short_name": "Business",
+    "description": "Access business dashboard",
+    "url": "/business/dashboard",
+    "icons": [
+        {
+            "src": "/icons/icon-96x96.png",
+            "sizes": "96x96"
+        }
+    ]
+}
+],
+"screenshots": [
+{
+    "src": "/images/screenshot-wide.png",
+    "sizes": "2560x1440",
+    "type": "image/png",
+    "form_factor": "wide",
+    "label": "piaxis Dashboard - Wide Screen"
+},
+{
+    "src": "/images/screenshot-mobile.png",
+    "sizes": "375x812",
+    "type": "image/png",
+    "form_factor": "narrow",
+    "label": "piaxis Mobile App"
+}
+]
 }

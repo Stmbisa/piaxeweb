@@ -114,7 +114,7 @@ export default function DeveloperDashboard() {
                             </CardHeader>
                             <CardContent>
                                 <Button variant="outline" className="w-full" asChild>
-                                    <Link href="https://piaxe.jettts.com/api/docs/" target="_blank">
+                                    <Link href="https://api.piaxe.me/api/docs/" target="_blank">
                                         View API Docs
                                     </Link>
                                 </Button>

@@ -14,7 +14,7 @@ export function MobileWalletPreview() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-6 sm:mb-8 animate-glass-appear">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 sm:mb-4 text-foreground">
-            Experience Piaxe on Mobile
+            Experience piaxis on Mobile
           </h2>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Manage your finances, make secure payments, and grow your business with our intuitive mobile app
@@ -32,7 +32,7 @@ export function MobileWalletPreview() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-3xl"></div>
               <Image
                 src="/images/mobile-design-reference.png"
-                alt="Piaxe Mobile App Interface - Secure payments and escrow system"
+                alt="piaxis Mobile App Interface - Secure payments and escrow system"
                 width={320}
                 height={640}
                 className="object-cover rounded-3xl transition-transform duration-700 group-hover:scale-110"
@@ -66,7 +66,7 @@ export function MobileWalletPreview() {
         {/* App Store Download Buttons */}
         <div className="flex justify-center gap-4 mt-12">
           <a
-            href="https://play.google.com/store/apps/details?id=com.piaxe.app"
+            href="https://play.google.com/store/apps/details?id=com.piaxis.app"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
@@ -83,7 +83,7 @@ export function MobileWalletPreview() {
           </a>
 
           <a
-            href="https://apps.apple.com/app/piaxe/id123456789"
+            href="https://apps.apple.com/app/piaxis/id123456789"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"

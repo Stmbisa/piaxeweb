@@ -92,18 +92,18 @@ export function PWAInstallPrompt() {
             {/* Floating glass background effects */}
             <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/10 rounded-full blur-xl animate-glass-float"></div>
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-secondary/10 rounded-full blur-xl animate-glass-float-delayed"></div>
-            
+
             <div className="glass-card-enhanced relative overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
                 {/* Glass shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full animate-glass-shimmer opacity-50"></div>
-                
+
                 <div className="relative z-10">
                     <div className="flex items-start gap-3">
                         <div className="glass-icon-button p-2 bg-primary/20 border border-primary/30 shadow-lg shadow-primary/20">
                             <Smartphone className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm mb-1 text-foreground">Install Piaxe App</h3>
+                            <h3 className="font-semibold text-sm mb-1 text-foreground">Install piaxis App</h3>
                             <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
                                 Get access to secure payments, escrow protection, and business tools.
                                 Works offline and loads faster!
@@ -132,7 +132,7 @@ export function PWAInstallPrompt() {
                         </button>
                     </div>
                 </div>
-                
+
                 {/* Subtle glass border glow */}
                 <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 pointer-events-none"></div>
             </div>

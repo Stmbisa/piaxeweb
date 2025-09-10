@@ -24,9 +24,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const TOKEN_KEY = 'piaxe_auth_token'
-const REFRESH_TOKEN_KEY = 'piaxe_refresh_token'
-const USER_KEY = 'piaxe_user'
+const TOKEN_KEY = 'piaxis_auth_token'
+const REFRESH_TOKEN_KEY = 'piaxis_refresh_token'
+const USER_KEY = 'piaxis_user'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
@@ -87,8 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem(REFRESH_TOKEN_KEY, authData.refresh_token)
 
             // Also set cookies for middleware
-            document.cookie = `piaxe_auth_token=${authData.access_token}; path=/; max-age=${30 * 24 * 60 * 60}` // 30 days
-            document.cookie = `piaxe_refresh_token=${authData.refresh_token}; path=/; max-age=${30 * 24 * 60 * 60}`
+            document.cookie = `piaxis_auth_token=${authData.access_token}; path=/; max-age=${30 * 24 * 60 * 60}` // 30 days
+            document.cookie = `piaxis_refresh_token=${authData.refresh_token}; path=/; max-age=${30 * 24 * 60 * 60}`
         }
         setToken(authData.access_token)
 
@@ -113,8 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem(USER_KEY)
 
             // Also clear cookies
-            document.cookie = 'piaxe_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-            document.cookie = 'piaxe_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            document.cookie = 'piaxis_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            document.cookie = 'piaxis_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         }
         setToken(null)
         setUser(null)

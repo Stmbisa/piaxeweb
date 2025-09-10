@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { SocialSavingGroups } from '@/components/social-saving-groups'
 
 export const metadata: Metadata = {
-  title: 'Social Saving Groups - Piaxe',
+  title: 'Social Saving Groups - piaxis',
   description: 'Join or create saving groups with friends and family for shared financial goals',
 }
 

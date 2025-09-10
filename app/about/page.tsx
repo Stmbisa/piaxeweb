@@ -1,20 +1,32 @@
 import type { Metadata } from "next"
+import { generatePageMetadata } from '@/lib/metadata'
 import { Shield, Users, Zap, Globe, Heart, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export const metadata: Metadata = {
-    title: "About Us",
-    description: "Learn about Piaxe's mission to disrupt payments across Africa and ther low trust environments with secure escrow solutions and many other innovative fintechs features.",
-    openGraph: {
-        title: "About Piaxe - Disrupting Payments",
-        description: "Discover how Piaxe is transforming payment systems starting with Uganda with escrow protection, POS-free solutions, and comprehensive business tools.",
-    }
-}
+export const metadata: Metadata = generatePageMetadata({
+    title: 'About piaxis',
+    description: "Learn about piaxis's mission to disrupt payments across Africa and low trust environments with secure escrow solutions and innovative fintech features.",
+    path: '/about',
+    keywords: ['about piaxis', 'piaxis mission']
+})
 
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30 relative overflow-hidden">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'BreadcrumbList',
+                        itemListElement: [
+                            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://piaxis.com/' },
+                            { '@type': 'ListItem', position: 2, name: 'About', item: 'https://piaxis.com/about' }
+                        ]
+                    })
+                }}
+            />
             {/* Background glass orbs */}
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-glass-float"></div>
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-glass-float-delayed"></div>
@@ -29,9 +41,12 @@ export default function AboutPage() {
                         </span>
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-4">
-                        Piaxe is a comprehensive payment system designed specifically for Uganda and East Africa,
+                        piaxis is a modern payment system designed specifically for low trust environments like Africa and Asia,
+                        we started with Uganda and East Africa expanding to more very soon,
                         where trust between parties can be limited. We provide escrow protection, POS-free payments,
-                        and complete business management tools all in one secure platform.
+                        help creators collect payments without any integation,
+                        help ecommerce platforms or any digital platform to collect and disburse payments
+                        and complete business management tools all in one setup.
                     </p>
                     <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 px-4">
                         <button className="glass-button-primary rounded-full px-6 md:px-8 py-3 w-full sm:w-auto">
@@ -213,7 +228,7 @@ export default function AboutPage() {
                             <Award className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-3 md:mb-4" />
                             <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-foreground">Recognized Excellence</h3>
                             <p className="text-muted-foreground text-sm md:text-base">
-                                Piaxe has been recognized by leading fintech organizations and startup accelerators
+                                piaxis has been recognized by leading fintech organizations and startup accelerators
                                 for our innovative approach to solving payment challenges in emerging markets.
                             </p>
                         </div>
@@ -226,7 +241,7 @@ export default function AboutPage() {
                         <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-primary-foreground">Join the Payment Revolution</h2>
                         <p className="text-base md:text-lg text-primary-foreground/80 mb-6 md:mb-8 max-w-2xl mx-auto">
                             Whether you're a consumer looking for secure payments, a business wanting to grow,
-                            or a developer building the next big thing, Piaxe has the tools you need.
+                            or a developer building the next big thing, piaxis has the tools you need.
                         </p>
                         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4">
                             <button className="glass-button rounded-full px-6 md:px-8 py-3 w-full sm:w-auto bg-white/20 hover:bg-white/30 text-primary-foreground">

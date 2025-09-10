@@ -25,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       }
     ],
-    sitemap: 'https://piaxe.com/sitemap.xml',
-    host: 'https://piaxe.com',
+    sitemap: 'https://gopiaxis.com/sitemap.xml',
+    host: 'https://gopiaxis.com',
   }
 }

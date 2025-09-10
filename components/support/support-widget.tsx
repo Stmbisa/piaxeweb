@@ -173,7 +173,7 @@ export function SupportWidget({ className = "", compact = false }: SupportWidget
           <div className="space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Mail className="h-3 w-3" />
-              <span>support@piaxe.me</span>
+              <span>support@gopiaxis.com</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-3 w-3" />

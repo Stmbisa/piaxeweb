@@ -8,8 +8,8 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Image src="/images/logo.png" alt="Piaxe Logo" width={24} height={24} className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="font-bold text-base sm:text-lg text-primary">Piaxe</span>
+              <Image src="/images/logo.png" alt="piaxis Logo" width={24} height={24} className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="font-bold text-base sm:text-lg text-primary">piaxis</span>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
               Secure payment system optimized for low trust environments.
@@ -96,12 +96,12 @@ export function Footer() {
         </div>
 
         <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
-          <p className="text-muted-foreground text-xs sm:text-sm">© 2025 Piaxe. All rights reserved.</p>
+          <p className="text-muted-foreground text-xs sm:text-sm">© 2025 piaxis. All rights reserved.</p>
           <div className="flex gap-4 sm:gap-6">
             <Link
-              href="https://twitter.com/piaxe"
+              href="https://twitter.com/piaxis"
               className="text-muted-foreground hover:text-foreground"
-              aria-label="Follow Piaxe on Twitter"
+              aria-label="Follow piaxis on Twitter"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -119,9 +119,9 @@ export function Footer() {
               </svg>
             </Link>
             <Link
-              href="https://linkedin.com/company/piaxe"
+              href="https://linkedin.com/company/piaxis"
               className="text-muted-foreground hover:text-foreground"
-              aria-label="Follow Piaxe on LinkedIn"
+              aria-label="Follow piaxis on LinkedIn"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
