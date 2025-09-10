@@ -65,11 +65,12 @@ export default function Home() {
                 title="For SMEs and Brick & Mortar Businesses"
                 description="Our payment tools can help your business thrive. Accept payments, manage inventory, customer relationships, and soon HR - all with one setup."
                 features={[
+                  "POS-free payment collection in physical stores using just mobile phones",
                   "Accept digital payments from mobile money wallets, banks, and cards",
                   "Sell online on our ecommerce platform and on social media",
                   "Manage inventory and customer relationships (CRM) for free",
                   "Accept payments on social media as easy as it sounds",
-                  "POS-free payment collection in physical stores using just mobile phones",
+                  "Run promotions with coupons, discounts, and loyalty programs to retain customers",
                 ]}
                 buttonText="Start Selling"
                 buttonLink="/business/onboard"

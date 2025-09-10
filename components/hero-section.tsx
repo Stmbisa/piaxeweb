@@ -22,8 +22,7 @@ export function HeroSection() {
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              piaxis offers escrow payments, POS-free physical store payments, CRM, fundraising, and social e-commerce
-              all in one secure platform.
+              piaxis offers direct payments, escrow payments (conditional payments), POS-free physical store payments, social e-commerce payments, Payments APIs, CRM, fundraising in a single setup.
             </p>
           </div>
 
