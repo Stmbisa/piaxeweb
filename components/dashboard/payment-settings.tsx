@@ -80,7 +80,7 @@ export function PaymentSettings() {
     const [posMode, setPosMode] = useState(false)
 
     const apiKey = "pk_live_51H2J3KLmNoPQrSt2K3L4mN5oPQrSt6K7L8mN9oPQrSt0K1L2mN3oPQrSt4K5L6"
-    const webhookUrl = "https://api.piaxe.me/webhooks/payments"
+    const webhookUrl = "https://api.gopiaxis.com/webhooks/payments"
 
     const getStatusColor = (status: PaymentMethod['status']) => {
         switch (status) {

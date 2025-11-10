@@ -1,5 +1,5 @@
 // Support API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.piaxe.me';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 export interface SupportTicket {
   id: string;

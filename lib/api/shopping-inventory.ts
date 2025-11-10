@@ -1,5 +1,5 @@
 // Shopping and Inventory API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.piaxe.me';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 // Product Types
 export interface Product {

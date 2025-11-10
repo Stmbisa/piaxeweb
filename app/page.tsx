@@ -134,7 +134,7 @@ export default function Home() {
                 buttons={[
                   {
                     text: "Explore API",
-                    link: "https://api.piaxe.me/api/docs/",
+                    link: "https://api.gopiaxis.com/api/docs/",
                     external: true
                   },
                   {
