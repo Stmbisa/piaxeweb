@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useToast, toast as globalToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth/context";
 import { type Store } from "@/lib/api/shopping-inventory";
 import {
@@ -72,6 +72,16 @@ const defaultBusinessHours = {
   Sunday: { open: "closed", close: "closed", closed: true },
 };
 
+// Default notification preferences
+const defaultNotificationPreferences = {
+  email_new_order: true,
+  sms_inventory_low: true,
+  low_stock_alerts: true,
+  new_order_notifications: true,
+  customer_cart_alerts: true,
+  staff_notifications: true,
+};
+
 interface StoreFormData {
   name: string;
   description: string;
@@ -116,16 +126,15 @@ export function StoreManager() {
     contact_phone: "",
     contact_email: "",
     business_hours: { ...defaultBusinessHours },
-    notification_preferences: {
-      email_new_order: true,
-      sms_inventory_low: true,
-      low_stock_alerts: true,
-      new_order_notifications: true,
-      customer_cart_alerts: true,
-      staff_notifications: true,
-    },
+    notification_preferences: { ...defaultNotificationPreferences },
   });
   const [formErrors, setFormErrors] = useState({
+    name: "",
+    address: "",
+    contact_phone: "",
+    contact_email: "",
+  });
+  const [editFormErrors, setEditFormErrors] = useState({
     name: "",
     address: "",
     contact_phone: "",
@@ -270,23 +279,42 @@ export function StoreManager() {
 
   const handleEditStore = (store: StoreResponse) => {
     setEditingStore(store);
+    setEditFormErrors({
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    });
 
     // Convert the store's business hours format to match our form's format
-    const businessHours: StoreFormData["business_hours"] = {};
+    const businessHours: StoreFormData["business_hours"] = {
+      ...defaultBusinessHours,
+    };
+
     if (store.business_hours) {
-      (Object.keys(store.business_hours) as DayOfWeek[]).forEach((day) => {
+      (Object.keys(defaultBusinessHours) as DayOfWeek[]).forEach((day) => {
         if (store.business_hours?.[day]) {
           const { open, close } = store.business_hours[day];
           businessHours[day] = {
-            open,
-            close,
-            closed: open === "closed" && close === "closed",
+            open: open || "09:00",
+            close: close || "17:00",
+            closed: open === "closed" || close === "closed",
           };
         }
       });
-    } else {
-      // Use default business hours if none are set
-      Object.assign(businessHours, defaultBusinessHours);
+    }
+
+    // Ensure notification preferences are properly initialized
+    const notificationPreferences = { ...defaultNotificationPreferences };
+
+    if (store.notification_preferences) {
+      Object.keys(defaultNotificationPreferences).forEach((key) => {
+        const typedKey = key as keyof typeof defaultNotificationPreferences;
+        if (store.notification_preferences?.[typedKey] !== undefined) {
+          notificationPreferences[typedKey] =
+            !!store.notification_preferences[typedKey];
+        }
+      });
     }
 
     // Set form data with the current store's values
@@ -296,31 +324,60 @@ export function StoreManager() {
       address: store.address || "",
       contact_phone: store.contact_phone || "",
       contact_email: store.contact_email || "",
-      business_hours:
-        Object.keys(businessHours).length > 0
-          ? businessHours
-          : { ...defaultBusinessHours },
-      notification_preferences: {
-        email_new_order:
-          store.notification_preferences?.email_new_order ?? true,
-        sms_inventory_low:
-          store.notification_preferences?.sms_inventory_low ?? true,
-        low_stock_alerts:
-          store.notification_preferences?.low_stock_alerts ?? true,
-        new_order_notifications:
-          store.notification_preferences?.new_order_notifications ?? true,
-        customer_cart_alerts:
-          store.notification_preferences?.customer_cart_alerts ?? true,
-        staff_notifications:
-          store.notification_preferences?.staff_notifications ?? true,
-      },
+      business_hours: businessHours,
+      notification_preferences: notificationPreferences,
     });
+  };
+
+  const validateEditForm = () => {
+    let isValid = true;
+    const errors = {
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    };
+
+    // Validate name
+    if (!formData.name.trim()) {
+      errors.name = "Store name is required";
+      isValid = false;
+    }
+
+    // Validate address
+    if (!formData.address.trim()) {
+      errors.address = "Address is required";
+      isValid = false;
+    }
+
+    // Validate phone
+    if (!formData.contact_phone.trim()) {
+      errors.contact_phone = "Phone number is required";
+      isValid = false;
+    } else if (!formData.contact_phone.startsWith("+")) {
+      errors.contact_phone =
+        "Phone number should start with + (international format)";
+      isValid = false;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.contact_email.trim()) {
+      errors.contact_email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(formData.contact_email)) {
+      errors.contact_email = "Please enter a valid email";
+      isValid = false;
+    }
+
+    setEditFormErrors(errors);
+    return isValid;
   };
 
   const handleUpdateStore = async () => {
     if (!token || !editingStore) return;
 
-    if (!validateForm()) {
+    if (!validateEditForm()) {
       toast({
         title: "Error",
         description: "Please fix the errors in the form",
@@ -336,19 +393,32 @@ export function StoreManager() {
         string,
         { open: string; close: string }
       > = {};
+
       (Object.keys(formData.business_hours) as DayOfWeek[]).forEach((day) => {
         const dayData = formData.business_hours[day];
-        if (dayData && !dayData.closed) {
-          cleanBusinessHours[day] = {
-            open: dayData.open,
-            close: dayData.close,
-          };
-        } else {
-          cleanBusinessHours[day] = {
-            open: "closed",
-            close: "closed",
-          };
+        if (dayData) {
+          if (dayData.closed) {
+            cleanBusinessHours[day] = {
+              open: "closed",
+              close: "closed",
+            };
+          } else {
+            cleanBusinessHours[day] = {
+              open: dayData.open || "09:00",
+              close: dayData.close || "17:00",
+            };
+          }
         }
+      });
+
+      // Clean notification preferences to ensure all required fields are present
+      const cleanNotificationPreferences: Record<string, boolean> = {};
+      Object.keys(defaultNotificationPreferences).forEach((key) => {
+        const typedKey = key as keyof typeof defaultNotificationPreferences;
+        cleanNotificationPreferences[typedKey] =
+          formData.notification_preferences[typedKey] !== undefined
+            ? !!formData.notification_preferences[typedKey]
+            : defaultNotificationPreferences[typedKey];
       });
 
       const storePayload: Partial<CreateStorePayload> = {
@@ -358,7 +428,7 @@ export function StoreManager() {
         contact_phone: formData.contact_phone.trim(),
         contact_email: formData.contact_email.trim(),
         business_hours: cleanBusinessHours,
-        notification_preferences: formData.notification_preferences,
+        notification_preferences: cleanNotificationPreferences,
       };
 
       const updatedStore = await updateStore(
@@ -375,9 +445,10 @@ export function StoreManager() {
       resetForm();
       setEditingStore(null);
 
-      toast({
-        title: "Success",
-        description: "Store updated successfully",
+      // Show a global toast notification only
+      globalToast({
+        title: "Store updated",
+        description: `The store "${updatedStore.name}" was updated successfully.`,
       });
     } catch (error: any) {
       console.error("Error updating store:", error);
@@ -398,6 +469,11 @@ export function StoreManager() {
       setIsDeleting(true);
       await deleteStore(token, storeId);
       setStores((prev) => prev.filter((store) => store.id !== storeId));
+      globalToast({
+        title: "Store deleted",
+        description: `The store "${storeToDelete?.name}" was deleted successfully.`,
+        variant: "destructive",
+      });
       setStoreToDelete(null);
       setDeleteConfirmStage(1);
 
@@ -425,14 +501,7 @@ export function StoreManager() {
       contact_phone: "",
       contact_email: "",
       business_hours: { ...defaultBusinessHours },
-      notification_preferences: {
-        email_new_order: true,
-        sms_inventory_low: true,
-        low_stock_alerts: true,
-        new_order_notifications: true,
-        customer_cart_alerts: true,
-        staff_notifications: true,
-      },
+      notification_preferences: { ...defaultNotificationPreferences },
     });
     setFormErrors({
       name: "",
@@ -1290,9 +1359,12 @@ export function StoreManager() {
       >
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Store</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit2 className="h-5 w-5" />
+              Edit Store
+            </DialogTitle>
             <DialogDescription>
-              Update store information and settings
+              Update information and settings for {editingStore?.name}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -1303,8 +1375,8 @@ export function StoreManager() {
                 placeholder="Main Store"
                 value={formData.name}
                 onChange={(e) => handleFormDataChange("name", e.target.value)}
-                error={!!formErrors.name}
-                helperText={formErrors.name}
+                error={!!editFormErrors.name}
+                helperText={editFormErrors.name}
               />
             </div>
             <div className="space-y-2">
@@ -1329,8 +1401,8 @@ export function StoreManager() {
                   handleFormDataChange("address", e.target.value)
                 }
                 rows={2}
-                error={!!formErrors.address}
-                helperText={formErrors.address}
+                error={!!editFormErrors.address}
+                helperText={editFormErrors.address}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1343,8 +1415,8 @@ export function StoreManager() {
                   onChange={(e) =>
                     handleFormDataChange("contact_phone", e.target.value)
                   }
-                  error={!!formErrors.contact_phone}
-                  helperText={formErrors.contact_phone}
+                  error={!!editFormErrors.contact_phone}
+                  helperText={editFormErrors.contact_phone}
                 />
               </div>
               <div className="space-y-2">
@@ -1357,23 +1429,38 @@ export function StoreManager() {
                   onChange={(e) =>
                     handleFormDataChange("contact_email", e.target.value)
                   }
-                  error={!!formErrors.contact_email}
-                  helperText={formErrors.contact_email}
+                  error={!!editFormErrors.contact_email}
+                  helperText={editFormErrors.contact_email}
                 />
               </div>
             </div>
 
             {/* Business Hours Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">
-                Business Hours
-              </h3>
-              <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Business Hours
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      business_hours: { ...defaultBusinessHours },
+                    }));
+                  }}
+                >
+                  Reset to Default
+                </Button>
+              </div>
+              <div className="space-y-3 border rounded-md p-3">
                 {Object.entries(formData.business_hours).map(
                   ([day, dayData]) => (
                     <div
                       key={day}
-                      className="flex flex-col sm:flex-row sm:items-center gap-2"
+                      className="flex flex-col sm:flex-row sm:items-center gap-2 pb-2 border-b last:border-b-0 last:pb-0"
                     >
                       <div className="flex items-center justify-between sm:w-1/3">
                         <div className="flex items-center gap-2">
@@ -1382,16 +1469,30 @@ export function StoreManager() {
                             {day}
                           </span>
                         </div>
-                        <Switch
-                          checked={dayData.closed}
-                          onCheckedChange={(checked) =>
-                            handleToggleBusinessDay(day as DayOfWeek, checked)
-                          }
-                          aria-label={`Toggle ${day} business hours`}
-                        />
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`text-xs ${
+                              dayData?.closed
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
+                          >
+                            {dayData?.closed ? "Closed" : "Open"}
+                          </span>
+                          <Switch
+                            checked={!dayData?.closed}
+                            onCheckedChange={(checked) =>
+                              handleToggleBusinessDay(
+                                day as DayOfWeek,
+                                !checked
+                              )
+                            }
+                            aria-label={`Toggle ${day} business hours`}
+                          />
+                        </div>
                       </div>
 
-                      {!dayData.closed && (
+                      {!dayData?.closed && (
                         <div className="flex items-center gap-2 sm:w-2/3">
                           <div className="flex-1">
                             <Label
@@ -1403,7 +1504,7 @@ export function StoreManager() {
                             <Input
                               id={`edit-${day}-open`}
                               type="time"
-                              value={dayData.open}
+                              value={dayData?.open || ""}
                               onChange={(e) =>
                                 handleTimeChange(
                                   day as DayOfWeek,
@@ -1411,7 +1512,7 @@ export function StoreManager() {
                                   e.target.value
                                 )
                               }
-                              disabled={dayData.closed}
+                              disabled={dayData?.closed}
                               className="h-8"
                             />
                           </div>
@@ -1425,7 +1526,7 @@ export function StoreManager() {
                             <Input
                               id={`edit-${day}-close`}
                               type="time"
-                              value={dayData.close}
+                              value={dayData?.close || ""}
                               onChange={(e) =>
                                 handleTimeChange(
                                   day as DayOfWeek,
@@ -1433,16 +1534,10 @@ export function StoreManager() {
                                   e.target.value
                                 )
                               }
-                              disabled={dayData.closed}
+                              disabled={dayData?.closed}
                               className="h-8"
                             />
                           </div>
-                        </div>
-                      )}
-
-                      {dayData.closed && (
-                        <div className="flex-1 text-muted-foreground text-sm italic sm:ml-4">
-                          Closed
                         </div>
                       )}
                     </div>
@@ -1453,112 +1548,70 @@ export function StoreManager() {
 
             {/* Notification Preferences Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">
-                Notification Preferences
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
-                      New Order Notifications
-                    </span>
-                  </div>
-                  <Switch
-                    checked={
-                      formData.notification_preferences.new_order_notifications
-                    }
-                    onCheckedChange={(checked) =>
-                      handleFormDataChange(
-                        "notification_preferences.new_order_notifications",
-                        checked
-                      )
-                    }
-                    aria-label="Toggle new order notifications"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
-                      Low Stock Alerts
-                    </span>
-                  </div>
-                  <Switch
-                    checked={formData.notification_preferences.low_stock_alerts}
-                    onCheckedChange={(checked) =>
-                      handleFormDataChange(
-                        "notification_preferences.low_stock_alerts",
-                        checked
-                      )
-                    }
-                    aria-label="Toggle low stock alerts"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
-                      SMS Inventory Low
-                    </span>
-                  </div>
-                  <Switch
-                    checked={
-                      formData.notification_preferences.sms_inventory_low
-                    }
-                    onCheckedChange={(checked) =>
-                      handleFormDataChange(
-                        "notification_preferences.sms_inventory_low",
-                        checked
-                      )
-                    }
-                    aria-label="Toggle SMS inventory low"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
-                      Customer Cart Alerts
-                    </span>
-                  </div>
-                  <Switch
-                    checked={
-                      formData.notification_preferences.customer_cart_alerts
-                    }
-                    onCheckedChange={(checked) =>
-                      handleFormDataChange(
-                        "notification_preferences.customer_cart_alerts",
-                        checked
-                      )
-                    }
-                    aria-label="Toggle customer cart alerts"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">
-                      Staff Notifications
-                    </span>
-                  </div>
-                  <Switch
-                    checked={
-                      formData.notification_preferences.staff_notifications
-                    }
-                    onCheckedChange={(checked) =>
-                      handleFormDataChange(
-                        "notification_preferences.staff_notifications",
-                        checked
-                      )
-                    }
-                    aria-label="Toggle staff notifications"
-                  />
-                </div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Notification Preferences
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      notification_preferences: {
+                        email_new_order: true,
+                        sms_inventory_low: true,
+                        low_stock_alerts: true,
+                        new_order_notifications: true,
+                        customer_cart_alerts: true,
+                        staff_notifications: true,
+                      },
+                    }));
+                  }}
+                >
+                  Enable All
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-3 border rounded-md p-3">
+                {Object.entries(formData.notification_preferences).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between pb-2 border-b last:border-b-0 last:pb-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground capitalize">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span
+                          className={`text-xs ${
+                            value ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          {value ? "Enabled" : "Disabled"}
+                        </span>
+                        <Switch
+                          checked={value}
+                          onCheckedChange={(checked) =>
+                            handleFormDataChange(
+                              `notification_preferences.${key}`,
+                              checked
+                            )
+                          }
+                          aria-label={`Toggle ${key}`}
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -1569,14 +1622,18 @@ export function StoreManager() {
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdateStore} disabled={isUpdating}>
+            <Button
+              onClick={handleUpdateStore}
+              disabled={isUpdating}
+              className="min-w-[100px]"
+            >
               {isUpdating ? (
                 <>
                   <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
                   Updating...
                 </>
               ) : (
-                "Update Store"
+                "Save Changes"
               )}
             </Button>
           </DialogFooter>

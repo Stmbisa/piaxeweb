@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth/context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { Header } from "@/components/header";
 import { InternalLayout } from "@/components/internal-layout";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -179,6 +180,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className} suppressHydrationWarning>
+        <Toaster />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
