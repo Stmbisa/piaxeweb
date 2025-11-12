@@ -58,6 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const storedToken = localStorage.getItem(TOKEN_KEY);
         const storedUser = localStorage.getItem(USER_KEY);
+        const storedDeviceId = localStorage.getItem("piaxe_device_id");
+
+        // Set device ID from storage if available
+        if (storedDeviceId) {
+          console.log("Restoring device ID from storage:", storedDeviceId);
+          authAPI.setDeviceId(storedDeviceId);
+        }
 
         if (storedToken && storedUser) {
           setToken(storedToken);
@@ -84,9 +91,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const storeAuth = async (authData: AuthResponse) => {
+    console.log("Storing auth data...");
+    console.log(
+      "Access token (first 15 chars):",
+      authData.access_token.substring(0, 15) + "..."
+    );
+    console.log("Device ID:", authData.device_id);
+
+    // Set device ID in the API for all future requests
+    authAPI.setDeviceId(authData.device_id);
+
     if (typeof window !== "undefined") {
       localStorage.setItem(TOKEN_KEY, authData.access_token);
       localStorage.setItem(REFRESH_TOKEN_KEY, authData.refresh_token);
+      localStorage.setItem("piaxe_device_id", authData.device_id);
 
       // Also set cookies for middleware
       document.cookie = `piaxe_auth_token=${
@@ -95,18 +113,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       document.cookie = `piaxe_refresh_token=${
         authData.refresh_token
       }; path=/; max-age=${30 * 24 * 60 * 60}`;
+      document.cookie = `piaxe_device_id=${
+        authData.device_id
+      }; path=/; max-age=${30 * 24 * 60 * 60}`;
+
+      console.log("Auth data stored in localStorage and cookies");
     }
     setToken(authData.access_token);
+    console.log("Token state updated");
 
     // Fetch user profile after authentication
     try {
+      console.log("Fetching user profile...");
       const profile = await authAPI.getProfile(authData.access_token);
-      if (typeof window !== "undefined") {
+      console.log("Profile received:", profile ? "✓" : "✗");
+
+      if (typeof window !== "undefined" && profile) {
         localStorage.setItem(USER_KEY, JSON.stringify(profile));
+        console.log("User profile stored in localStorage");
       }
       setUser(profile);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
+      console.error("Clearing auth data due to profile fetch failure");
       clearAuth();
       throw new Error("Failed to load user profile");
     }
@@ -117,15 +146,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
+      localStorage.removeItem("piaxe_device_id");
 
       // Also clear cookies
       document.cookie =
         "piaxe_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       document.cookie =
         "piaxe_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie =
+        "piaxe_device_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
     setToken(null);
     setUser(null);
+    // Reset device ID in API
+    authAPI.setDeviceId("");
   };
 
   const login = async (credentials: LoginCredentials) => {

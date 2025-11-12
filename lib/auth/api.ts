@@ -60,6 +60,7 @@ export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
+  device_id: string;
 }
 
 export interface ApiError {
@@ -69,6 +70,13 @@ export interface ApiError {
 }
 
 class AuthAPI {
+  private deviceId: string | null = null;
+
+  setDeviceId(deviceId: string) {
+    this.deviceId = deviceId;
+    console.log("Device ID set:", deviceId);
+  }
+
   private getHeaders(token?: string): HeadersInit {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -76,6 +84,20 @@ class AuthAPI {
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      console.log(
+        "Authorization header set:",
+        `Bearer ${token.substring(0, 10)}...`
+      );
+    } else {
+      console.log("No token provided for Authorization header");
+    }
+
+    // Add device ID header if available
+    if (this.deviceId) {
+      headers["x-device-id"] = this.deviceId;
+      console.log("Device ID header set:", this.deviceId);
+    } else {
+      console.log("No device ID available for header");
     }
 
     return headers;
@@ -198,16 +220,40 @@ class AuthAPI {
 
   async getProfile(token: string): Promise<User> {
     try {
+      console.log(
+        "Getting profile with token:",
+        token.substring(0, 15) + "..."
+      );
+      console.log("API Endpoint:", API_ENDPOINTS.AUTH.ME);
+
+      const headers = this.getHeaders(token);
+      console.log("Request Headers:", JSON.stringify(headers, null, 2));
+
+      // Try with credentials included to check for CORS/cookie issues
       const response = await fetch(API_ENDPOINTS.AUTH.ME, {
         method: "GET",
-        headers: this.getHeaders(token),
+        headers: headers,
+        credentials: "include",
       });
 
+      console.log("Profile Response Status:", response.status);
+      console.log(
+        "Response Headers:",
+        JSON.stringify(Object.fromEntries([...response.headers]), null, 2)
+      );
+
+      const responseText = await response.text();
+      console.log("Profile Response Body:", responseText);
+
       if (!response.ok) {
-        throw new Error("Failed to get user profile");
+        throw new Error(
+          `Failed to get user profile: ${response.status} - ${responseText}`
+        );
       }
 
-      return await response.json();
+      // Parse the response as JSON if it's valid
+      const userData = responseText ? JSON.parse(responseText) : null;
+      return userData;
     } catch (error) {
       console.error("Profile fetch error:", error);
       throw error;
