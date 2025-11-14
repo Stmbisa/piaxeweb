@@ -2,7 +2,12 @@
  * Product Service for handling product-related API operations
  * Separate from shopping-inventory.ts to make the code more modular
  */
-import { deviceHeadersForContext } from "../utils";
+
+// Type definitions based on mobile app's implementation
+/**
+ * Product Service for handling product-related API operations
+ * Separate from shopping-inventory.ts to make the code more modular
+ */
 
 // Type definitions based on mobile app's implementation
 export interface BatchProductInput {
@@ -115,7 +120,9 @@ export const batchAddProducts = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
     credentials: "include",
     mode: "cors",
@@ -150,7 +157,9 @@ export const scanProduct = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
     credentials: "include",
     mode: "cors",
@@ -184,7 +193,9 @@ export const getStoreLocations = async (
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
     credentials: "include",
     mode: "cors",
@@ -211,7 +222,9 @@ export const getProductCategories = async (
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
     credentials: "include",
     mode: "cors",
@@ -224,3 +237,4 @@ export const getProductCategories = async (
   const data = await response.json();
   return Array.isArray(data) ? (data as ProductCategory[]) : [];
 };
+

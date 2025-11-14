@@ -1,6 +1,4 @@
 // Support API utilities
-import { deviceHeadersForContext } from "../utils";
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 export interface SupportTicket {
@@ -172,7 +170,10 @@ class SupportAPI {
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
-      Object.assign(headers, deviceHeadersForContext(token));
+      try {
+        const { deviceHeadersForContext } = require("../utils");
+        Object.assign(headers, deviceHeadersForContext(token));
+      } catch {}
     }
 
     return headers;

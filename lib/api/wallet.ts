@@ -1,5 +1,3 @@
-import { SEND_DEVICE_HEADER_IN_BROWSER } from "../utils";
-
 export interface Wallet {
   id: string;
   user_id: string;
@@ -55,7 +53,10 @@ class WalletAPI {
     try {
       const isBrowser = typeof window !== "undefined";
       let base = API_BASE_URL;
-      if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
+      try {
+        const { SEND_DEVICE_HEADER_IN_BROWSER } = require("../utils");
+        if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
+      } catch {}
       const headers = this.getAuthHeaders(token);
       const response = await fetch(`${base}/wallet/wallets/`, {
         headers,
@@ -95,7 +96,10 @@ class WalletAPI {
     try {
       const isBrowser = typeof window !== "undefined";
       let base = API_BASE_URL;
-      if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
+      try {
+        const { SEND_DEVICE_HEADER_IN_BROWSER } = require("../utils");
+        if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
+      } catch {}
       const headers = this.getAuthHeaders(token);
       const searchParams = new URLSearchParams();
 

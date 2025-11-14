@@ -1,6 +1,4 @@
 // Shopping and Inventory API utilities
-import { SEND_DEVICE_HEADER_IN_BROWSER, deviceHeadersForContext } from "../utils";
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 // Product Types
@@ -164,7 +162,10 @@ export interface CategoryCreate {
 class ShoppingInventoryAPI {
   private getBase(): string {
     const isBrowser = typeof window !== 'undefined';
-    if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) return '/api/proxy';
+    try {
+      const { SEND_DEVICE_HEADER_IN_BROWSER } = require('../utils');
+      if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) return '/api/proxy';
+    } catch {}
     return API_BASE_URL;
   }
   private getHeaders(token: string): HeadersInit {
@@ -172,7 +173,10 @@ class ShoppingInventoryAPI {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
-    Object.assign(headers, deviceHeadersForContext(token));
+    try {
+      const { deviceHeadersForContext } = require("../utils");
+      Object.assign(headers, deviceHeadersForContext(token));
+    } catch {}
     return headers;
   }
 

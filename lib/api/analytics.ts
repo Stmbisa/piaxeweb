@@ -1,5 +1,3 @@
-import { deviceHeadersForContext } from "../utils";
-
 // Analytics API utilities
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -115,7 +113,10 @@ class AnalyticsAPI {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
-    Object.assign(headers, deviceHeadersForContext(token));
+    try {
+      const { deviceHeadersForContext } = require("../utils");
+      Object.assign(headers, deviceHeadersForContext(token));
+    } catch {}
     return headers;
   }
 

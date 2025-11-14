@@ -1,5 +1,3 @@
-import { deviceHeadersForContext } from "../utils";
-
 // CRM API utilities
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -220,7 +218,11 @@ class CRMAPI {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
-    Object.assign(headers, deviceHeadersForContext(token));
+    try {
+      const { getDeviceIdFromToken } = require("../utils");
+      const deviceId = getDeviceIdFromToken(token);
+      if (deviceId) headers["X-Device-ID"] = deviceId;
+    } catch {}
     return headers;
   }
 

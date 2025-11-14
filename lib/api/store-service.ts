@@ -1,5 +1,4 @@
 import { API_ENDPOINTS } from "@/lib/config/env";
-import { deviceHeadersForContext } from "../utils";
 
 export interface CreateStorePayload {
   name: string;
@@ -62,7 +61,9 @@ export const createStore = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
       credentials: 'include',
       mode: 'cors',
@@ -90,7 +91,9 @@ export const getStores = async (token: string): Promise<StoreResponse[]> => {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
       credentials: 'include',
       mode: 'cors',
@@ -121,7 +124,9 @@ export const getStore = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
       credentials: 'include',
       mode: 'cors',
@@ -154,7 +159,9 @@ export const updateStore = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").deviceHeadersForContext
+        ? require("../utils").deviceHeadersForContext(token)
+        : {}),
     },
       credentials: 'include',
       mode: 'cors',
@@ -185,7 +192,9 @@ export const deleteStore = async (
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...deviceHeadersForContext(token),
+      ...(require("../utils").getDeviceIdFromToken(token)
+        ? { "X-Device-ID": require("../utils").getDeviceIdFromToken(token)! }
+        : {}),
     },
       credentials: 'include',
       mode: 'cors',
