@@ -2,8 +2,8 @@ import { RegisterForm } from '@/components/auth/register-form'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Create Account | piaxis',
-    description: 'Create your piaxis account to start making secure payments and managing transactions.',
+    title: 'Create Account | Piaxis',
+    description: 'Create your Piaxis account to start making secure payments and managing transactions.',
 }
 
 // Force dynamic rendering since this page uses client-side code

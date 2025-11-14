@@ -41,30 +41,7 @@ const nextConfig = {
 // Enhanced PWA configuration for better app store compatibility
 export default withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  //disable:true, // always disable temporalily before building
+  disable: true, // temporarily disable build-time PWA to avoid Next 15 prerender crash
   register: true,
   skipWaiting: true,
-  reloadOnOnline: true,
-  swcMinify: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'offlineCache',
-        expiration: {
-          maxEntries: 200,
-        },
-      },
-    },
-  ],
-  fallbacks: {
-    document: '/offline',
-  },
-  workboxOptions: {
-    disableDevLogs: true,
-    exclude: [/middleware-manifest\.json$/, /build-manifest\.json$/, /_buildManifest\.js$/],
-    maximumFileSizeToCacheInBytes: 5000000,
-  }
 })(nextConfig)

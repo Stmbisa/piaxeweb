@@ -2,8 +2,8 @@ import { LoginForm } from '@/components/auth/login-form'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Sign In | piaxis',
-    description: 'Sign in to your piaxis account to manage payments and transactions.',
+    title: 'Sign In | Piaxis',
+    description: 'Sign in to your Piaxis account to manage payments and transactions.',
 }
 
 // Force dynamic rendering since this page uses client-side code

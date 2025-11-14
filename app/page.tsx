@@ -1,4 +1,9 @@
 import { HeroSection } from "@/components/hero-section"
+import { PrimitivesGrid } from "@/components/primitives-grid"
+import { PersonaUseCases } from "@/components/persona-use-cases"
+import { DeveloperQuickstart } from "@/components/developer-quickstart"
+import { TransparencyStrip } from "@/components/transparency-strip"
+import EscrowSimWrapper from "@/components/escrow-sim-wrapper"
 import { MobileWalletPreview } from "@/components/mobile-wallet-preview"
 import { TargetSection } from "@/components/target-section"
 import { SecurityFeatures } from "@/components/security-features"
@@ -19,8 +24,8 @@ export default function Home() {
             mainEntity: [
               {
                 '@type': 'Question',
-                name: 'What is piaxis and how does it work?',
-                acceptedAnswer: { '@type': 'Answer', text: 'piaxis is a modern fintech platform that enables secure payments, escrow services, and social commerce. We provide payment processing for businesses, secure escrow transactions for consumers, and API services for developers to integrate payments into their applications.' }
+                name: 'What is Piaxis and how does it work?',
+                acceptedAnswer: { '@type': 'Answer', text: 'Piaxis is a modern fintech platform that enables secure payments, escrow services, and social commerce. We provide payment processing for businesses, secure escrow transactions for consumers, and API services for developers to integrate payments into their applications.' }
               },
               {
                 '@type': 'Question',
@@ -53,6 +58,7 @@ export default function Home() {
 
       <div className="relative z-10">
         <HeroSection />
+        <EscrowSimWrapper />
 
         {/* Social Proof Strip (spec) */}
         <section className="container mx-auto px-4 py-6 animate-glass-appear" style={{ animationDelay: "0.05s" }}>
@@ -68,7 +74,7 @@ export default function Home() {
         <BarcodePaymentDemo />
         <SecurityFeatures />
 
-  <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
+        <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
           <div className="grid gap-8 lg:gap-12">
             <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.1s" }}>
               <TargetSection
@@ -158,6 +164,25 @@ export default function Home() {
                 imageAlt="Developer integrating piaxis API"
                 imageRight
               />
+            </div>
+          </div>
+        </section>
+
+        <PrimitivesGrid />
+        <PersonaUseCases />
+        <TransparencyStrip />
+        <DeveloperQuickstart />
+
+        {/* Final Segmented CTA (placeholder adaptive) */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="glass-card-secondary rounded-2xl p-8 md:p-12 animate-glass-appear" style={{ animationDelay: "0.5s" }}>
+            <h2 className="text-3xl font-bold mb-4 text-secondary-foreground">Ready to build programmable trust?</h2>
+            <p className="text-secondary-foreground/80 mb-6 max-w-2xl">Choose the path that fits where you are today. Grow into the rest when you need it.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <a href="/auth/register" className="glass-button-primary rounded-xl px-4 py-4 text-center text-sm font-medium">Consumer: Start Protected Payment</a>
+              <a href="/business/onboard" className="glass-button-secondary rounded-xl px-4 py-4 text-center text-sm font-medium">Merchant: Create Shop</a>
+              <a href="/auth/developer-register" className="glass-button rounded-xl px-4 py-4 text-center text-sm font-medium bg-white/10">Developer: Generate API Key</a>
+              <a href="/payment-links" className="glass-button rounded-xl px-4 py-4 text-center text-sm font-medium bg-white/5">Fundraiser: Launch Campaign</a>
             </div>
           </div>
         </section>

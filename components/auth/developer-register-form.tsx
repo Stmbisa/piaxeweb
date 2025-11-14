@@ -148,7 +148,7 @@ export function DeveloperRegisterForm() {
                     <Briefcase className="w-16 h-16 mx-auto text-primary mb-4" />
                     <h1 className="text-2xl font-bold text-foreground">Register Your Business</h1>
                     <p className="text-muted-foreground">
-                        Provide your business details to become a piaxis Developer and access our APIs.
+                        Provide your business details to become a Piaxis Developer and access our APIs.
                     </p>
                 </div>
                 <div className="space-y-6">

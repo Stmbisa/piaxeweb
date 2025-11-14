@@ -3,7 +3,7 @@ import { generatePageMetadata } from '@/lib/metadata'
 
 export const metadata: Metadata = generatePageMetadata({
     title: 'Search Results',
-    description: 'Search piaxis content and resources.',
+    description: 'Search Piaxis content and resources.',
     path: '/search'
 })
 

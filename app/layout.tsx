@@ -8,6 +8,7 @@ import { QueryProvider } from "@/lib/providers/query-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import SWRegister from "@/components/sw-register";
 import { siteConfig, absoluteUrl, defaultImages } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -94,7 +95,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="piaxis" />
+        <meta name="apple-mobile-web-app-title" content="Piaxis" />
         <meta name="application-name" content="piaxis" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-TileColor" content="#06B6D4" />
@@ -175,6 +176,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <PWAInstallPrompt />
+                <SWRegister />
               </div>
             </QueryProvider>
           </AuthProvider>

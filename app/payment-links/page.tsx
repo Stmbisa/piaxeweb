@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { PaymentLinksSharedCarts } from '@/components/payment-links-shared-carts'
 
 export const metadata: Metadata = {
-    title: 'Payment Links & Shared Carts - piaxis',
+    title: 'Payment Links & Shared Carts - Piaxis',
     description: 'Create payment links and shared carts for collaborative payments with friends and customers',
 }
 

@@ -303,7 +303,7 @@ export function PaymentSettings() {
                         <CardHeader>
                             <CardTitle>API Configuration</CardTitle>
                             <CardDescription>
-                                Integrate piaxis payments into your applications
+                                Integrate Piaxis payments into your applications
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">

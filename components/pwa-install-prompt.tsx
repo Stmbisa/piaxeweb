@@ -103,7 +103,7 @@ export function PWAInstallPrompt() {
                             <Smartphone className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm mb-1 text-foreground">Install piaxis App</h3>
+                            <h3 className="font-semibold text-sm mb-1 text-foreground">Install Piaxis App</h3>
                             <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
                                 Get access to secure payments, escrow protection, and business tools.
                                 Works offline and loads faster!

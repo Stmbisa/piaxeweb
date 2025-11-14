@@ -14,7 +14,7 @@ export function MobileWalletPreview() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-6 sm:mb-8 animate-glass-appear">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 sm:mb-4 text-foreground">
-            Experience piaxis on Mobile
+            Experience Piaxis on Mobile
           </h2>
           <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Manage your finances, make secure payments, and grow your business with our intuitive mobile app

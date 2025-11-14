@@ -172,7 +172,7 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-foreground">Create account</h1>
           <p className="text-muted-foreground">
-            Join piaxis to start making secure payments
+            Join Piaxis to start making secure payments
           </p>
         </div>
 

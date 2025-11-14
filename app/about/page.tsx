@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const metadata: Metadata = generatePageMetadata({
-    title: 'About piaxis',
-    description: "Learn about piaxis's mission to disrupt payments across Africa and low trust environments with secure escrow solutions and innovative fintech features.",
+    title: 'About Piaxis',
+    description: "Learn about Piaxis's mission to disrupt payments across Africa and low trust environments with secure escrow solutions and innovative fintech features.",
     path: '/about',
-    keywords: ['about piaxis', 'piaxis mission']
+    keywords: ['about Piaxis', 'Piaxis mission']
 })
 
 export default function AboutPage() {
@@ -38,7 +38,7 @@ export default function AboutPage() {
                         Rebuilding commerce on programmable trust.
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-4">
-                        piaxis turns payments into programmable trust — escrow with delivery, geo, approval, time & rating conditions; POS‑free checkout; social selling; fundraising caps; payroll escrow; remote cart pay; restricted spend remittance; credit lines; APIs. We started in Uganda and East Africa and are expanding quickly.
+                        Piaxis turns payments into programmable trust — escrow with delivery, geo, approval, time & rating conditions; POS‑free checkout; social selling; fundraising caps; payroll escrow; remote cart pay; restricted spend remittance; credit lines; APIs. We started in Uganda and East Africa and are expanding quickly.
                     </p>
                     <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 px-4">
                         <button className="glass-button-primary rounded-full px-6 md:px-8 py-3 w-full sm:w-auto">
@@ -159,7 +159,7 @@ export default function AboutPage() {
                                         <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dimension</th>
                                         <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gateway</th>
                                         <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Legacy POS</th>
-                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">piaxis</th>
+                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Piaxis</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border/40">
@@ -226,6 +226,65 @@ export default function AboutPage() {
                     </div>
                 </section>
 
+                {/* Local Roots & Compliance */}
+                <section className="mb-12 md:mb-16 px-4">
+                    <div className="max-w-5xl mx-auto">
+                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center text-foreground">Local Roots & Compliance</h2>
+                        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "1.35s" }}>
+                                <h3 className="text-lg font-semibold mb-2 text-primary-foreground">Regulatory Posture</h3>
+                                <p className="text-xs md:text-sm text-primary-foreground/80 leading-relaxed">We align with regional KYC/AML guidelines and follow emerging digital financial services frameworks. Data residency and privacy safeguards are built into core flows.</p>
+                            </div>
+                            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "1.4s" }}>
+                                <h3 className="text-lg font-semibold mb-2 text-secondary-foreground">Data Handling</h3>
+                                <p className="text-xs md:text-sm text-secondary-foreground/80 leading-relaxed">Sensitive payment details are tokenized; device binding adds another trust layer. We avoid unnecessary storage of personally identifiable information.</p>
+                            </div>
+                            <div className="glass-card animate-glass-appear" style={{ animationDelay: "1.45s" }}>
+                                <h3 className="text-lg font-semibold mb-2 text-foreground">Community Partnership</h3>
+                                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">We pilot features with local merchants and savings groups—iterating with real-world feedback to reduce friction and increase trust adoption.</p>
+                            </div>
+                            <div className="glass-card animate-glass-appear" style={{ animationDelay: "1.5s" }}>
+                                <h3 className="text-lg font-semibold mb-2 text-foreground">Reliability & Status</h3>
+                                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">Public latency & uptime metrics are on the roadmap along with a transparent incident status page for merchants and developers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Roadmap Highlights */}
+                <section className="mb-12 md:mb-16 px-4">
+                    <div className="max-w-5xl mx-auto glass-card-primary p-6 md:p-10 animate-glass-appear" style={{ animationDelay: "1.55s" }}>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary-foreground">Roadmap Highlights</h2>
+                        <p className="text-sm md:text-base text-primary-foreground/80 mb-6">A glimpse at what the next three quarters unlock for programmable trust.</p>
+                        <div className="grid md:grid-cols-3 gap-6 text-sm">
+                            <div className="glass-card bg-white/10 p-4 rounded-xl">
+                                <h3 className="font-semibold mb-2">Q1</h3>
+                                <ul className="space-y-1 text-xs opacity-80 list-disc list-inside">
+                                    <li>Condition Builder UI</li>
+                                    <li>Public Metrics Endpoint</li>
+                                    <li>Developer Webhooks</li>
+                                </ul>
+                            </div>
+                            <div className="glass-card bg-white/10 p-4 rounded-xl">
+                                <h3 className="font-semibold mb-2">Q2</h3>
+                                <ul className="space-y-1 text-xs opacity-80 list-disc list-inside">
+                                    <li>Credit Line Pilot</li>
+                                    <li>Savings Groups Constitution</li>
+                                    <li>Status Page + SLA</li>
+                                </ul>
+                            </div>
+                            <div className="glass-card bg-white/10 p-4 rounded-xl">
+                                <h3 className="font-semibold mb-2">Q3</h3>
+                                <ul className="space-y-1 text-xs opacity-80 list-disc list-inside">
+                                    <li>Adaptive Persona Hero</li>
+                                    <li>Advanced Restricted Spend</li>
+                                    <li>SDK bundle release</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Team Section */}
                 <section className="mb-12 md:mb-16 px-4">
                     <div className="max-w-4xl mx-auto text-center">
@@ -238,28 +297,25 @@ export default function AboutPage() {
                             <Award className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-3 md:mb-4" />
                             <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-foreground">Recognized Excellence</h3>
                             <p className="text-muted-foreground text-sm md:text-base">
-                                piaxis has been recognized by leading fintech organizations and startup accelerators
+                                Piaxis has been recognized by leading fintech organizations and startup accelerators
                                 for our innovative approach to solving payment challenges in emerging markets.
                             </p>
                         </div>
                     </div>
                 </section>
 
-                {/* Call to Action */}
-                <section className="glass-card-primary mx-4 animate-glass-appear" style={{ animationDelay: "1.5s" }}>
+                {/* Mission CTA Cluster */}
+                <section className="glass-card-primary mx-4 animate-glass-appear" style={{ animationDelay: "1.6s" }}>
                     <div className="text-center p-8 md:p-12">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-primary-foreground">Join the Payment Revolution</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-primary-foreground">Join The Mission</h2>
                         <p className="text-base md:text-lg text-primary-foreground/80 mb-6 md:mb-8 max-w-2xl mx-auto">
-                            Whether you're a consumer looking for secure payments, a business wanting to grow,
-                            or a developer building the next big thing, piaxis has the tools you need.
+                            Consumers, merchants, developers, communities—help build commerce where funds only move when reality matches.
                         </p>
-                        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4">
-                            <button className="glass-button rounded-full px-6 md:px-8 py-3 w-full sm:w-auto bg-white/20 hover:bg-white/30 text-primary-foreground">
-                                Get Started Today
-                            </button>
-                            <button className="glass-button rounded-full px-6 md:px-8 py-3 w-full sm:w-auto bg-white/10 hover:bg-white/20 text-primary-foreground border border-primary-foreground/30">
-                                Contact Our Team
-                            </button>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <a href="/auth/register" className="glass-button-primary rounded-xl px-4 py-4 text-sm font-medium">Start Protected Payment</a>
+                            <a href="/business/onboard" className="glass-button-secondary rounded-xl px-4 py-4 text-sm font-medium">Create Shop</a>
+                            <a href="/auth/developer-register" className="glass-button rounded-xl px-4 py-4 text-sm font-medium bg-white/10">Generate API Key</a>
+                            <a href="/payment-links" className="glass-button rounded-xl px-4 py-4 text-sm font-medium bg-white/5">Launch Campaign</a>
                         </div>
                     </div>
                 </section>

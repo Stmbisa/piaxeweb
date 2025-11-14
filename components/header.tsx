@@ -32,22 +32,22 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 sm:h-16 items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2" aria-label="piaxis Home">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2" aria-label="Piaxis Home">
             <Image src="/images/logo.png" alt="piaxis Logo" width={32} height={32} className="w-7 h-7 sm:w-8 sm:h-8" priority />
-            <span className="font-bold text-lg sm:text-xl text-primary">piaxis</span>
+            <span className="font-bold text-lg sm:text-xl text-primary">Piaxis</span>
           </Link>
           <nav className="hidden md:flex gap-6" role="navigation" aria-label="Main navigation">
             <Link
               href="/#consumers"
               className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Learn about piaxis for consumers"
+              aria-label="Learn about Piaxis for consumers"
             >
               Consumers
             </Link>
             <Link
               href="/#sme"
               className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Learn about piaxis for SMEs"
+              aria-label="Learn about Piaxis for SMEs"
             >
               SMEs
             </Link>
@@ -61,7 +61,7 @@ export function Header() {
             <Link
               href="/#developers"
               className="text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Explore piaxis API for developers"
+              aria-label="Explore Piaxis API for developers"
             >
               API
             </Link>
