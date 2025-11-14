@@ -1,4 +1,6 @@
 // Shopping and Inventory API utilities
+import { SEND_DEVICE_HEADER_IN_BROWSER, deviceHeadersForContext } from "../utils";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 // Product Types
@@ -160,21 +162,30 @@ export interface CategoryCreate {
 }
 
 class ShoppingInventoryAPI {
+  private getBase(): string {
+    const isBrowser = typeof window !== 'undefined';
+    if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) return '/api/proxy';
+    return API_BASE_URL;
+  }
   private getHeaders(token: string): HeadersInit {
-    return {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
+    Object.assign(headers, deviceHeadersForContext(token));
+    return headers;
   }
 
   // Store Management
   async createStore(token: string, storeData: StoreCreate): Promise<Store> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores`,
+        `${this.getBase()}/shopping_and_inventory/stores`,
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(storeData),
         }
       );
@@ -194,10 +205,12 @@ class ShoppingInventoryAPI {
   async getStores(token: string): Promise<Store[]> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/shopping_and_inventory/stores`,
+        `${this.getBase()}/shopping_and_inventory/stores`,
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -220,6 +233,8 @@ class ShoppingInventoryAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -246,6 +261,8 @@ class ShoppingInventoryAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(storeData),
         }
       );
@@ -269,6 +286,8 @@ class ShoppingInventoryAPI {
         {
           method: "DELETE",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -294,6 +313,8 @@ class ShoppingInventoryAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(productData),
         }
       );
@@ -339,6 +360,8 @@ class ShoppingInventoryAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -365,6 +388,8 @@ class ShoppingInventoryAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -392,6 +417,8 @@ class ShoppingInventoryAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(productData),
         }
       );
@@ -419,6 +446,8 @@ class ShoppingInventoryAPI {
         {
           method: "DELETE",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -446,6 +475,8 @@ class ShoppingInventoryAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify({ quantity, operation }),
         }
       );
@@ -474,6 +505,8 @@ class ShoppingInventoryAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(categoryData),
         }
       );
@@ -497,6 +530,8 @@ class ShoppingInventoryAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -524,6 +559,8 @@ class ShoppingInventoryAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(orderData),
         }
       );
@@ -563,6 +600,8 @@ class ShoppingInventoryAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -590,6 +629,8 @@ class ShoppingInventoryAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify({ status }),
         }
       );

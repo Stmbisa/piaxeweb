@@ -13,16 +13,13 @@ export function HeroSection() {
           <div className="space-y-6 animate-fade-in">
             <div className="glass-button inline-flex items-center gap-2 mb-4 text-primary">
               <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-              High-Class bank experiences for everyone
+              Programmable trust rails for emerging commerce
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              piaxis – the payment system optimized for{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-secondary relative">
-                low trust environments
-              </span>
+              Funds move only when reality matches.
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              piaxis offers direct payments, escrow payments (conditional payments), POS-free physical store payments, social e-commerce payments, Payments APIs, CRM, fundraising in a single setup.
+              Payments become programmable trust — code‑enforced escrow conditions, POS‑free checkout, social selling, fundraising caps, payroll & bulk escrow, remote cart pay, restricted spend remittance, credit lines and APIs.
             </p>
           </div>
 

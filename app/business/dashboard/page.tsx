@@ -8,7 +8,9 @@ import { BusinessSidebar } from "@/components/business/sidebar";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
-// Force dynamic rendering since this page requires authentication
+// The dynamic export might still be useful here if this specific page
+// has content that requires it, separate from the layout.
+// If not, it can be removed if the layout handles dynamic aspects.
 export const dynamic = "force-dynamic";
 
 export default function BusinessDashboard() {
@@ -30,11 +32,8 @@ export default function BusinessDashboard() {
         </Button>
 
         {/* Sidebar - hidden on mobile by default, shown as overlay when opened */}
-        <BusinessSidebar 
-          isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
-        />
-        
+        <BusinessSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
         {/* Main content - full width on mobile, adjusted for sidebar on desktop */}
         <main className="flex-1 overflow-auto">
           <BusinessDashboardOverview />

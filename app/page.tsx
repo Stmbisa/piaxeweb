@@ -25,7 +25,7 @@ export default function Home() {
               {
                 '@type': 'Question',
                 name: 'How secure are escrow payments on piaxis?',
-                acceptedAnswer: { '@type': 'Answer', text: 'Our escrow service acts as a trusted intermediary, holding funds securely until both parties fulfill their obligations. This eliminates fraud risk; all transactions are encrypted and monitored.' }
+                acceptedAnswer: { '@type': 'Answer', text: 'Our escrow service acts as a trusted intermediary, holding funds securely until both parties fulfill their obligations. This drastically reduces fraud risk; all transactions are encrypted and monitored.' }
               },
               {
                 '@type': 'Question',

@@ -188,6 +188,9 @@ export function Header() {
                   <DropdownMenuItem asChild className="text-xs sm:text-sm">
                     <Link href="/profile">Profile Settings</Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="text-xs sm:text-sm">
+                    <Link href="/settings/devices">Device Settings</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-xs sm:text-sm">
                     <LogOut className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -303,6 +306,9 @@ export function Header() {
                   )}
                   <Button variant="outline" onClick={handleLogout} className="w-full">
                     Log out
+                  </Button>
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href="/settings/devices">Device Settings</Link>
                   </Button>
                 </>
               ) : (

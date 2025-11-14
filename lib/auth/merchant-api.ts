@@ -1,3 +1,4 @@
+import { deviceHeadersForContext } from "../utils";
 // Merchant authentication API functions
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
@@ -53,6 +54,8 @@ export async function registerMerchant(data: MerchantRegistrationData) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -71,6 +74,8 @@ export async function loginMerchant(data: MerchantLoginData) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -90,7 +95,10 @@ export async function getMerchantProfile(
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      ...deviceHeadersForContext(token),
     },
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -114,8 +122,11 @@ export async function addMerchantAdmin(
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...deviceHeadersForContext(token),
       },
       body: JSON.stringify(adminData),
+      credentials: "include",
+      mode: "cors",
     }
   );
 
@@ -136,6 +147,8 @@ export async function requestApiKeyReset(data: ApiKeyResetData, token: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -158,8 +171,11 @@ export async function confirmApiKeyReset(
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...deviceHeadersForContext(token),
       },
       body: JSON.stringify({ confirmation_code: confirmationCode }),
+      credentials: "include",
+      mode: "cors",
     }
   );
 
@@ -180,8 +196,11 @@ export async function resetClientId(data: ClientIdResetData, token: string) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...deviceHeadersForContext(token),
       },
       body: JSON.stringify(data),
+      credentials: "include",
+      mode: "cors",
     }
   );
 
@@ -200,7 +219,10 @@ export async function getClientId(token: string) {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      ...deviceHeadersForContext(token),
     },
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -220,6 +242,8 @@ export async function createWebhook(data: WebhookData, token: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -237,7 +261,10 @@ export async function listWebhooks(token: string) {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      ...deviceHeadersForContext(token),
     },
+    credentials: "include",
+    mode: "cors",
   });
 
   if (!response.ok) {
@@ -261,8 +288,11 @@ export async function updateWebhook(
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...deviceHeadersForContext(token),
       },
       body: JSON.stringify(data),
+      credentials: "include",
+      mode: "cors",
     }
   );
 
@@ -283,7 +313,10 @@ export async function deleteWebhook(webhookId: string, token: string) {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        ...deviceHeadersForContext(token),
       },
+      credentials: "include",
+      mode: "cors",
     }
   );
 
@@ -305,6 +338,8 @@ export async function verifyMerchant(merchantId: string, token: string) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
+      credentials: "include",
+      mode: "cors",
     }
   );
 

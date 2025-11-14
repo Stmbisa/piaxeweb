@@ -1,4 +1,6 @@
 // Support API utilities
+import { deviceHeadersForContext } from "../utils";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
 
 export interface SupportTicket {
@@ -164,12 +166,13 @@ export interface SupportStats {
 
 class SupportAPI {
   private getHeaders(token?: string): HeadersInit {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      Object.assign(headers, deviceHeadersForContext(token));
     }
 
     return headers;
@@ -184,6 +187,8 @@ class SupportAPI {
       const response = await fetch(`${API_BASE_URL}/support/tickets`, {
         method: "POST",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
         body: JSON.stringify(data),
       });
 
@@ -220,6 +225,8 @@ class SupportAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -240,6 +247,8 @@ class SupportAPI {
       const response = await fetch(`${API_BASE_URL}/support/tickets/${ticketId}`, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -265,6 +274,8 @@ class SupportAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(data),
         }
       );
@@ -288,6 +299,8 @@ class SupportAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -323,6 +336,8 @@ class SupportAPI {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
+          mode: "cors",
           body: formData,
         }
       );
@@ -361,6 +376,8 @@ class SupportAPI {
         {
           method: "GET",
           headers: this.getHeaders(),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -383,6 +400,8 @@ class SupportAPI {
         {
           method: "GET",
           headers: this.getHeaders(),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -408,6 +427,8 @@ class SupportAPI {
         {
           method: "POST",
           headers: this.getHeaders(),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -445,6 +466,8 @@ class SupportAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -469,6 +492,8 @@ class SupportAPI {
       const response = await fetch(`${API_BASE_URL}/support/admin/dashboard`, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {

@@ -139,7 +139,7 @@ export function BusinessSidebar({ isOpen = true, onClose }: BusinessSidebarProps
           "hidden md:flex",
           // When mobile menu is open, show as overlay
           isOpen && "flex fixed left-0 top-0 h-full md:relative",
-          // Responsive width 
+          // Responsive width
           collapsed ? "w-16 md:w-20" : "w-72 md:w-80 lg:w-96"
         )}
       >
@@ -194,7 +194,7 @@ export function BusinessSidebar({ isOpen = true, onClose }: BusinessSidebarProps
                     ? "glass-button-primary shadow-xl shadow-purple-500/25 bg-gradient-to-r from-purple-500/20 via-purple-400/15 to-blue-500/20 border-purple-300/30 dark:border-purple-500/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/10 dark:hover:bg-white/5 border-border/20 hover:border-border/40"
                 )}
-                style={{animationDelay: `${index * 0.05}s`}}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <Icon
                   className={cn(
@@ -222,7 +222,7 @@ export function BusinessSidebar({ isOpen = true, onClose }: BusinessSidebarProps
         {/* Footer */}
         <div className="p-4 md:p-5 lg:p-6 border-t border-border/20">
           {!collapsed && (
-            <div className="space-y-3 md:space-y-4 animate-glass-appear" style={{animationDelay: '0.8s'}}>
+            <div className="space-y-3 md:space-y-4 animate-glass-appear" style={{ animationDelay: '0.8s' }}>
               {/* Quick Actions */}
               <div className="glass-card-primary p-4 md:p-5 hover:scale-[1.02] transition-all duration-300 backdrop-blur-xl bg-gradient-to-br from-purple-500/10 via-purple-400/5 to-blue-500/10 border-purple-200/30 dark:border-purple-700/30 rounded-2xl shadow-lg">
                 <div className="flex items-center gap-2 md:gap-3 mb-3">

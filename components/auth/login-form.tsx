@@ -62,7 +62,7 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
             <Label htmlFor="username">Username or Email</Label>
             <div className="relative">
               {username.length === 0 && (
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="username"
@@ -73,6 +73,9 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
                 className="pl-10"
                 required
                 disabled={isLoading}
+                style={{
+                  paddingLeft: username.length === 0 ? "2.5rem" : "0.75rem",
+                }}
               />
             </div>
           </div>
@@ -81,7 +84,7 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               {password.length === 0 && (
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
               )}
               <Input
                 id="password"
@@ -89,9 +92,12 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10"
+                className="pr-10"
                 required
                 disabled={isLoading}
+                style={{
+                  paddingLeft: password.length === 0 ? "2.5rem" : "0.75rem",
+                }}
               />
               <button
                 type="button"

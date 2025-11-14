@@ -30,8 +30,8 @@ interface RegisterFormProps {
 const PasswordCriterion = ({ met, text }: { met: boolean; text: string }) => (
   <p
     className={`flex items-center text-xs transition-colors ${met
-        ? "text-green-600 dark:text-green-500"
-        : "text-red-600 dark:text-red-500"
+      ? "text-green-600 dark:text-green-500"
+      : "text-red-600 dark:text-red-500"
       }`}
   >
     {met ? (
@@ -379,8 +379,8 @@ export function RegisterForm({ onSuccess, redirectTo }: RegisterFormProps) {
                   handleInputChange("confirmPassword", e.target.value)
                 }
                 className={`glass-input pl-10 pr-10 ${!passwordsMatch && formData.confirmPassword.length > 0
-                    ? "border-red-500 focus:border-red-500"
-                    : ""
+                  ? "border-red-500 focus:border-red-500"
+                  : ""
                   }`}
                 required
                 disabled={isLoading}

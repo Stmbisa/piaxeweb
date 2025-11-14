@@ -1,746 +1,1728 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/lib/auth/context"
-import { shoppingInventoryAPI, type Store } from "@/lib/api/shopping-inventory"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
-    Store as StoreIcon,
-    Plus,
-    Search,
-    Edit2,
-    Trash2,
-    MapPin,
-    Phone,
-    Mail,
-    Globe,
-    TrendingUp,
-    ShoppingBag,
-    Eye,
-} from "lucide-react"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useToast, toast as globalToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth/context";
+import { type Store } from "@/lib/api/shopping-inventory";
+import {
+  createStore,
+  updateStore,
+  deleteStore,
+  getStores,
+  type StoreResponse,
+  type CreateStorePayload,
+} from "@/lib/api/store-service";
+import {
+  Store as StoreIcon,
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  TrendingUp,
+  ShoppingBag,
+  Eye,
+  Clock,
+  BellRing,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+
+// Define a type for days of the week
+type DayOfWeek =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
+
+// Define default business hours
+const defaultBusinessHours = {
+  Monday: { open: "09:00", close: "17:00", closed: false },
+  Tuesday: { open: "09:00", close: "17:00", closed: false },
+  Wednesday: { open: "09:00", close: "17:00", closed: false },
+  Thursday: { open: "09:00", close: "17:00", closed: false },
+  Friday: { open: "09:00", close: "20:00", closed: false },
+  Saturday: { open: "10:00", close: "18:00", closed: false },
+  Sunday: { open: "closed", close: "closed", closed: true },
+};
+
+// Default notification preferences
+const defaultNotificationPreferences = {
+  email_new_order: true,
+  sms_inventory_low: true,
+  low_stock_alerts: true,
+  new_order_notifications: true,
+  customer_cart_alerts: true,
+  staff_notifications: true,
+};
 
 interface StoreFormData {
-    name: string
-    description: string
-    address: string
-    contact_phone: string
-    contact_email: string
-    business_hours?: {
-        [key: string]: {
-            [key: string]: string
-        }
-    }
-    notification_preferences?: {
-        [key: string]: boolean
-    }
+  name: string;
+  description: string;
+  address: string;
+  contact_phone: string;
+  contact_email: string;
+  business_hours: {
+    [K in DayOfWeek]?: {
+      open: string;
+      close: string;
+      closed?: boolean;
+    };
+  };
+  notification_preferences: {
+    email_new_order: boolean;
+    sms_inventory_low: boolean;
+    low_stock_alerts: boolean;
+    new_order_notifications: boolean;
+    customer_cart_alerts: boolean;
+    staff_notifications: boolean;
+  };
 }
 
 export function StoreManager() {
-    const [stores, setStores] = useState<Store[]>([])
-    const [searchTerm, setSearchTerm] = useState('')
-    const [showAddForm, setShowAddForm] = useState(false)
-    const [editingStore, setEditingStore] = useState<Store | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [formData, setFormData] = useState<StoreFormData>({
-        name: '',
-        description: '',
-        address: '',
-        contact_phone: '',
-        contact_email: '',
-        business_hours: {},
-        notification_preferences: {}
-    })
+  const [stores, setStores] = useState<StoreResponse[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingStore, setEditingStore] = useState<StoreResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [storeToDelete, setStoreToDelete] = useState<StoreResponse | null>(
+    null
+  );
+  const [deleteConfirmStage, setDeleteConfirmStage] = useState(1);
+  const [confirmDeleteText, setConfirmDeleteText] = useState("");
+  const [formData, setFormData] = useState<StoreFormData>({
+    name: "",
+    description: "",
+    address: "",
+    contact_phone: "",
+    contact_email: "",
+    business_hours: { ...defaultBusinessHours },
+    notification_preferences: { ...defaultNotificationPreferences },
+  });
+  const [formErrors, setFormErrors] = useState({
+    name: "",
+    address: "",
+    contact_phone: "",
+    contact_email: "",
+  });
+  const [editFormErrors, setEditFormErrors] = useState({
+    name: "",
+    address: "",
+    contact_phone: "",
+    contact_email: "",
+  });
 
-    const { user, token } = useAuth()
-    const { toast } = useToast()
+  const { user, token } = useAuth();
+  const { toast } = useToast();
 
-    useEffect(() => {
-        loadStores()
-    }, [])
+  useEffect(() => {
+    loadStores();
+  }, []);
 
-    const loadStores = async () => {
-        if (!token) return
+  const loadStores = async () => {
+    if (!token) return;
 
-        try {
-            setLoading(true)
-            const storesData = await shoppingInventoryAPI.getStores(token)
-            setStores(storesData)
-        } catch (error) {
-            console.error('Error loading stores:', error)
-            toast({
-                title: "Error",
-                description: "Failed to load stores",
-                variant: "destructive",
-            })
-        } finally {
-            setLoading(false)
-        }
+    try {
+      setLoading(true);
+      const storesData = await getStores(token);
+      setStores(storesData);
+    } catch (error) {
+      console.error("Error loading stores:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load stores",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const errors = {
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    };
+
+    // Validate name
+    if (!formData.name.trim()) {
+      errors.name = "Store name is required";
+      isValid = false;
     }
 
-    const handleAddStore = async () => {
-        if (!token) return
-
-        if (!formData.name.trim() || !formData.address.trim() || !formData.contact_phone.trim() || !formData.contact_email.trim()) {
-            toast({
-                title: "Error",
-                description: "Please fill in all required fields",
-                variant: "destructive",
-            })
-            return
-        }
-
-        try {
-            const newStore = await shoppingInventoryAPI.createStore(token, {
-                name: formData.name.trim(),
-                description: formData.description.trim(),
-                address: formData.address.trim(),
-                contact_phone: formData.contact_phone.trim(),
-                contact_email: formData.contact_email.trim(),
-                business_hours: formData.business_hours || {},
-                notification_preferences: formData.notification_preferences || {}
-            })
-
-            setStores(prev => [...prev, newStore])
-            resetForm()
-            setShowAddForm(false)
-
-            toast({
-                title: "Success",
-                description: "Store created successfully",
-            })
-        } catch (error) {
-            console.error('Error creating store:', error)
-            toast({
-                title: "Error",
-                description: "Failed to create store",
-                variant: "destructive",
-            })
-        }
+    // Validate address
+    if (!formData.address.trim()) {
+      errors.address = "Address is required";
+      isValid = false;
     }
 
-    const handleEditStore = (store: Store) => {
-        setEditingStore(store)
-        setFormData({
-            name: store.name,
-            description: store.description,
-            address: store.address,
-            contact_phone: store.contact_phone,
-            contact_email: store.contact_email,
-            business_hours: store.business_hours || {},
-            notification_preferences: store.notification_preferences || {}
-        })
+    // Validate phone
+    if (!formData.contact_phone.trim()) {
+      errors.contact_phone = "Phone number is required";
+      isValid = false;
+    } else if (!formData.contact_phone.startsWith("+")) {
+      errors.contact_phone =
+        "Phone number should start with + (international format)";
+      isValid = false;
     }
 
-    const handleUpdateStore = async () => {
-        if (!token || !editingStore) return
-
-        try {
-            const updatedStore = await shoppingInventoryAPI.updateStore(token, editingStore.id, {
-                name: formData.name.trim(),
-                description: formData.description.trim(),
-                address: formData.address.trim(),
-                contact_phone: formData.contact_phone.trim(),
-                contact_email: formData.contact_email.trim(),
-                business_hours: formData.business_hours,
-                notification_preferences: formData.notification_preferences
-            })
-
-            setStores(prev => prev.map(store =>
-                store.id === editingStore.id ? updatedStore : store
-            ))
-            resetForm()
-            setEditingStore(null)
-
-            toast({
-                title: "Success",
-                description: "Store updated successfully",
-            })
-        } catch (error) {
-            console.error('Error updating store:', error)
-            toast({
-                title: "Error",
-                description: "Failed to update store",
-                variant: "destructive",
-            })
-        }
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.contact_email.trim()) {
+      errors.contact_email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(formData.contact_email)) {
+      errors.contact_email = "Please enter a valid email";
+      isValid = false;
     }
 
-    const handleDeleteStore = async (storeId: string) => {
-        if (!token) return
+    setFormErrors(errors);
+    return isValid;
+  };
 
-        try {
-            await shoppingInventoryAPI.deleteStore(token, storeId)
-            setStores(prev => prev.filter(store => store.id !== storeId))
-            toast({
-                title: "Success",
-                description: "Store deleted successfully",
-            })
-        } catch (error) {
-            console.error('Error deleting store:', error)
-            toast({
-                title: "Error",
-                description: "Failed to delete store",
-                variant: "destructive",
-            })
-        }
+  const handleAddStore = async () => {
+    if (!token) return;
+
+    if (!validateForm()) {
+      toast({
+        title: "Error",
+        description: "Please fix the errors in the form",
+        variant: "destructive",
+      });
+      return;
     }
 
-    const resetForm = () => {
-        setFormData({
-            name: '',
-            description: '',
-            address: '',
-            contact_phone: '',
-            contact_email: '',
-            business_hours: {},
-            notification_preferences: {}
-        })
-    }
-
-    const handleFormDataChange = (field: string, value: any) => {
-        if (field.startsWith('business_hours.')) {
-            const hourField = field.replace('business_hours.', '')
-            setFormData(prev => ({
-                ...prev,
-                business_hours: { ...prev.business_hours, [hourField]: value }
-            }))
-        } else if (field.startsWith('notification_preferences.')) {
-            const prefField = field.replace('notification_preferences.', '')
-            setFormData(prev => ({
-                ...prev,
-                notification_preferences: { ...prev.notification_preferences, [prefField]: value }
-            }))
+    try {
+      setIsCreating(true);
+      // Clean the business hours data for API submission
+      const cleanBusinessHours: Record<
+        string,
+        { open: string; close: string }
+      > = {};
+      (Object.keys(formData.business_hours) as DayOfWeek[]).forEach((day) => {
+        const dayData = formData.business_hours[day];
+        if (dayData && !dayData.closed) {
+          cleanBusinessHours[day] = {
+            open: dayData.open,
+            close: dayData.close,
+          };
         } else {
-            setFormData(prev => ({ ...prev, [field]: value }))
+          cleanBusinessHours[day] = {
+            open: "closed",
+            close: "closed",
+          };
         }
+      });
+
+      const storePayload: CreateStorePayload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        address: formData.address.trim(),
+        contact_phone: formData.contact_phone.trim(),
+        contact_email: formData.contact_email.trim(),
+        business_hours: cleanBusinessHours,
+        notification_preferences: formData.notification_preferences,
+      };
+
+      const newStore = await createStore(token, storePayload);
+      setStores((prev) => [...prev, newStore]);
+      resetForm();
+      setShowAddForm(false);
+
+      toast({
+        title: "Success",
+        description: "Store created successfully",
+      });
+    } catch (error: any) {
+      console.error("Error creating store:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create store",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleEditStore = (store: StoreResponse) => {
+    setEditingStore(store);
+    setEditFormErrors({
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    });
+
+    // Convert the store's business hours format to match our form's format
+    const businessHours: StoreFormData["business_hours"] = {
+      ...defaultBusinessHours,
+    };
+
+    if (store.business_hours) {
+      (Object.keys(defaultBusinessHours) as DayOfWeek[]).forEach((day) => {
+        if (store.business_hours?.[day]) {
+          const { open, close } = store.business_hours[day];
+          businessHours[day] = {
+            open: open || "09:00",
+            close: close || "17:00",
+            closed: open === "closed" || close === "closed",
+          };
+        }
+      });
     }
 
-    const filteredStores = stores.filter(store =>
-        store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        store.address.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    // Ensure notification preferences are properly initialized
+    const notificationPreferences = { ...defaultNotificationPreferences };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p className="text-muted-foreground">Loading stores...</p>
-                </div>
-            </div>
+    if (store.notification_preferences) {
+      Object.keys(defaultNotificationPreferences).forEach((key) => {
+        const typedKey = key as keyof typeof defaultNotificationPreferences;
+        if (store.notification_preferences?.[typedKey] !== undefined) {
+          notificationPreferences[typedKey] =
+            !!store.notification_preferences[typedKey];
+        }
+      });
+    }
+
+    // Set form data with the current store's values
+    setFormData({
+      name: store.name || "",
+      description: store.description || "",
+      address: store.address || "",
+      contact_phone: store.contact_phone || "",
+      contact_email: store.contact_email || "",
+      business_hours: businessHours,
+      notification_preferences: notificationPreferences,
+    });
+  };
+
+  const validateEditForm = () => {
+    let isValid = true;
+    const errors = {
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    };
+
+    // Validate name
+    if (!formData.name.trim()) {
+      errors.name = "Store name is required";
+      isValid = false;
+    }
+
+    // Validate address
+    if (!formData.address.trim()) {
+      errors.address = "Address is required";
+      isValid = false;
+    }
+
+    // Validate phone
+    if (!formData.contact_phone.trim()) {
+      errors.contact_phone = "Phone number is required";
+      isValid = false;
+    } else if (!formData.contact_phone.startsWith("+")) {
+      errors.contact_phone =
+        "Phone number should start with + (international format)";
+      isValid = false;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.contact_email.trim()) {
+      errors.contact_email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(formData.contact_email)) {
+      errors.contact_email = "Please enter a valid email";
+      isValid = false;
+    }
+
+    setEditFormErrors(errors);
+    return isValid;
+  };
+
+  const handleUpdateStore = async () => {
+    if (!token || !editingStore) return;
+
+    if (!validateEditForm()) {
+      toast({
+        title: "Error",
+        description: "Please fix the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      // Clean the business hours data for API submission
+      const cleanBusinessHours: Record<
+        string,
+        { open: string; close: string }
+      > = {};
+
+      (Object.keys(formData.business_hours) as DayOfWeek[]).forEach((day) => {
+        const dayData = formData.business_hours[day];
+        if (dayData) {
+          if (dayData.closed) {
+            cleanBusinessHours[day] = {
+              open: "closed",
+              close: "closed",
+            };
+          } else {
+            cleanBusinessHours[day] = {
+              open: dayData.open || "09:00",
+              close: dayData.close || "17:00",
+            };
+          }
+        }
+      });
+
+      // Clean notification preferences to ensure all required fields are present
+      const cleanNotificationPreferences: Record<string, boolean> = {};
+      Object.keys(defaultNotificationPreferences).forEach((key) => {
+        const typedKey = key as keyof typeof defaultNotificationPreferences;
+        cleanNotificationPreferences[typedKey] =
+          formData.notification_preferences[typedKey] !== undefined
+            ? !!formData.notification_preferences[typedKey]
+            : defaultNotificationPreferences[typedKey];
+      });
+
+      const storePayload: Partial<CreateStorePayload> = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        address: formData.address.trim(),
+        contact_phone: formData.contact_phone.trim(),
+        contact_email: formData.contact_email.trim(),
+        business_hours: cleanBusinessHours,
+        notification_preferences: cleanNotificationPreferences,
+      };
+
+      const updatedStore = await updateStore(
+        token,
+        editingStore.id,
+        storePayload
+      );
+
+      setStores((prev) =>
+        prev.map((store) =>
+          store.id === editingStore.id ? updatedStore : store
         )
+      );
+      resetForm();
+      setEditingStore(null);
+
+      // Show a global toast notification only
+      globalToast({
+        title: "Store updated",
+        description: `The store "${updatedStore.name}" was updated successfully.`,
+      });
+    } catch (error: any) {
+      console.error("Error updating store:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update store",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
     }
+  };
 
+  const handleDeleteStore = async (storeId: string) => {
+    if (!token) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteStore(token, storeId);
+      setStores((prev) => prev.filter((store) => store.id !== storeId));
+      globalToast({
+        title: "Store deleted",
+        description: `The store "${storeToDelete?.name}" was deleted successfully.`,
+        variant: "destructive",
+      });
+      setStoreToDelete(null);
+      setDeleteConfirmStage(1);
+
+      toast({
+        title: "Success",
+        description: "Store deleted successfully",
+      });
+    } catch (error: any) {
+      console.error("Error deleting store:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete store",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+      business_hours: { ...defaultBusinessHours },
+      notification_preferences: { ...defaultNotificationPreferences },
+    });
+    setFormErrors({
+      name: "",
+      address: "",
+      contact_phone: "",
+      contact_email: "",
+    });
+  };
+
+  const handleFormDataChange = (field: string, value: any) => {
+    if (field.startsWith("business_hours.")) {
+      const parts = field.split(".");
+      const day = parts[1] as DayOfWeek;
+      const property = parts[2];
+
+      setFormData((prev) => ({
+        ...prev,
+        business_hours: {
+          ...prev.business_hours,
+          [day]: {
+            ...prev.business_hours[day],
+            [property]: value,
+          },
+        },
+      }));
+    } else if (field.startsWith("notification_preferences.")) {
+      const prefField = field.replace("notification_preferences.", "");
+      setFormData((prev) => ({
+        ...prev,
+        notification_preferences: {
+          ...prev.notification_preferences,
+          [prefField]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+
+      // Clear error when field is filled
+      if (value && formErrors[field as keyof typeof formErrors]) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [field]: "",
+        }));
+      }
+    }
+  };
+
+  const handleToggleBusinessDay = (day: DayOfWeek, closed: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      business_hours: {
+        ...prev.business_hours,
+        [day]: {
+          open: closed ? "closed" : prev.business_hours[day]?.open || "09:00",
+          close: closed ? "closed" : prev.business_hours[day]?.close || "17:00",
+          closed,
+        },
+      },
+    }));
+  };
+
+  const handleTimeChange = (
+    day: DayOfWeek,
+    field: "open" | "close",
+    time: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      business_hours: {
+        ...prev.business_hours,
+        [day]: {
+          ...prev.business_hours[day],
+          [field]: time,
+        },
+      },
+    }));
+  };
+
+  const filteredStores = stores.filter(
+    (store) =>
+      store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      store.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
     return (
-        <div className="space-y-6">
-            {/* Store Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div
-                    className="glass-card-enhanced animate-glass-appear"
-                    style={{
-                        animationDelay: "0.1s",
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: '16px',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                        padding: '24px'
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Total Stores</p>
-                            <p className="text-2xl font-bold text-foreground">{stores.length}</p>
-                        </div>
-                        <StoreIcon className="w-8 h-8 text-blue-600" />
-                    </div>
-                </div>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-muted-foreground">Loading stores...</p>
+        </div>
+      </div>
+    );
+  }
 
-                <div
-                    className="glass-card-enhanced animate-glass-appear"
-                    style={{
-                        animationDelay: "0.2s",
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: '16px',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                        padding: '24px'
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Active Stores</p>
-                            <p className="text-2xl font-bold text-green-600">
-                                {stores.length}
-                            </p>
-                        </div>
-                        <TrendingUp className="w-8 h-8 text-green-600" />
-                    </div>
-                </div>
-
-                <div
-                    className="glass-card-enhanced animate-glass-appear"
-                    style={{
-                        animationDelay: "0.3s",
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: '16px',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                        padding: '24px'
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Online Orders</p>
-                            <p className="text-2xl font-bold text-purple-600">
-                                {stores.filter(store => store.notification_preferences?.online_orders !== false).length}
-                            </p>
-                        </div>
-                        <ShoppingBag className="w-8 h-8 text-purple-600" />
-                    </div>
-                </div>
-
-                <div
-                    className="glass-card-enhanced animate-glass-appear"
-                    style={{
-                        animationDelay: "0.4s",
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        borderRadius: '16px',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                        padding: '24px'
-                    }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Delivery Available</p>
-                            <p className="text-2xl font-bold text-orange-600">
-                                {stores.filter(store => store.notification_preferences?.delivery_updates !== false).length}
-                            </p>
-                        </div>
-                        <Globe className="w-8 h-8 text-orange-600" />
-                    </div>
-                </div>
+  return (
+    <div className="space-y-6">
+      {/* Store Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div
+          className="glass-card-enhanced animate-glass-appear"
+          style={{
+            animationDelay: "0.1s",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "16px",
+            backdropFilter: "blur(20px)",
+            boxShadow:
+              "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            padding: "24px",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Total Stores
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {stores.length}
+              </p>
             </div>
+            <StoreIcon className="w-8 h-8 text-blue-600" />
+          </div>
+        </div>
 
-            {/* Store Actions */}
-            <div
-                className="glass-card-enhanced animate-glass-appear"
-                style={{
-                    animationDelay: "0.5s",
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    borderRadius: '16px',
-                    backdropFilter: 'blur(20px)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                    padding: '24px'
-                }}
-            >
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                            <Input
-                                placeholder="Search stores..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 w-64 glass-input"
+        <div
+          className="glass-card-enhanced animate-glass-appear"
+          style={{
+            animationDelay: "0.2s",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "16px",
+            backdropFilter: "blur(20px)",
+            boxShadow:
+              "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            padding: "24px",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Active Stores
+              </p>
+              <p className="text-2xl font-bold text-green-600">
+                {stores.length}
+              </p>
+            </div>
+            <TrendingUp className="w-8 h-8 text-green-600" />
+          </div>
+        </div>
+
+        <div
+          className="glass-card-enhanced animate-glass-appear"
+          style={{
+            animationDelay: "0.3s",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "16px",
+            backdropFilter: "blur(20px)",
+            boxShadow:
+              "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            padding: "24px",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Online Orders
+              </p>
+              <p className="text-2xl font-bold text-purple-600">
+                {
+                  stores.filter(
+                    (store) =>
+                      store.notification_preferences
+                        ?.new_order_notifications !== false
+                  ).length
+                }
+              </p>
+            </div>
+            <ShoppingBag className="w-8 h-8 text-purple-600" />
+          </div>
+        </div>
+
+        <div
+          className="glass-card-enhanced animate-glass-appear"
+          style={{
+            animationDelay: "0.4s",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "16px",
+            backdropFilter: "blur(20px)",
+            boxShadow:
+              "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            padding: "24px",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Delivery Available
+              </p>
+              <p className="text-2xl font-bold text-orange-600">
+                {
+                  stores.filter(
+                    (store) =>
+                      store.notification_preferences?.sms_inventory_low !==
+                      false
+                  ).length
+                }
+              </p>
+            </div>
+            <Globe className="w-8 h-8 text-orange-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* Store Actions */}
+      <div
+        className="glass-card-enhanced animate-glass-appear"
+        style={{
+          animationDelay: "0.5s",
+          background: "rgba(255, 255, 255, 0.03)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
+          borderRadius: "16px",
+          backdropFilter: "blur(20px)",
+          boxShadow:
+            "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+          padding: "24px",
+        }}
+      >
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search stores..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-64 glass-input"
+              />
+            </div>
+          </div>
+          <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+            <DialogTrigger asChild>
+              <button className="glass-button-primary flex items-center gap-2 px-4 py-2">
+                <Plus className="w-4 h-4" />
+                Add New Store
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Store</DialogTitle>
+                <DialogDescription>
+                  Create a new store location for your business
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="store-name">Store Name *</Label>
+                  <Input
+                    id="store-name"
+                    placeholder="Main Store"
+                    value={formData.name}
+                    onChange={(e) =>
+                      handleFormDataChange("name", e.target.value)
+                    }
+                    error={!!formErrors.name}
+                    helperText={formErrors.name}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="store-description">Description</Label>
+                  <Textarea
+                    id="store-description"
+                    placeholder="Describe your store location..."
+                    value={formData.description}
+                    onChange={(e) =>
+                      handleFormDataChange("description", e.target.value)
+                    }
+                    rows={2}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="store-address">Address *</Label>
+                  <Textarea
+                    id="store-address"
+                    placeholder="Enter complete store address"
+                    value={formData.address}
+                    onChange={(e) =>
+                      handleFormDataChange("address", e.target.value)
+                    }
+                    rows={2}
+                    error={!!formErrors.address}
+                    helperText={formErrors.address}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="store-phone">Phone Number *</Label>
+                    <Input
+                      id="store-phone"
+                      placeholder="+256701234567"
+                      value={formData.contact_phone}
+                      onChange={(e) =>
+                        handleFormDataChange("contact_phone", e.target.value)
+                      }
+                      error={!!formErrors.contact_phone}
+                      helperText={formErrors.contact_phone}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="store-email">Email Address *</Label>
+                    <Input
+                      id="store-email"
+                      type="email"
+                      placeholder="store@business.com"
+                      value={formData.contact_email}
+                      onChange={(e) =>
+                        handleFormDataChange("contact_email", e.target.value)
+                      }
+                      error={!!formErrors.contact_email}
+                      helperText={formErrors.contact_email}
+                    />
+                  </div>
+                </div>
+
+                {/* Business Hours Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Business Hours
+                  </h3>
+                  <div className="space-y-2">
+                    {Object.entries(formData.business_hours).map(
+                      ([day, dayData]) => (
+                        <div
+                          key={day}
+                          className="flex flex-col sm:flex-row sm:items-center gap-2"
+                        >
+                          <div className="flex items-center justify-between sm:w-1/3">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-medium text-foreground">
+                                {day}
+                              </span>
+                            </div>
+                            <Switch
+                              checked={dayData.closed}
+                              onCheckedChange={(checked) =>
+                                handleToggleBusinessDay(
+                                  day as DayOfWeek,
+                                  checked
+                                )
+                              }
+                              aria-label={`Toggle ${day} business hours`}
                             />
-                        </div>
-                    </div>
-                    <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-                        <DialogTrigger asChild>
-                            <button className="glass-button-primary flex items-center gap-2 px-4 py-2">
-                                <Plus className="w-4 h-4" />
-                                Add New Store
-                            </button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle>Add New Store</DialogTitle>
-                                <DialogDescription>
-                                    Create a new store location for your business
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="store-name">Store Name *</Label>
-                                    <Input
-                                        id="store-name"
-                                        placeholder="Main Store"
-                                        value={formData.name}
-                                        onChange={(e) => handleFormDataChange('name', e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="store-description">Description</Label>
-                                    <Textarea
-                                        id="store-description"
-                                        placeholder="Describe your store location..."
-                                        value={formData.description}
-                                        onChange={(e) => handleFormDataChange('description', e.target.value)}
-                                        rows={2}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="store-address">Address *</Label>
-                                    <Textarea
-                                        id="store-address"
-                                        placeholder="Enter complete store address"
-                                        value={formData.address}
-                                        onChange={(e) => handleFormDataChange('address', e.target.value)}
-                                        rows={2}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="store-phone">Phone Number *</Label>
-                                        <Input
-                                            id="store-phone"
-                                            placeholder="+256701234567"
-                                            value={formData.contact_phone}
-                                            onChange={(e) => handleFormDataChange('contact_phone', e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="store-email">Email Address *</Label>
-                                        <Input
-                                            id="store-email"
-                                            type="email"
-                                            placeholder="store@business.com"
-                                            value={formData.contact_email}
-                                            onChange={(e) => handleFormDataChange('contact_email', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => {
-                                    setShowAddForm(false)
-                                    resetForm()
-                                }}>
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleAddStore}>
-                                    Create Store
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
+                          </div>
 
-            {/* Stores Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredStores.map((store, index) => (
-                    <div
-                        key={store.id}
-                        className="glass-card-enhanced animate-glass-appear hover:glass-hover transition-all duration-300"
-                        style={{
-                            animationDelay: `${0.6 + index * 0.1}s`,
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            borderRadius: '16px',
-                            backdropFilter: 'blur(20px)',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                            padding: '24px'
-                        }}
-                    >
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-semibold text-foreground">{store.name}</h3>
-                            <Badge
-                                className="bg-green-100 text-green-700 border-green-200"
-                                style={{
-                                    background: 'rgba(34, 197, 94, 0.1)',
-                                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                                    color: 'rgb(34, 197, 94)'
-                                }}
-                            >
-                                Active
-                            </Badge>
-                        </div>
-                        {store.description && (
-                            <p className="text-sm text-muted-foreground mb-4">{store.description}</p>
-                        )}
-
-                        <div className="space-y-4">
-                            <div className="space-y-2 text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <MapPin className="w-4 h-4" />
-                                    <span className="truncate">{store.address}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Phone className="w-4 h-4" />
-                                    <span>{store.contact_phone}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Mail className="w-4 h-4" />
-                                    <span className="truncate">{store.contact_email}</span>
-                                </div>
-                            </div>
-
-                            <div
-                                className="pt-3 border-t"
-                                style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                            >
-                                <div className="grid grid-cols-3 gap-2 text-center">
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium text-foreground">0</p>
-                                        <p className="text-xs text-muted-foreground">Products</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium text-foreground">0</p>
-                                        <p className="text-xs text-muted-foreground">Orders</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium text-foreground">UGX 0</p>
-                                        <p className="text-xs text-muted-foreground">Revenue</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 pt-2">
-                                {store.notification_preferences?.online_orders !== false && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-xs"
-                                        style={{
-                                            background: 'rgba(99, 102, 241, 0.1)',
-                                            border: '1px solid rgba(99, 102, 241, 0.3)',
-                                            color: 'rgb(99, 102, 241)'
-                                        }}
-                                    >
-                                        Online Orders
-                                    </Badge>
-                                )}
-                                {store.notification_preferences?.delivery_updates !== false && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-xs"
-                                        style={{
-                                            background: 'rgba(168, 85, 247, 0.1)',
-                                            border: '1px solid rgba(168, 85, 247, 0.3)',
-                                            color: 'rgb(168, 85, 247)'
-                                        }}
-                                    >
-                                        Delivery
-                                    </Badge>
-                                )}
-                            </div>
-
-                            {/* Manage Store Button */}
-                            <div className="pt-4">
-                                <button
-                                    className="w-full glass-button-primary flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium"
-                                    style={{
-                                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))',
-                                        border: '1px solid rgba(99, 102, 241, 0.4)',
-                                        borderRadius: '12px',
-                                        backdropFilter: 'blur(10px)',
-                                        color: 'rgb(99, 102, 241)',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3))';
-                                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.6)';
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))';
-                                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.2)';
-                                    }}
-                                    onClick={() => {
-                                        // Navigate to store management page
-                                        window.location.href = `/dashboard/store?id=${store.id}`;
-                                    }}
+                          {!dayData.closed && (
+                            <div className="flex items-center gap-2 sm:w-2/3">
+                              <div className="flex-1">
+                                <Label
+                                  htmlFor={`${day}-open`}
+                                  className="text-xs text-muted-foreground block mb-1"
                                 >
-                                    <StoreIcon className="w-4 h-4" />
-                                    Manage Store
-                                </button>
+                                  Opens
+                                </Label>
+                                <Input
+                                  id={`${day}-open`}
+                                  type="time"
+                                  value={dayData.open}
+                                  onChange={(e) =>
+                                    handleTimeChange(
+                                      day as DayOfWeek,
+                                      "open",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={dayData.closed}
+                                  className="h-8"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Label
+                                  htmlFor={`${day}-close`}
+                                  className="text-xs text-muted-foreground block mb-1"
+                                >
+                                  Closes
+                                </Label>
+                                <Input
+                                  id={`${day}-close`}
+                                  type="time"
+                                  value={dayData.close}
+                                  onChange={(e) =>
+                                    handleTimeChange(
+                                      day as DayOfWeek,
+                                      "close",
+                                      e.target.value
+                                    )
+                                  }
+                                  disabled={dayData.closed}
+                                  className="h-8"
+                                />
+                              </div>
                             </div>
+                          )}
 
-                            <div
-                                className="flex items-center justify-between pt-2 border-t"
-                                style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                            >
-                                <span className="text-sm font-medium text-foreground">
-                                    {store.business_hours ? 'Business Hours Set' : 'Hours Not Set'}
-                                </span>
-                                <div className="flex items-center gap-1">
-                                    <button
-                                        className="glass-icon-button p-2"
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                                            borderRadius: '8px',
-                                            backdropFilter: 'blur(10px)'
-                                        }}
-                                        onClick={() => handleEditStore(store)}
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        className="glass-icon-button p-2"
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                                            borderRadius: '8px',
-                                            backdropFilter: 'blur(10px)'
-                                        }}
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        className="glass-icon-button p-2 text-red-600 hover:text-red-700"
-                                        style={{
-                                            background: 'rgba(239, 68, 68, 0.1)',
-                                            border: '1px solid rgba(239, 68, 68, 0.2)',
-                                            borderRadius: '8px',
-                                            backdropFilter: 'blur(10px)',
-                                            color: 'rgb(239, 68, 68)'
-                                        }}
-                                        onClick={() => handleDeleteStore(store.id)}
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
+                          {dayData.closed && (
+                            <div className="flex-1 text-muted-foreground text-sm italic sm:ml-4">
+                              Closed
                             </div>
+                          )}
                         </div>
-                    </div>
-                ))}
+                      )
+                    )}
+                  </div>
+                </div>
 
-                {/* Add Store Card */}
-                <div
-                    className="glass-card-dashed animate-glass-appear hover:glass-hover transition-all duration-300 cursor-pointer"
-                    style={{
-                        animationDelay: `${0.6 + filteredStores.length * 0.1}s`,
-                        background: 'rgba(255, 255, 255, 0.02)',
-                        border: '2px dashed rgba(255, 255, 255, 0.2)',
-                        borderRadius: '16px',
-                        backdropFilter: 'blur(20px)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                        padding: '24px'
-                    }}
-                    onClick={() => setShowAddForm(true)}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)';
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(99, 102, 241, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-                    }}
+                {/* Notification Preferences Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Notification Preferences
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          New Order Notifications
+                        </span>
+                      </div>
+                      <Switch
+                        checked={
+                          formData.notification_preferences
+                            .new_order_notifications
+                        }
+                        onCheckedChange={(checked) =>
+                          handleFormDataChange(
+                            "notification_preferences.new_order_notifications",
+                            checked
+                          )
+                        }
+                        aria-label="Toggle new order notifications"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          Low Stock Alerts
+                        </span>
+                      </div>
+                      <Switch
+                        checked={
+                          formData.notification_preferences.low_stock_alerts
+                        }
+                        onCheckedChange={(checked) =>
+                          handleFormDataChange(
+                            "notification_preferences.low_stock_alerts",
+                            checked
+                          )
+                        }
+                        aria-label="Toggle low stock alerts"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          SMS Inventory Low
+                        </span>
+                      </div>
+                      <Switch
+                        checked={
+                          formData.notification_preferences.sms_inventory_low
+                        }
+                        onCheckedChange={(checked) =>
+                          handleFormDataChange(
+                            "notification_preferences.sms_inventory_low",
+                            checked
+                          )
+                        }
+                        aria-label="Toggle SMS inventory low"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          Customer Cart Alerts
+                        </span>
+                      </div>
+                      <Switch
+                        checked={
+                          formData.notification_preferences.customer_cart_alerts
+                        }
+                        onCheckedChange={(checked) =>
+                          handleFormDataChange(
+                            "notification_preferences.customer_cart_alerts",
+                            checked
+                          )
+                        }
+                        aria-label="Toggle customer cart alerts"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">
+                          Staff Notifications
+                        </span>
+                      </div>
+                      <Switch
+                        checked={
+                          formData.notification_preferences.staff_notifications
+                        }
+                        onCheckedChange={(checked) =>
+                          handleFormDataChange(
+                            "notification_preferences.staff_notifications",
+                            checked
+                          )
+                        }
+                        aria-label="Toggle staff notifications"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    resetForm();
+                  }}
+                  disabled={isCreating}
                 >
-                    <div className="flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
-                        <Plus className="w-12 h-12 text-muted-foreground/60 mb-4" />
-                        <h4 className="font-semibold text-foreground mb-2">Add New Store</h4>
-                        <p className="text-sm text-muted-foreground">
-                            Expand your business with additional locations
-                        </p>
-                    </div>
-                </div>
-            </div>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddStore} disabled={isCreating}>
+                  {isCreating ? (
+                    <>
+                      <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Store"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
 
-            {filteredStores.length === 0 && searchTerm && (
-                <div className="glass-card-enhanced text-center py-8">
-                    <StoreIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-semibold mb-2 text-foreground">No stores found</h3>
-                    <p className="text-muted-foreground">
-                        Try adjusting your search terms or add a new store
-                    </p>
-                </div>
+      {/* Stores Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredStores.map((store, index) => (
+          <div
+            key={store.id}
+            className="glass-card-enhanced animate-glass-appear hover:glass-hover transition-all duration-300"
+            style={{
+              animationDelay: `${0.6 + index * 0.1}s`,
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "16px",
+              backdropFilter: "blur(20px)",
+              boxShadow:
+                "0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+              padding: "24px",
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-foreground">
+                {store.name}
+              </h3>
+              <Badge
+                className="bg-green-100 text-green-700 border-green-200"
+                style={{
+                  background: "rgba(34, 197, 94, 0.1)",
+                  border: "1px solid rgba(34, 197, 94, 0.3)",
+                  color: "rgb(34, 197, 94)",
+                }}
+              >
+                Active
+              </Badge>
+            </div>
+            {store.description && (
+              <p className="text-sm text-muted-foreground mb-4">
+                {store.description}
+              </p>
             )}
 
-            {/* Edit Store Dialog */}
-            <Dialog open={!!editingStore} onOpenChange={(open) => !open && setEditingStore(null)}>
-                <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>Edit Store</DialogTitle>
-                        <DialogDescription>
-                            Update store information and settings
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="edit-store-name">Store Name *</Label>
-                            <Input
-                                id="edit-store-name"
-                                placeholder="Main Store"
-                                value={formData.name}
-                                onChange={(e) => handleFormDataChange('name', e.target.value)}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="edit-store-description">Description</Label>
-                            <Textarea
-                                id="edit-store-description"
-                                placeholder="Describe your store location..."
-                                value={formData.description}
-                                onChange={(e) => handleFormDataChange('description', e.target.value)}
-                                rows={2}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="edit-store-address">Address *</Label>
-                            <Textarea
-                                id="edit-store-address"
-                                placeholder="Enter complete store address"
-                                value={formData.address}
-                                onChange={(e) => handleFormDataChange('address', e.target.value)}
-                                rows={2}
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="edit-store-phone">Phone Number *</Label>
-                                <Input
-                                    id="edit-store-phone"
-                                    placeholder="+256701234567"
-                                    value={formData.contact_phone}
-                                    onChange={(e) => handleFormDataChange('contact_phone', e.target.value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="edit-store-email">Email Address *</Label>
-                                <Input
-                                    id="edit-store-email"
-                                    type="email"
-                                    placeholder="store@business.com"
-                                    value={formData.contact_email}
-                                    onChange={(e) => handleFormDataChange('contact_email', e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => {
-                            setEditingStore(null)
-                            resetForm()
-                        }}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleUpdateStore}>
-                            Update Store
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <div className="space-y-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="w-4 h-4" />
+                  <span className="truncate">{store.address}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="w-4 h-4" />
+                  <span>{store.contact_phone}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-4 h-4" />
+                  <span className="truncate">{store.contact_email}</span>
+                </div>
+              </div>
+
+              <div
+                className="pt-3 border-t"
+                style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+              >
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">0</p>
+                    <p className="text-xs text-muted-foreground">Products</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">0</p>
+                    <p className="text-xs text-muted-foreground">Orders</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">UGX 0</p>
+                    <p className="text-xs text-muted-foreground">Revenue</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                {store.notification_preferences?.new_order_notifications !==
+                  false && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      background: "rgba(99, 102, 241, 0.1)",
+                      border: "1px solid rgba(99, 102, 241, 0.3)",
+                      color: "rgb(99, 102, 241)",
+                    }}
+                  >
+                    New Orders
+                  </Badge>
+                )}
+                {store.notification_preferences?.low_stock_alerts !== false && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      background: "rgba(168, 85, 247, 0.1)",
+                      border: "1px solid rgba(168, 85, 247, 0.3)",
+                      color: "rgb(168, 85, 247)",
+                    }}
+                  >
+                    Low Stock
+                  </Badge>
+                )}
+                {store.notification_preferences?.sms_inventory_low !==
+                  false && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      background: "rgba(239, 68, 68, 0.1)",
+                      border: "1px solid rgba(239, 68, 68, 0.2)",
+                      color: "rgb(239, 68, 68)",
+                    }}
+                  >
+                    SMS Inventory Low
+                  </Badge>
+                )}
+                {store.notification_preferences?.customer_cart_alerts !==
+                  false && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      background: "rgba(255, 159, 67, 0.1)",
+                      border: "1px solid rgba(255, 159, 67, 0.3)",
+                      color: "rgb(255, 159, 67)",
+                    }}
+                  >
+                    Customer Cart
+                  </Badge>
+                )}
+                {store.notification_preferences?.staff_notifications !==
+                  false && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{
+                      background: "rgba(100, 116, 139, 0.1)",
+                      border: "1px solid rgba(100, 116, 139, 0.3)",
+                      color: "rgb(100, 116, 139)",
+                    }}
+                  >
+                    Staff
+                  </Badge>
+                )}
+              </div>
+
+              {/* Manage Store Button */}
+              <div className="pt-4">
+                <button
+                  className="w-full glass-button-primary flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))",
+                    border: "1px solid rgba(99, 102, 241, 0.4)",
+                    borderRadius: "12px",
+                    backdropFilter: "blur(10px)",
+                    color: "rgb(99, 102, 241)",
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3))";
+                    e.currentTarget.style.borderColor =
+                      "rgba(99, 102, 241, 0.6)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 25px rgba(99, 102, 241, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background =
+                      "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2))";
+                    e.currentTarget.style.borderColor =
+                      "rgba(99, 102, 241, 0.4)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 15px rgba(99, 102, 241, 0.2)";
+                  }}
+                  onClick={() => {
+                    // Navigate to store management page
+                    window.location.href = `/dashboard/store?id=${store.id}`;
+                  }}
+                >
+                  <StoreIcon className="w-4 h-4" />
+                  Manage Store
+                </button>
+              </div>
+
+              <div
+                className="flex items-center justify-between pt-2 border-t"
+                style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {store.business_hours
+                    ? "Business Hours Set"
+                    : "Hours Not Set"}
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    className="glass-icon-button p-2"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.05)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "8px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                    onClick={() => handleEditStore(store)}
+                    title="Edit store"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="glass-icon-button p-2"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.05)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "8px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                    title="View store details"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="glass-icon-button p-2 text-red-600 hover:text-red-700"
+                    style={{
+                      background: "rgba(239, 68, 68, 0.1)",
+                      border: "1px solid rgba(239, 68, 68, 0.2)",
+                      borderRadius: "8px",
+                      backdropFilter: "blur(10px)",
+                      color: "rgb(239, 68, 68)",
+                    }}
+                    onClick={() => {
+                      setStoreToDelete(store);
+                      setDeleteConfirmStage(1);
+                    }}
+                    title="Delete store"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Add Store Card */}
+        <div
+          className="glass-card-dashed animate-glass-appear hover:glass-hover transition-all duration-300 cursor-pointer"
+          style={{
+            animationDelay: `${0.6 + filteredStores.length * 0.1}s`,
+            background: "rgba(255, 255, 255, 0.02)",
+            border: "2px dashed rgba(255, 255, 255, 0.2)",
+            borderRadius: "16px",
+            backdropFilter: "blur(20px)",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+            padding: "24px",
+          }}
+          onClick={() => setShowAddForm(true)}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+            e.currentTarget.style.borderColor = "rgba(99, 102, 241, 0.4)";
+            e.currentTarget.style.transform = "translateY(-4px)";
+            e.currentTarget.style.boxShadow =
+              "0 12px 40px rgba(99, 102, 241, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)";
+            e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.1)";
+          }}
+        >
+          <div className="flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
+            <Plus className="w-12 h-12 text-muted-foreground/60 mb-4" />
+            <h4 className="font-semibold text-foreground mb-2">
+              Add New Store
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Expand your business with additional locations
+            </p>
+          </div>
         </div>
-    )
+      </div>
+
+      {filteredStores.length === 0 && searchTerm && (
+        <div className="glass-card-enhanced text-center py-8">
+          <StoreIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="font-semibold mb-2 text-foreground">
+            No stores found
+          </h3>
+          <p className="text-muted-foreground">
+            Try adjusting your search terms or add a new store
+          </p>
+        </div>
+      )}
+
+      {/* Edit Store Dialog */}
+      <Dialog
+        open={!!editingStore}
+        onOpenChange={(open) => !open && setEditingStore(null)}
+      >
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit2 className="h-5 w-5" />
+              Edit Store
+            </DialogTitle>
+            <DialogDescription>
+              Update information and settings for {editingStore?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-store-name">Store Name *</Label>
+              <Input
+                id="edit-store-name"
+                placeholder="Main Store"
+                value={formData.name}
+                onChange={(e) => handleFormDataChange("name", e.target.value)}
+                error={!!editFormErrors.name}
+                helperText={editFormErrors.name}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-store-description">Description</Label>
+              <Textarea
+                id="edit-store-description"
+                placeholder="Describe your store location..."
+                value={formData.description}
+                onChange={(e) =>
+                  handleFormDataChange("description", e.target.value)
+                }
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-store-address">Address *</Label>
+              <Textarea
+                id="edit-store-address"
+                placeholder="Enter complete store address"
+                value={formData.address}
+                onChange={(e) =>
+                  handleFormDataChange("address", e.target.value)
+                }
+                rows={2}
+                error={!!editFormErrors.address}
+                helperText={editFormErrors.address}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-store-phone">Phone Number *</Label>
+                <Input
+                  id="edit-store-phone"
+                  placeholder="+256701234567"
+                  value={formData.contact_phone}
+                  onChange={(e) =>
+                    handleFormDataChange("contact_phone", e.target.value)
+                  }
+                  error={!!editFormErrors.contact_phone}
+                  helperText={editFormErrors.contact_phone}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-store-email">Email Address *</Label>
+                <Input
+                  id="edit-store-email"
+                  type="email"
+                  placeholder="store@business.com"
+                  value={formData.contact_email}
+                  onChange={(e) =>
+                    handleFormDataChange("contact_email", e.target.value)
+                  }
+                  error={!!editFormErrors.contact_email}
+                  helperText={editFormErrors.contact_email}
+                />
+              </div>
+            </div>
+
+            {/* Business Hours Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Business Hours
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      business_hours: { ...defaultBusinessHours },
+                    }));
+                  }}
+                >
+                  Reset to Default
+                </Button>
+              </div>
+              <div className="space-y-3 border rounded-md p-3">
+                {Object.entries(formData.business_hours).map(
+                  ([day, dayData]) => (
+                    <div
+                      key={day}
+                      className="flex flex-col sm:flex-row sm:items-center gap-2 pb-2 border-b last:border-b-0 last:pb-0"
+                    >
+                      <div className="flex items-center justify-between sm:w-1/3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium text-foreground">
+                            {day}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`text-xs ${
+                              dayData?.closed
+                                ? "text-red-500"
+                                : "text-green-500"
+                            }`}
+                          >
+                            {dayData?.closed ? "Closed" : "Open"}
+                          </span>
+                          <Switch
+                            checked={!dayData?.closed}
+                            onCheckedChange={(checked) =>
+                              handleToggleBusinessDay(
+                                day as DayOfWeek,
+                                !checked
+                              )
+                            }
+                            aria-label={`Toggle ${day} business hours`}
+                          />
+                        </div>
+                      </div>
+
+                      {!dayData?.closed && (
+                        <div className="flex items-center gap-2 sm:w-2/3">
+                          <div className="flex-1">
+                            <Label
+                              htmlFor={`edit-${day}-open`}
+                              className="text-xs text-muted-foreground block mb-1"
+                            >
+                              Opens
+                            </Label>
+                            <Input
+                              id={`edit-${day}-open`}
+                              type="time"
+                              value={dayData?.open || ""}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  day as DayOfWeek,
+                                  "open",
+                                  e.target.value
+                                )
+                              }
+                              disabled={dayData?.closed}
+                              className="h-8"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <Label
+                              htmlFor={`edit-${day}-close`}
+                              className="text-xs text-muted-foreground block mb-1"
+                            >
+                              Closes
+                            </Label>
+                            <Input
+                              id={`edit-${day}-close`}
+                              type="time"
+                              value={dayData?.close || ""}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  day as DayOfWeek,
+                                  "close",
+                                  e.target.value
+                                )
+                              }
+                              disabled={dayData?.closed}
+                              className="h-8"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Notification Preferences Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Notification Preferences
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      notification_preferences: {
+                        email_new_order: true,
+                        sms_inventory_low: true,
+                        low_stock_alerts: true,
+                        new_order_notifications: true,
+                        customer_cart_alerts: true,
+                        staff_notifications: true,
+                      },
+                    }));
+                  }}
+                >
+                  Enable All
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-3 border rounded-md p-3">
+                {Object.entries(formData.notification_preferences).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between pb-2 border-b last:border-b-0 last:pb-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BellRing className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground capitalize">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span
+                          className={`text-xs ${
+                            value ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          {value ? "Enabled" : "Disabled"}
+                        </span>
+                        <Switch
+                          checked={value}
+                          onCheckedChange={(checked) =>
+                            handleFormDataChange(
+                              `notification_preferences.${key}`,
+                              checked
+                            )
+                          }
+                          aria-label={`Toggle ${key}`}
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-6 gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditingStore(null);
+                resetForm();
+              }}
+              disabled={isUpdating}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateStore}
+              disabled={isUpdating}
+              className="min-w-[100px]"
+            >
+              {isUpdating ? (
+                <>
+                  <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                  Updating...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Store Delete Confirmation Dialog */}
+      <Dialog
+        open={!!storeToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setStoreToDelete(null);
+            setDeleteConfirmStage(1);
+            setConfirmDeleteText("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              {deleteConfirmStage === 1 ? "Delete Store" : "Confirm Deletion"}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteConfirmStage === 1
+                ? `Are you sure you want to delete "${storeToDelete?.name}"? This will remove all products, inventory, and sales data associated with this store.`
+                : `This action cannot be undone. Please type "${storeToDelete?.name}" to confirm deletion.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteConfirmStage === 2 && (
+            <div className="my-4">
+              <Label
+                htmlFor="confirm-delete-input"
+                className="text-sm font-medium"
+              >
+                Store name confirmation
+              </Label>
+              <Input
+                id="confirm-delete-input"
+                placeholder={`Type "${storeToDelete?.name}" to confirm`}
+                className="mt-1"
+                value={confirmDeleteText}
+                onChange={(e) => setConfirmDeleteText(e.target.value)}
+              />
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2 justify-end mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStoreToDelete(null);
+                setDeleteConfirmStage(1);
+                setConfirmDeleteText("");
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+
+            {deleteConfirmStage === 1 ? (
+              <Button
+                variant="destructive"
+                onClick={() => setDeleteConfirmStage(2)}
+              >
+                Proceed
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                onClick={() => handleDeleteStore(storeToDelete!.id)}
+                disabled={
+                  isDeleting || confirmDeleteText !== storeToDelete?.name
+                }
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="animate-spin mr-2 h-4 w-4 border-2 border-t-transparent border-white rounded-full" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Store"
+                )}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../piaxe_ui"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.dbclient-js": "javascript",
+			"*.embeddedhtml": "html",
+			"plyconfig.json": "jsonc"
+		}
+	}
+}

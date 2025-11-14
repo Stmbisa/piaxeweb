@@ -1,3 +1,5 @@
+import { deviceHeadersForContext } from "../utils";
+
 // Analytics API utilities
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -109,10 +111,12 @@ export interface MerchantAnalytics {
 
 class AnalyticsAPI {
   private getHeaders(token: string): HeadersInit {
-    return {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
+    Object.assign(headers, deviceHeadersForContext(token));
+    return headers;
   }
 
   // Store Analytics
@@ -137,6 +141,8 @@ class AnalyticsAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -176,6 +182,8 @@ class AnalyticsAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -210,6 +218,8 @@ class AnalyticsAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -254,6 +264,8 @@ class AnalyticsAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -304,6 +316,8 @@ class AnalyticsAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 

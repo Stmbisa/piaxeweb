@@ -1,3 +1,5 @@
+import { deviceHeadersForContext } from "../utils";
+
 // CRM API utilities
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -214,10 +216,12 @@ export interface CampaignAnalytics {
 
 class CRMAPI {
   private getHeaders(token: string): HeadersInit {
-    return {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
+    Object.assign(headers, deviceHeadersForContext(token));
+    return headers;
   }
 
   // Customer Management
@@ -229,6 +233,8 @@ class CRMAPI {
       const response = await fetch(`${API_BASE_URL}/crm/customers/create`, {
         method: "POST",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
         body: JSON.stringify(customerData),
       });
 
@@ -276,6 +282,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -298,6 +306,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -324,6 +334,8 @@ class CRMAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(customerData),
         }
       );
@@ -347,6 +359,8 @@ class CRMAPI {
         {
           method: "DELETE",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -369,6 +383,8 @@ class CRMAPI {
       const response = await fetch(`${API_BASE_URL}/crm/segments/create`, {
         method: "POST",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
         body: JSON.stringify(segmentData),
       });
 
@@ -389,6 +405,8 @@ class CRMAPI {
       const response = await fetch(`${API_BASE_URL}/crm/segments`, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -418,6 +436,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -442,6 +462,8 @@ class CRMAPI {
       const response = await fetch(`${API_BASE_URL}/crm/campaigns/create`, {
         method: "POST",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
         body: JSON.stringify(campaignData),
       });
 
@@ -483,6 +505,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -505,6 +529,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -531,6 +557,8 @@ class CRMAPI {
         {
           method: "PUT",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
           body: JSON.stringify(campaignData),
         }
       );
@@ -554,6 +582,8 @@ class CRMAPI {
         {
           method: "DELETE",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -577,6 +607,8 @@ class CRMAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -611,6 +643,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -644,6 +678,8 @@ class CRMAPI {
         {
           method: "GET",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 

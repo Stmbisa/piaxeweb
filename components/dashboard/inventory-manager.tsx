@@ -1,15 +1,25 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/hooks/use-toast'
-import { shoppingInventoryAPI, type Product as APIProduct, type Store } from '@/lib/api/shopping-inventory'
-import { useAuth } from '@/lib/auth/context'
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import {
+  shoppingInventoryAPI,
+  type Product as APIProduct,
+  type Store,
+} from "@/lib/api/shopping-inventory";
+import { useAuth } from "@/lib/auth/context";
 import {
   Plus,
   Search,
@@ -19,134 +29,164 @@ import {
   AlertTriangle,
   TrendingUp,
   TrendingDown,
-  Minus
-} from 'lucide-react'
+  Minus,
+} from "lucide-react";
 
 interface Product {
-  id: string
-  name: string
-  category: string
-  price: number
-  stock: number
-  status: 'in-stock' | 'low-stock' | 'out-of-stock'
-  sales: number
-  image?: string
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: "in-stock" | "low-stock" | "out-of-stock";
+  sales: number;
+  image?: string;
 }
 
 export function InventoryManager() {
-  const [products, setProducts] = useState<APIProduct[]>([])
-  const [stores, setStores] = useState<Store[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [selectedStore, setSelectedStore] = useState<string>('')
-  const { user, token } = useAuth()
-  const { toast } = useToast()
+  const [products, setProducts] = useState<APIProduct[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedStore, setSelectedStore] = useState<string>("");
+  const { user, token } = useAuth();
+  const { toast } = useToast();
 
   // Load stores and products on component mount
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = async () => {
-    if (!token) return
+    if (!token) return;
 
     try {
-      setLoading(true)
+      setLoading(true);
 
       // Load stores first
-      const storesData = await shoppingInventoryAPI.getStores(token)
-      setStores(storesData)
+      const storesData = await shoppingInventoryAPI.getStores(token);
+      setStores(storesData);
 
       // Load products for the first store if available
       if (storesData.length > 0) {
-        const firstStoreId = storesData[0].id
-        setSelectedStore(firstStoreId)
-        const productsResponse = await shoppingInventoryAPI.getProducts(token, firstStoreId)
-        setProducts(productsResponse.products)
+        const firstStoreId = storesData[0].id;
+        setSelectedStore(firstStoreId);
+        const productsResponse = await shoppingInventoryAPI.getProducts(
+          token,
+          firstStoreId
+        );
+        setProducts(productsResponse.products);
       }
     } catch (error) {
-      console.error('Error loading data:', error)
+      console.error("Error loading data:", error);
       toast({
         title: "Error",
         description: "Failed to load inventory data",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Load products when store changes
   const handleStoreChange = async (storeId: string) => {
-    if (!token) return
+    if (!token) return;
 
     try {
-      setSelectedStore(storeId)
-      setLoading(true)
-      const productsResponse = await shoppingInventoryAPI.getProducts(token, storeId)
-      setProducts(productsResponse.products)
+      setSelectedStore(storeId);
+      setLoading(true);
+      const productsResponse = await shoppingInventoryAPI.getProducts(
+        token,
+        storeId
+      );
+      setProducts(productsResponse.products);
     } catch (error) {
-      console.error('Error loading products:', error)
+      console.error("Error loading products:", error);
       toast({
         title: "Error",
         description: "Failed to load products",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (!token || !selectedStore) return
+    if (!token || !selectedStore) return;
 
     try {
-      await shoppingInventoryAPI.deleteProduct(token, selectedStore, productId)
-      setProducts(products.filter(p => p.id !== productId))
+      await shoppingInventoryAPI.deleteProduct(token, selectedStore, productId);
+      setProducts(products.filter((p) => p.id !== productId));
       toast({
         title: "Success",
         description: "Product deleted successfully",
-      })
+      });
     } catch (error) {
-      console.error('Error deleting product:', error)
+      console.error("Error deleting product:", error);
       toast({
         title: "Error",
         description: "Failed to delete product",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.location?.name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+  );
 
-  const getStockStatus = (stock: number): 'in-stock' | 'low-stock' | 'out-of-stock' => {
-    if (stock === 0) return 'out-of-stock'
-    if (stock <= 5) return 'low-stock'
-    return 'in-stock'
-  }
+  const getStockStatus = (
+    quantity: number
+  ): "in-stock" | "low-stock" | "out-of-stock" => {
+    if (quantity === 0) return "out-of-stock";
+    if (quantity <= 5) return "low-stock";
+    return "in-stock";
+  };
 
-  const getStatusColor = (stock: number) => {
-    const status = getStockStatus(stock)
+  const getStatusColor = (quantity: number) => {
+    const status = getStockStatus(quantity);
     switch (status) {
-      case 'in-stock':
-        return 'bg-green-100 text-green-700 border-green-200'
-      case 'low-stock':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200'
-      case 'out-of-stock':
-        return 'bg-red-100 text-red-700 border-red-200'
+      case "in-stock":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "low-stock":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "out-of-stock":
+        return "bg-red-100 text-red-700 border-red-200";
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200'
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
-  }
+  };
 
-  const totalProducts = products.length
-  const lowStockProducts = products.filter(p => getStockStatus(p.stock_quantity) === 'low-stock').length
-  const outOfStockProducts = products.filter(p => getStockStatus(p.stock_quantity) === 'out-of-stock').length
-  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock_quantity), 0)
+  // Format currency helper function
+  const formatCurrency = (amount: string | number | undefined) => {
+    if (amount === undefined || amount === null) return "0";
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    return !isNaN(numAmount) ? numAmount.toLocaleString() : "0";
+  };
+
+  const totalProducts = products.length;
+  const lowStockProducts = products.filter((p) => {
+    const quantity = p.quantity || 0;
+    return quantity > 0 && quantity <= 5;
+  }).length;
+  const outOfStockProducts = products.filter(
+    (p) => (p.quantity || 0) === 0
+  ).length;
+  const totalValue = products.reduce((sum, p) => {
+    const price =
+      typeof p.base_price === "string"
+        ? parseFloat(p.base_price || "0")
+        : p.base_price || 0;
+    const quantity = p.quantity || 0;
+    return sum + price * quantity;
+  }, 0);
 
   return (
     <div className="space-y-6">
@@ -159,6 +199,7 @@ export function InventoryManager() {
             value={selectedStore}
             onChange={(e) => handleStoreChange(e.target.value)}
             className="border border-gray-300 rounded-md px-3 py-2"
+            aria-label="Select Store"
           >
             {stores.map((store) => (
               <option key={store.id} value={store.id}>
@@ -184,7 +225,9 @@ export function InventoryManager() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Products</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Products
+                    </p>
                     <p className="text-2xl font-bold">{totalProducts}</p>
                   </div>
                   <Package className="w-8 h-8 text-primary" />
@@ -196,8 +239,12 @@ export function InventoryManager() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Low Stock</p>
-                    <p className="text-2xl font-bold text-yellow-600">{lowStockProducts}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Low Stock
+                    </p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {lowStockProducts}
+                    </p>
                   </div>
                   <AlertTriangle className="w-8 h-8 text-yellow-600" />
                 </div>
@@ -208,8 +255,12 @@ export function InventoryManager() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
-                    <p className="text-2xl font-bold text-red-600">{outOfStockProducts}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Out of Stock
+                    </p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {outOfStockProducts}
+                    </p>
                   </div>
                   <Minus className="w-8 h-8 text-red-600" />
                 </div>
@@ -220,8 +271,12 @@ export function InventoryManager() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Inventory Value</p>
-                    <p className="text-2xl font-bold">UGX {totalValue.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Inventory Value
+                    </p>
+                    <p className="text-2xl font-bold">
+                      UGX {formatCurrency(totalValue)}
+                    </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-green-600" />
                 </div>
@@ -262,29 +317,45 @@ export function InventoryManager() {
             <CardContent>
               <div className="space-y-4">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
                         <Package className="w-6 h-6 text-muted-foreground" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {product.location?.name || "No Category"}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="font-semibold">UGX {product.price.toLocaleString()}</p>
+                        <p className="font-semibold">
+                          UGX {formatCurrency(product.base_price)}
+                        </p>
                         <p className="text-sm text-muted-foreground">
-                          {product.sku ? `SKU: ${product.sku}` : 'No SKU'}
+                          {product.product_code
+                            ? `SKU: ${product.product_code}`
+                            : "No SKU"}
                         </p>
                       </div>
 
                       <div className="text-right">
-                        <p className="font-semibold">{product.stock_quantity} units</p>
-                        <Badge className={getStatusColor(product.stock_quantity)}>
-                          {getStockStatus(product.stock_quantity).replace('-', ' ')}
+                        <p className="font-semibold">
+                          {product.quantity || 0} units
+                        </p>
+                        <Badge
+                          className={getStatusColor(product.quantity || 0)}
+                        >
+                          {getStockStatus(product.quantity || 0).replace(
+                            "-",
+                            " "
+                          )}
                         </Badge>
                       </div>
 
@@ -339,5 +410,5 @@ export function InventoryManager() {
         </>
       )}
     </div>
-  )
+  );
 }

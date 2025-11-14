@@ -1,3 +1,5 @@
+import { SEND_DEVICE_HEADER_IN_BROWSER } from "../utils";
+
 export interface Wallet {
   id: string;
   user_id: string;
@@ -45,15 +47,20 @@ class WalletAPI {
   private getAuthHeaders(token: string) {
     return {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      Accept: "application/json",
     };
   }
 
   async getUserWallets(token: string): Promise<Wallet[]> {
     try {
+      const isBrowser = typeof window !== "undefined";
+      let base = API_BASE_URL;
+      if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
       const headers = this.getAuthHeaders(token);
-      const response = await fetch(`${API_BASE_URL}/wallet/wallets/`, {
+      const response = await fetch(`${base}/wallet/wallets/`, {
         headers,
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -86,6 +93,9 @@ class WalletAPI {
     }
   ): Promise<TransactionResponse> {
     try {
+      const isBrowser = typeof window !== "undefined";
+      let base = API_BASE_URL;
+      if (isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER) base = "/api/proxy";
       const headers = this.getAuthHeaders(token);
       const searchParams = new URLSearchParams();
 
@@ -97,10 +107,10 @@ class WalletAPI {
         });
       }
 
-      const url = `${API_BASE_URL}/wallet/transactions${
+      const url = `${base}/wallet/transactions${
         searchParams.toString() ? "?" + searchParams.toString() : ""
       }`;
-      const response = await fetch(url, { headers });
+      const response = await fetch(url, { headers, credentials: "include", mode: "cors" });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch transactions: ${response.statusText}`);

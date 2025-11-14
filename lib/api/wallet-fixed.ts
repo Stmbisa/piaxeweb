@@ -54,6 +54,8 @@ class WalletAPI {
       const headers = this.getAuthHeaders(token);
       const response = await fetch(`${API_BASE_URL}/wallet/wallets/`, {
         headers,
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -100,7 +102,7 @@ class WalletAPI {
       const url = `${API_BASE_URL}/wallet/transactions${
         searchParams.toString() ? "?" + searchParams.toString() : ""
       }`;
-      const response = await fetch(url, { headers });
+      const response = await fetch(url, { headers, credentials: "include", mode: "cors" });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch transactions: ${response.statusText}`);
@@ -123,7 +125,26 @@ class WalletAPI {
         ? `${API_BASE_URL}/wallet/balance?currency=${currency}`
         : `${API_BASE_URL}/wallet/balance`;
 
-      const response = await fetch(url, { headers });
+      const response = await fetch(url, { headers, credentials: "include", mode: "cors" });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       if (!response.ok) {
         throw new Error(`Failed to fetch balance: ${response.statusText}`);

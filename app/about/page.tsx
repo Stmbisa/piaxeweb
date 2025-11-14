@@ -21,8 +21,8 @@ export default function AboutPage() {
                         '@context': 'https://schema.org',
                         '@type': 'BreadcrumbList',
                         itemListElement: [
-                            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://piaxis.com/' },
-                            { '@type': 'ListItem', position: 2, name: 'About', item: 'https://piaxis.com/about' }
+                            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://gopiaxis.com/' },
+                            { '@type': 'ListItem', position: 2, name: 'About', item: 'https://gopiaxis.com/about' }
                         ]
                     })
                 }}
@@ -35,18 +35,10 @@ export default function AboutPage() {
                 {/* Hero Section */}
                 <section className="text-center max-w-4xl mx-auto mb-12 md:mb-16 animate-fade-in">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6 leading-tight">
-                        Revolutionizing Payments in{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                            Low Trust Environments
-                        </span>
+                        Rebuilding commerce on programmable trust.
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-4">
-                        piaxis is a modern payment system designed specifically for low trust environments like Africa and Asia,
-                        we started with Uganda and East Africa expanding to more very soon,
-                        where trust between parties can be limited. We provide escrow protection, POS-free payments,
-                        help creators collect payments without any integation,
-                        help ecommerce platforms or any digital platform to collect and disburse payments
-                        and complete business management tools all in one setup.
+                        piaxis turns payments into programmable trust — escrow with delivery, geo, approval, time & rating conditions; POS‑free checkout; social selling; fundraising caps; payroll escrow; remote cart pay; restricted spend remittance; credit lines; APIs. We started in Uganda and East Africa and are expanding quickly.
                     </p>
                     <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 px-4">
                         <button className="glass-button-primary rounded-full px-6 md:px-8 py-3 w-full sm:w-auto">

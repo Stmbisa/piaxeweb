@@ -70,14 +70,17 @@ export interface ApiError {
   details?: any;
 }
 
+import { deviceHeadersForContext, SEND_DEVICE_HEADER_IN_BROWSER } from "../utils";
+
 class AuthAPI {
   private getHeaders(token?: string): HeadersInit {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
 
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      Object.assign(headers, deviceHeadersForContext(token));
     }
 
     return headers;
@@ -89,6 +92,9 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(credentials),
+        // Ensure device-binding cookie (dfp) is included cross-origin
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -118,6 +124,8 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -175,6 +183,8 @@ class AuthAPI {
       await fetch(`${API_BASE_URL}/users/logout`, {
         method: "POST",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
     } catch (error) {
       console.error("Logout error:", error);
@@ -188,6 +198,8 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify({ refresh_token: refreshToken }),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -209,9 +221,15 @@ class AuthAPI {
 
   async getProfile(token: string): Promise<User> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/me`, {
+      const isBrowser = typeof window !== "undefined";
+      const useProxy = isBrowser && !SEND_DEVICE_HEADER_IN_BROWSER;
+      const url = useProxy ? "/api/proxy/users/me" : `${API_BASE_URL}/users/me`;
+
+      const response = await fetch(url, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -237,6 +255,8 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(token),
         body: JSON.stringify({ verificationCode }),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -255,6 +275,8 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(),
         body: JSON.stringify({ email }),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -275,6 +297,8 @@ class AuthAPI {
         {
           method: "POST",
           headers: this.getHeaders(token),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -305,6 +329,8 @@ class AuthAPI {
             request_id: requestId,
             confirmation_code: confirmationCode,
           }),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -331,6 +357,8 @@ class AuthAPI {
           method: "POST",
           headers: this.getHeaders(token),
           body: JSON.stringify({ password }),
+          credentials: "include",
+          mode: "cors",
         }
       );
 
@@ -410,6 +438,8 @@ class AuthAPI {
       const response = await fetch(`${API_BASE_URL}/users/business/profile`, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -434,6 +464,8 @@ class AuthAPI {
         method: "POST",
         headers: this.getHeaders(token),
         body: JSON.stringify(developerData),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
@@ -453,6 +485,8 @@ class AuthAPI {
       const response = await fetch(`${API_BASE_URL}/users/merchant/profile`, {
         method: "GET",
         headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
       });
 
       if (!response.ok) {
