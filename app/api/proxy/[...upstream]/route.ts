@@ -7,6 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.gopiax
 const ALLOWED_PREFIXES = [
   "wallet/",
   "shopping_and_inventory/",
+  "auth/devices",
 ];
 
 function isAllowed(path: string) {

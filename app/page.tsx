@@ -53,11 +53,22 @@ export default function Home() {
 
       <div className="relative z-10">
         <HeroSection />
+
+        {/* Social Proof Strip (spec) */}
+        <section className="container mx-auto px-4 py-6 animate-glass-appear" style={{ animationDelay: "0.05s" }}>
+          <div className="glass-card flex flex-wrap items-center justify-center gap-6 p-4 text-sm text-muted-foreground">
+            <span className="opacity-80">Trusted by merchants and communities</span>
+            <span className="w-1 h-1 rounded-full bg-foreground/30" />
+            <span className="opacity-80">“−37% failed handoffs”</span>
+            <span className="w-1 h-1 rounded-full bg-foreground/30" />
+            <span className="opacity-80">“+22% repeat buyers”</span>
+          </div>
+        </section>
         <MobileWalletPreview />
         <BarcodePaymentDemo />
         <SecurityFeatures />
 
-        <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
+  <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
           <div className="grid gap-8 lg:gap-12">
             <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.1s" }}>
               <TargetSection
@@ -147,6 +158,30 @@ export default function Home() {
                 imageAlt="Developer integrating piaxis API"
                 imageRight
               />
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works (spec) */}
+        <section className="container mx-auto px-4 py-8 sm:py-12">
+          <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.45s" }}>
+            <div className="p-8 text-center">
+              <h2 className="text-3xl font-bold mb-2 text-primary-foreground">How it works</h2>
+              <p className="text-primary-foreground/80 mb-8">Set Conditions → Funds Locked → Auto Release</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="glass-card bg-white/10 p-6 rounded-xl">
+                  <h3 className="font-semibold mb-2">1. Set Conditions</h3>
+                  <p className="text-sm opacity-80">Delivery confirmed, geo verified, approvals, time lock, rating threshold.</p>
+                </div>
+                <div className="glass-card bg-white/10 p-6 rounded-xl">
+                  <h3 className="font-semibold mb-2">2. Funds Locked</h3>
+                  <p className="text-sm opacity-80">Money is escrowed securely until reality matches your rules.</p>
+                </div>
+                <div className="glass-card bg-white/10 p-6 rounded-xl">
+                  <h3 className="font-semibold mb-2">3. Auto Release</h3>
+                  <p className="text-sm opacity-80">When conditions are met, funds release automatically.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

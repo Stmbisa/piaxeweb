@@ -110,10 +110,11 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                {/* Problem We Solve */}
+                {/* Trust Tax (Problem) from spec */}
                 <section className="mb-12 md:mb-16 px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-foreground">The Problem We Solve</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-foreground">The Trust Tax</h2>
+                        <p className="text-muted-foreground mb-6">Scams as % of online volume, hours lost to reconciliation, and the capex of legacy hardware — the hidden tax on commerce we are removing.</p>
                         <div className="grid md:grid-cols-2 gap-6 md:gap-8 text-left">
                             <div className="glass-card animate-glass-appear" style={{ animationDelay: "0.6s" }}>
                                 <h3 className="text-lg md:text-xl font-semibold text-primary mb-3 md:mb-4">Payment Fraud & Scams</h3>
@@ -147,36 +148,53 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                {/* Our Solution */}
+                {/* Mechanism vs Traditional comparison (spec) */}
                 <section className="mb-12 md:mb-16 px-4">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-foreground">Our Solution</h2>
-                        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-                            <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "1.0s" }}>
-                                <h3 className="text-base md:text-lg font-semibold mb-4 text-primary-foreground">Escrow Protection</h3>
-                                <p className="text-primary-foreground/80 text-xs md:text-sm">
-                                    We hold payments securely until both parties fulfill their obligations,
-                                    eliminating fraud and building trust.
-                                </p>
-                            </div>
-
-                            <div className="glass-card-secondary animate-glass-appear" style={{ animationDelay: "1.1s" }}>
-                                <h3 className="text-base md:text-lg font-semibold mb-4 text-secondary-foreground">POS-Free Payments</h3>
-                                <p className="text-secondary-foreground/80 text-xs md:text-sm">
-                                    Businesses can accept payments using just a mobile phone and QR codes,
-                                    eliminating the need for expensive POS systems.
-                                </p>
-                            </div>
-
-                            <div className="glass-card animate-glass-appear" style={{ animationDelay: "1.2s" }}>
-                                <div className="p-1">
-                                    <h3 className="text-base md:text-lg font-semibold mb-4 text-orange-500">Complete Business Tools</h3>
-                                    <p className="text-muted-foreground text-xs md:text-sm">
-                                        Free CRM, inventory management, payment processing, and online store
-                                        setup all in one integrated platform.
-                                    </p>
-                                </div>
-                            </div>
+                    <div className="max-w-5xl mx-auto">
+                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center text-foreground">Mechanism vs Traditional</h2>
+                        <div className="overflow-hidden rounded-xl border border-border/40">
+                            <table className="min-w-full divide-y divide-border/40 glass-card">
+                                <thead className="bg-background/60">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dimension</th>
+                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gateway</th>
+                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Legacy POS</th>
+                                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">piaxis</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border/40">
+                                    <tr>
+                                        <td className="px-4 py-3 text-sm">Settlement Control</td>
+                                        <td className="px-4 py-3 text-sm">Blind</td>
+                                        <td className="px-4 py-3 text-sm">Hardware dependent</td>
+                                        <td className="px-4 py-3 text-sm font-medium">Programmable conditions</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-4 py-3 text-sm">Channels</td>
+                                        <td className="px-4 py-3 text-sm">Online only</td>
+                                        <td className="px-4 py-3 text-sm">In-store only</td>
+                                        <td className="px-4 py-3 text-sm font-medium">Unified omni-channel</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-4 py-3 text-sm">Fraud Mitigation</td>
+                                        <td className="px-4 py-3 text-sm">Reactive</td>
+                                        <td className="px-4 py-3 text-sm">Manual</td>
+                                        <td className="px-4 py-3 text-sm font-medium">Preventive conditional locking</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-4 py-3 text-sm">Remote Cart</td>
+                                        <td className="px-4 py-3 text-sm">No</td>
+                                        <td className="px-4 py-3 text-sm">No</td>
+                                        <td className="px-4 py-3 text-sm font-medium">Yes</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-4 py-3 text-sm">Restricted Spend</td>
+                                        <td className="px-4 py-3 text-sm">No</td>
+                                        <td className="px-4 py-3 text-sm">No</td>
+                                        <td className="px-4 py-3 text-sm font-medium">Yes</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -211,7 +229,7 @@ export default function AboutPage() {
                 {/* Team Section */}
                 <section className="mb-12 md:mb-16 px-4">
                     <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-foreground">Built by Ugandans, for Uganda</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-foreground">Built by Africans, for Africa</h2>
                         <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
                             Our team understands the local market, payment behaviors, and business challenges
                             because we live and work in the same environment as our users.

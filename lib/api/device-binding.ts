@@ -1,12 +1,13 @@
 import { deviceHeadersForContext } from "../utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.gopiaxis.com";
+const IS_BROWSER = typeof window !== "undefined";
 
 export interface DeviceFingerprint {
   device_id: string;
   created_at?: string;
   last_seen?: string;
-  trust_level?: "trusted" | "untrusted" | "unknown";
+  trust_level?: "trusted" | "untrusted" | "unknown" | "unverified";
 }
 
 export interface RotateResponse {
@@ -15,7 +16,8 @@ export interface RotateResponse {
 
 export const deviceBindingAPI = {
   async listDevices(token: string): Promise<DeviceFingerprint[]> {
-    const res = await fetch(`${API_BASE_URL}/auth/devices/`, {
+    const base = IS_BROWSER ? "/api/proxy" : API_BASE_URL;
+    const res = await fetch(`${base}/auth/devices/`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,11 +31,16 @@ export const deviceBindingAPI = {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.detail || err.message || "Failed to list devices");
     }
-    return res.json();
+    const data = await res.json().catch(() => []);
+    // Backend may return { devices: [...] } or [...] directly
+    if (Array.isArray(data)) return data as DeviceFingerprint[];
+    if (data && Array.isArray((data as any).devices)) return (data as any).devices as DeviceFingerprint[];
+    return [];
   },
 
   async rotateDevice(token: string): Promise<RotateResponse> {
-    const res = await fetch(`${API_BASE_URL}/auth/devices/rotate`, {
+    const base = IS_BROWSER ? "/api/proxy" : API_BASE_URL;
+    const res = await fetch(`${base}/auth/devices/rotate`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +58,8 @@ export const deviceBindingAPI = {
   },
 
   async trustDevice(token: string, device_id: string, trust_level: "trusted" = "trusted") {
-    const res = await fetch(`${API_BASE_URL}/auth/devices/trust`, {
+    const base = IS_BROWSER ? "/api/proxy" : API_BASE_URL;
+    const res = await fetch(`${base}/auth/devices/trust`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -70,7 +78,8 @@ export const deviceBindingAPI = {
   },
 
   async revokeDevice(token: string, device_id: string) {
-    const res = await fetch(`${API_BASE_URL}/auth/devices/revoke`, {
+    const base = IS_BROWSER ? "/api/proxy" : API_BASE_URL;
+    const res = await fetch(`${base}/auth/devices/revoke`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
