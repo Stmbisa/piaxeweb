@@ -206,11 +206,11 @@ export default function AboutPage() {
                         <div className="glass-card animate-glass-appear" style={{ animationDelay: "1.3s" }}>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                                 <div className="text-center">
-                                    <div className="text-2xl md:text-3xl font-bold text-primary mb-2">---+</div>
+                                    <div className="text-2xl md:text-3xl font-bold text-primary mb-2">120+</div>
                                     <p className="text-muted-foreground text-xs md:text-sm">Businesses Protected</p>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-2xl md:text-3xl font-bold text-secondary mb-2">UGX---</div>
+                                    <div className="text-2xl md:text-3xl font-bold text-secondary mb-2">UGX 452M</div>
                                     <p className="text-muted-foreground text-xs md:text-sm">Transactions Secured</p>
                                 </div>
                                 <div className="text-center">

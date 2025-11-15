@@ -1,18 +1,11 @@
 // Central SEO configuration & helpers
 export const siteConfig = {
   name: 'Piaxis',
-  description: 'Piaxis offers escrow payments, POS-free payments, CRM, fundraising, and social e-commerce in one platform for Uganda, East Africa and beyond.',
+  description: 'Piaxis offers programmable escrow and POS‑free payments in Uganda and East Africa — conditional payments that only release when your rules are met, plus P2P and scan‑to‑pay for physical stores.',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://gopiaxis.com',
   twitter: '@piaxis',
   keywords: [
-    'piaxis', 'Piaxis', 'GoPiaxis',
-    'escrow payments',
-    'mobile money',
-    'digital payments',
-    'payment API',
-    'Uganda payments',
-    'East Africa fintech',
-    'supply chain payments'
+    'piaxis','programmable escrow uganda','conditional payments africa','pos-free checkout','scan to pay','p2p payments','social commerce payments','URA eFRIS integration API','secure online payments uganda','small business CRM','group savings app','payroll escrow service','uganda payments','east africa fintech','payment api'
   ],
 }
 

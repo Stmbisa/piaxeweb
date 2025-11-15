@@ -1,4 +1,13 @@
 import { MerchantApiKeyResetForm } from '@/components/auth/merchant-api-key-reset-form'
+import type { Metadata } from 'next'
+import { generatePageMetadata } from '@/lib/metadata'
+
+export const metadata: Metadata = generatePageMetadata({
+    title: 'Reset API Key',
+    description: 'Reset your Piaxis developer API key securely.',
+    path: '/auth/developer-api-key-reset',
+    keywords: ['reset api key','developer credentials']
+})
 
 // Force dynamic rendering since this page uses client-side code
 export const dynamic = 'force-dynamic'

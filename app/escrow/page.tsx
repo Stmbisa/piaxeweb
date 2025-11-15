@@ -1,12 +1,15 @@
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { EscrowFulfillment } from '@/components/escrow-fulfillment'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import { generatePageMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-    title: 'Escrow Management | piaxis',
-    description: 'Manage escrow transactions for unregistered users with secure payment protection.',
-}
+export const metadata: Metadata = generatePageMetadata({
+    title: 'Escrow Management',
+    description: 'Manage escrow transactions for unregistered users with secure, rule‑based release conditions.',
+    path: '/escrow',
+    keywords: ['escrow management','release conditions','secure payments']
+})
 
 export default function EscrowPage() {
     return (

@@ -1,4 +1,13 @@
 import { MerchantClientIdResetForm } from '@/components/auth/merchant-client-id-reset-form'
+import type { Metadata } from 'next'
+import { generatePageMetadata } from '@/lib/metadata'
+
+export const metadata: Metadata = generatePageMetadata({
+    title: 'Reset Client ID',
+    description: 'Reset your Piaxis developer Client ID securely.',
+    path: '/auth/developer-client-id-reset',
+    keywords: ['reset client id','developer credentials']
+})
 
 // Force dynamic rendering since this page uses client-side code
 export const dynamic = 'force-dynamic'

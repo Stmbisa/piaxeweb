@@ -20,6 +20,7 @@ const primitives: PrimitiveDef[] = [
     { key: 'crm_ai', title: 'CRM + AI', payoff: 'Unified customer & condition intelligence layer.', icon: <Cpu className='w-5 h-5' /> },
     { key: 'notifications', title: 'Notifications', payoff: 'Programmable events and trust status updates.', icon: <Bell className='w-5 h-5' /> },
     { key: 'apis', title: 'APIs', payoff: 'Payments + programmable escrow in a few lines.', icon: <Code2 className='w-5 h-5' /> },
+        { key: 'tax_compliance', title: 'Automated Tax Compliance', payoff: 'Integrated URA eFRIS invoicing. Stay compliant, automatically.', icon: <Shield className='w-5 h-5' /> },
 ]
 
 export function PrimitivesGrid() {
