@@ -354,3 +354,51 @@ export const cleanupUnusedImages = async (
     throw error;
   }
 };
+
+/**
+ * Request signed URLs for private ImageKit assets from the server.
+ * @param urls Array of ImageKit asset URLs that require signing
+ * @param expireSeconds Number of seconds before the signed URL expires
+ * @returns Record mapping original URLs to signed versions
+ */
+export const getSignedImageUrls = async (
+  urls: Array<string | null | undefined>,
+  expireSeconds = 300
+): Promise<Record<string, string>> => {
+  const validUrls = Array.from(
+    new Set(
+      urls.filter(
+        (url): url is string => typeof url === "string" && url.trim().length > 0
+      )
+    )
+  );
+
+  if (validUrls.length === 0) {
+    return {};
+  }
+
+  try {
+    const response = await fetch("/api/imagekit/sign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ urls: validUrls, expireSeconds }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to get signed URLs: ${response.status} - ${errorText}`
+      );
+    }
+
+    const data = (await response.json()) as {
+      signedUrls?: Record<string, string>;
+    };
+    return data.signedUrls || {};
+  } catch (error) {
+    console.error("Error fetching signed ImageKit URLs:", error);
+    return {};
+  }
+};

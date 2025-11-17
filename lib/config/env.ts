@@ -15,6 +15,9 @@ export const IMAGEKIT_CONFIG = {
 };
 
 // API Endpoints
+// Admin endpoint security prefix - only used for browser URLs, not for actual API endpoint names
+export const ADMIN_PREFIX = "a8f6ae9d";
+
 export const API_ENDPOINTS = {
   // Auth endpoints
   AUTH: {
@@ -47,6 +50,33 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/users/payment-methods/${payment_method_id}`,
     GET_PAYMENT_METHOD_DETAIL: (payment_method_id: string) =>
       `${API_BASE_URL}/users/payment-methods/${payment_method_id}`,
+  },
+
+  // Admin endpoints with security prefix
+  ADMIN: {
+    // User management
+    RECENT_SIGNUPS: `${API_BASE_URL}/users/admin/recent-signups`,
+
+    // Verification management
+    USER_VERIFICATIONS: `${API_BASE_URL}/users/admin/verifications/users`,
+    MERCHANT_VERIFICATIONS: `${API_BASE_URL}/users/admin/verifications/merchants`,
+    USER_VERIFICATION_DOCUMENTS: (user_profile_id: string) =>
+      `${API_BASE_URL}/users/admin/verifications/users/${user_profile_id}/documents`,
+
+    // User admin status management
+    SET_ADMIN_STATUS: (account_id: string) =>
+      `${API_BASE_URL}/users/admin/users/${account_id}/admin-status`,
+
+    // User verification actions
+    VERIFY_USER: (account_id: string) =>
+      `${API_BASE_URL}/users/admin/verify/user/${account_id}`,
+
+    // Merchant verification actions
+    VERIFY_MERCHANT: (account_id: string) =>
+      `${API_BASE_URL}/users/admin/verify/merchant/${account_id}`,
+
+    // Environment info (masked secrets metadata)
+    ENV_INFO: `${API_BASE_URL}/users/admin/env-info`,
   },
 
   WALLET: {

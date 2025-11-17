@@ -6,15 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 interface LoginFormProps {
   onSuccess?: () => void;
   redirectTo?: string;
+  adminMode?: boolean;
+  redirectPath?: string;
 }
 
-export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
+export function LoginForm({
+  onSuccess,
+  redirectTo,
+  adminMode = false,
+  redirectPath,
+}: LoginFormProps) {
   const { login, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,9 +38,12 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
     }
 
     try {
+      // Use standard login credentials without additional properties
       await login({ username, password });
       onSuccess?.();
-      if (redirectTo) {
+      if (redirectPath) {
+        window.location.href = redirectPath;
+      } else if (redirectTo) {
         window.location.href = redirectTo;
       }
     } catch (err) {
@@ -45,9 +55,19 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
     <div className="glass-card w-full max-w-md mx-auto animate-glass-appear">
       <div className="space-y-6 p-8">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {adminMode ? (
+              <div className="flex items-center justify-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-amber-500" /> Admin Login
+              </div>
+            ) : (
+              "Welcome back"
+            )}
+          </h1>
           <p className="text-muted-foreground">
-            Sign in to your piaxis account to continue
+            {adminMode
+              ? "Sign in with your admin credentials"
+              : "Sign in to your piaxis account to continue"}
           </p>
         </div>
 
@@ -115,18 +135,22 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
           </div>
 
           <div className="flex items-center justify-between">
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
-              Forgot password?
-            </Link>
+            {!adminMode && (
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            )}
           </div>
 
           <div className="space-y-4">
             <Button
               type="submit"
-              className="glass-button-primary w-full"
+              className={`glass-button-primary w-full ${
+                adminMode ? "bg-amber-600 hover:bg-amber-700" : ""
+              }`}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -135,19 +159,21 @@ export function LoginForm({ onSuccess, redirectTo }: LoginFormProps) {
                   Signing in...
                 </>
               ) : (
-                "Sign in"
+                `Sign in${adminMode ? " as Admin" : ""}`
               )}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link
-                href="/auth/register"
-                className="text-primary hover:underline"
-              >
-                Create one here
-              </Link>
-            </div>
+            {!adminMode && (
+              <div className="text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link
+                  href="/auth/register"
+                  className="text-primary hover:underline"
+                >
+                  Create one here
+                </Link>
+              </div>
+            )}
           </div>
         </form>
       </div>

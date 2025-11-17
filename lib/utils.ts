@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 // Decode a JWT and extract its payload safely (works in browser and Node)
@@ -14,13 +14,18 @@ export function decodeJwtPayload(token?: string): any | undefined {
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
   try {
     // Prefer atob in browsers; fallback to Buffer in Node
-    const jsonStr = typeof atob === "function"
-      ? decodeURIComponent(
-          Array.prototype.map
-            .call(atob(base64), (c: string) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-            .join("")
-        )
-      : Buffer.from(base64, "base64").toString("utf-8");
+    const jsonStr =
+      typeof atob === "function"
+        ? decodeURIComponent(
+            Array.prototype.map
+              .call(
+                atob(base64),
+                (c: string) =>
+                  "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+              )
+              .join("")
+          )
+        : Buffer.from(base64, "base64").toString("utf-8");
     return JSON.parse(jsonStr);
   } catch {
     return undefined;
@@ -28,7 +33,10 @@ export function decodeJwtPayload(token?: string): any | undefined {
 }
 
 // Extract Device ID (dfp) claim from a JWT if present
-export function getDeviceIdFromToken(token?: string): string | undefined {
+export function getDeviceIdFromToken(
+  token?: string | null
+): string | undefined {
+  if (!token) return undefined;
   const payload = decodeJwtPayload(token);
   if (payload && typeof payload.dfp === "string" && payload.dfp.length > 0) {
     return payload.dfp;
@@ -44,7 +52,9 @@ export const SEND_DEVICE_HEADER_IN_BROWSER =
   (process as any).env.NEXT_PUBLIC_SEND_DEVICE_HEADER_IN_BROWSER === "true";
 
 // Build device-binding headers appropriate for the current runtime
-export function deviceHeadersForContext(token?: string): Record<string, string> {
+export function deviceHeadersForContext(
+  token?: string
+): Record<string, string> {
   const deviceId = getDeviceIdFromToken(token);
   if (!deviceId) return {};
 
