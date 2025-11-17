@@ -1,10 +1,13 @@
 import { RegisterForm } from '@/components/auth/register-form'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import { generatePageMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-    title: 'Create Account | Piaxis',
-    description: 'Create your Piaxis account to start making secure payments and managing transactions.',
-}
+export const metadata: Metadata = generatePageMetadata({
+    title: 'Create Account',
+    description: 'Create your Piaxis account to start protected payments and manage transactions.',
+    path: '/auth/register',
+    keywords: ['create account','sign up','piaxis register']
+})
 
 // Force dynamic rendering since this page uses client-side code
 export const dynamic = 'force-dynamic'

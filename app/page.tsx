@@ -57,8 +57,7 @@ export default function Home() {
       <div className="absolute top-3/4 left-1/3 w-64 h-64 bg-accent/10 rounded-full blur-2xl animate-glass-float opacity-60"></div>
 
       <div className="relative z-10">
-        <HeroSection />
-        <EscrowSimWrapper />
+    <HeroSection />
 
         {/* Social Proof Strip (spec) */}
         <section className="container mx-auto px-4 py-6 animate-glass-appear" style={{ animationDelay: "0.05s" }}>
@@ -70,11 +69,61 @@ export default function Home() {
             <span className="opacity-80">“+22% repeat buyers”</span>
           </div>
         </section>
+        {/* Elevate How It Works earlier for clarity */}
+        <section className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.45s" }}>
+          <div className="p-8 text-center">
+            <h2 className="text-3xl font-bold mb-2 text-primary-foreground">How it works</h2>
+            <p className="text-primary-foreground/80 mb-8">Set Conditions → Funds Locked → Auto Release</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">1. Set Conditions</h3>
+                <p className="text-sm opacity-80">Delivery confirmed, geo verified, approvals, time lock, rating threshold.</p>
+              </div>
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">2. Funds Locked</h3>
+                <p className="text-sm opacity-80">Money is escrowed securely until reality matches your rules.</p>
+              </div>
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">3. Auto Release</h3>
+                <p className="text-sm opacity-80">When conditions are met, funds release automatically.</p>
+              </div>
+            </div>
+
+            <div className="relative my-12">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-primary-foreground/20"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="glass-button-primary px-6 py-2 text-xl font-bold rounded-full">Or</span>
+              </div>
+            </div>
+
+            <p className="text-primary-foreground/80 mb-8">Load → Scan → Checkout</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">1. Load Your Wallet</h3>
+                <p className="text-sm opacity-80">Top up your digital wallet with your preferred payment method.</p>
+              </div>
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">2. Scan & Add to Cart</h3>
+                <p className="text-sm opacity-80">Go in-store, scan QR codes and barcodes to build your cart.</p>
+              </div>
+              <div className="glass-card bg-white/10 p-6 rounded-xl">
+                <h3 className="font-semibold mb-2">3. Checkout or Share</h3>
+                <p className="text-sm opacity-80">Pay instantly or share cart for friends to pay with their method of choice.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+        {/* High-visibility transparency strip (live-ish metrics) */}
+        <TransparencyStrip />
         <MobileWalletPreview />
         <BarcodePaymentDemo />
         <SecurityFeatures />
 
-        <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
+  <section className="container mx-auto px-4 py-8 sm:py-12 space-y-12">
           <div className="grid gap-8 lg:gap-12">
             <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.1s" }}>
               <TargetSection
@@ -168,10 +217,11 @@ export default function Home() {
           </div>
         </section>
 
-        <PrimitivesGrid />
-        <PersonaUseCases />
-        <TransparencyStrip />
-        <DeveloperQuickstart />
+  <PrimitivesGrid />
+  <PersonaUseCases />
+  <DeveloperQuickstart />
+  {/* Move Escrow Simulation below developer segment */}
+  <EscrowSimWrapper />
 
         {/* Final Segmented CTA (placeholder adaptive) */}
         <section className="container mx-auto px-4 py-12">
@@ -187,29 +237,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How It Works (spec) */}
-        <section className="container mx-auto px-4 py-8 sm:py-12">
-          <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.45s" }}>
-            <div className="p-8 text-center">
-              <h2 className="text-3xl font-bold mb-2 text-primary-foreground">How it works</h2>
-              <p className="text-primary-foreground/80 mb-8">Set Conditions → Funds Locked → Auto Release</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card bg-white/10 p-6 rounded-xl">
-                  <h3 className="font-semibold mb-2">1. Set Conditions</h3>
-                  <p className="text-sm opacity-80">Delivery confirmed, geo verified, approvals, time lock, rating threshold.</p>
-                </div>
-                <div className="glass-card bg-white/10 p-6 rounded-xl">
-                  <h3 className="font-semibold mb-2">2. Funds Locked</h3>
-                  <p className="text-sm opacity-80">Money is escrowed securely until reality matches your rules.</p>
-                </div>
-                <div className="glass-card bg-white/10 p-6 rounded-xl">
-                  <h3 className="font-semibold mb-2">3. Auto Release</h3>
-                  <p className="text-sm opacity-80">When conditions are met, funds release automatically.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         {/* Support Section */}
         <section id="support" className="container mx-auto px-4 py-8 sm:py-12">

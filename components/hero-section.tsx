@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button"
 import { Shield, Smartphone, CreditCard } from "lucide-react"
 
 export function HeroSection() {
@@ -19,16 +18,19 @@ export function HeroSection() {
               Funds move only when reality matches.
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Payments become programmable trust — code‑enforced escrow conditions, POS‑free checkout, social selling, fundraising caps, payroll & bulk escrow, remote cart pay, restricted spend remittance, credit lines and APIs.
+              Clear, conditional payments that only release when your rules are met — delivery confirmed, location verified, approvals, or time‑lock. Plus direct payments: P2P transfers and POS‑free scan‑to‑pay in physical stores, payment links, shareable product links and APIs for developers.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4 animate-glass-appear" style={{ animationDelay: "0.2s" }}>
-            <a href="#mobile-preview" className="glass-button-primary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
-              Download App
+            <a href="/auth/register" className="glass-button-primary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
+              Start Protected Payment
             </a>
-            <a href="#sme" className="glass-button-secondary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
-              Learn More
+            <a href="/business/onboard" className="glass-button-secondary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
+              Create Shop
+            </a>
+            <a href="/auth/developer-register" className="glass-button px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300 bg-white/10">
+              Developers
             </a>
           </div>
 
