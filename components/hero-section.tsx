@@ -15,22 +15,25 @@ export function HeroSection() {
               Programmable trust rails for emerging commerce
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              Funds move only when reality matches.
+              The End of Scams. The Future of Trade.
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Clear, conditional payments that only release when your rules are met — delivery confirmed, location verified, approvals, or time‑lock. Plus direct payments: P2P transfers and POS‑free scan‑to‑pay in physical stores, payment links, shareable product links and APIs for developers.
+              Shop without fear. Sell without limits. Run your entire business from your pocket.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4 animate-glass-appear" style={{ animationDelay: "0.2s" }}>
             <a href="/auth/register" className="glass-button-primary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
-              Start Protected Payment
+              Start Transacting Safely
             </a>
             <a href="/business/onboard" className="glass-button-secondary px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300">
               Create Shop
             </a>
             <a href="/auth/developer-register" className="glass-button px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300 bg-white/10">
               Developers
+            </a>
+            <a href="#demo" className="glass-button px-8 rounded-full shadow-lg hover:scale-105 transition-all duration-300 bg-white/5">
+              Watch the Demo
             </a>
           </div>
 

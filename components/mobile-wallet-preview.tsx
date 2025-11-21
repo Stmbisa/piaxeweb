@@ -32,7 +32,7 @@ export function MobileWalletPreview() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-3xl"></div>
               <Image
                 src="/images/mobile-design-reference.png"
-                alt="piaxis Mobile App Interface - Secure payments and escrow system"
+                alt="Piaxis Mobile App Interface showing secure wallet and escrow transaction features"
                 width={320}
                 height={640}
                 className="object-cover rounded-3xl transition-transform duration-700 group-hover:scale-110"

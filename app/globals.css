@@ -638,3 +638,27 @@ html {
       inset 0 2px 3px 0 rgba(var(--glass-highlight-rgb), 0.6),
       inset 0 -1px 2px 0 rgba(var(--glass-shadow-rgb), 0.2);
   }
+
+  .glass-card-neon-blue {
+    @apply glass-card;
+    border-color: rgba(var(--primary), 0.5);
+    box-shadow: 0 0 20px rgba(var(--primary), 0.2),
+                inset 0 0 20px rgba(var(--primary), 0.1);
+  }
+  .glass-card-neon-blue:hover {
+    border-color: rgba(var(--primary), 0.8);
+    box-shadow: 0 0 30px rgba(var(--primary), 0.4),
+                inset 0 0 30px rgba(var(--primary), 0.2);
+  }
+
+  .glass-card-neon-red {
+    @apply glass-card;
+    border-color: rgba(var(--destructive), 0.5);
+    box-shadow: 0 0 20px rgba(var(--destructive), 0.2),
+                inset 0 0 20px rgba(var(--destructive), 0.1);
+  }
+  .glass-card-neon-red:hover {
+    border-color: rgba(var(--destructive), 0.8);
+    box-shadow: 0 0 30px rgba(var(--destructive), 0.4),
+                inset 0 0 30px rgba(var(--destructive), 0.2);
+  }

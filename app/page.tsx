@@ -10,6 +10,7 @@ import { SecurityFeatures } from "@/components/security-features"
 import { Testimonials } from "@/components/testimonials"
 import { BarcodePaymentDemo } from "@/components/barcode-payment-demo"
 import { FAQs } from "@/components/faqs"
+import { POSDestructionAnimation } from "@/components/superpower-animations"
 
 export default function Home() {
   return (
@@ -128,20 +129,19 @@ export default function Home() {
             <div className="glass-card-primary animate-glass-appear" style={{ animationDelay: "0.1s" }}>
               <TargetSection
                 id="sme"
-                title="For SMEs and Brick & Mortar Businesses"
-                description="Our payment tools can help your business thrive. Accept payments, manage inventory, customer relationships, and soon HR - all with one setup."
+                title="Fire Your Cashier. Hire Piaxis."
+                description="You pay rent. You pay staff. You pay for a POS machine that breaks. And you still lose money to theft and slow lines."
                 features={[
-                  "POS-free payment collection in physical stores using just mobile phones",
-                  "Accept digital payments from mobile money wallets, banks, and cards",
-                  "Sell online on our ecommerce platform and on social media",
-                  "Manage inventory and customer relationships (CRM) for free",
-                  "Accept payments on social media as easy as it sounds",
+                  "The Unlock: Turn every customer's phone into a checkout counter.",
+                  "The Growth: Don't just sell in your shop. Sell on WhatsApp. Sell on TikTok. One link. One inventory. Zero friction.",
+                  "The AI Bonus: Piaxis remembers every customer. It texts them when you restock. It wishes them Happy Birthday. It brings them back.",
                   "Run promotions with coupons, discounts, and loyalty programs to retain customers",
                 ]}
                 buttonText="Start Selling"
                 buttonLink="/business/onboard"
                 imageSrc="/images/business/sme-business.png"
-                imageAlt="SME business owner using piaxis dashboard"
+                imageAlt="Small business owner managing sales and inventory on Piaxis dashboard"
+                visual={<POSDestructionAnimation />}
               />
             </div>
 
@@ -161,7 +161,7 @@ export default function Home() {
                 buttonText="Start Social Selling"
                 buttonLink="/business/onboard"
                 imageSrc="/images/business/consumer-app.png"
-                imageAlt="Social commerce seller sharing products on social media"
+                imageAlt="Social commerce seller sharing shoppable product links on WhatsApp and Instagram"
                 imageRight
               />
             </div>
@@ -181,7 +181,7 @@ export default function Home() {
                 buttonText="Download App"
                 buttonLink="#mobile-preview"
                 imageSrc="/images/business/consumer.png"
-                imageAlt="Consumer using piaxis mobile app for secure payments"
+                imageAlt="Consumer making a secure escrow payment using Piaxis mobile app"
               />
             </div>
 
@@ -210,7 +210,7 @@ export default function Home() {
                   }
                 ]}
                 imageSrc="/images/business/developer-api.png"
-                imageAlt="Developer integrating piaxis API"
+                imageAlt="Developer integrating Piaxis Payment and Escrow APIs"
                 imageRight
               />
             </div>

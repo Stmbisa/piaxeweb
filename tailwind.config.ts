@@ -125,6 +125,18 @@ const config = {
             boxShadow: "0 12px 40px 0 rgba(var(--glass-shadow), 0.25)",
           },
         },
+        "scan-line": {
+          "0%, 100%": { top: "0%" },
+          "50%": { top: "100%" },
+        },
+        "fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        "fade-in-simple": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -138,6 +150,9 @@ const config = {
         "glass-ripple": "glass-ripple 0.6s ease-out",
         "glass-morph": "glass-morph 4s ease-in-out infinite",
         "glass-pulse": "glass-pulse 2s ease-in-out infinite",
+        "scan-line": "scan-line 2s linear infinite",
+        "fade-out": "fade-out 0.5s ease-out forwards",
+        "fade-in-simple": "fade-in-simple 0.5s ease-out forwards",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

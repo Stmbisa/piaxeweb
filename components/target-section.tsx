@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { CheckCircle } from "lucide-react"
+import Image from "next/image"
+import { ReactNode } from "react"
 
 interface TargetSectionProps {
   id: string
@@ -15,9 +17,10 @@ interface TargetSectionProps {
     variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive"
     external?: boolean
   }>
-  imageSrc: string
-  imageAlt: string
+  imageSrc?: string
+  imageAlt?: string
   imageRight?: boolean
+  visual?: ReactNode
 }
 
 export function TargetSection({
@@ -31,6 +34,7 @@ export function TargetSection({
   imageSrc,
   imageAlt,
   imageRight = false,
+  visual,
 }: TargetSectionProps) {
   // Use either the new buttons array or the legacy single button
   const buttonsToRender = buttons || (buttonText && buttonLink ? [{ text: buttonText, link: buttonLink }] : [])
@@ -46,9 +50,9 @@ export function TargetSection({
             <p className="text-sm sm:text-lg text-muted-foreground leading-relaxed">{description}</p>
           </div>
           <ul className="space-y-1.5 sm:space-y-3">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-start gap-2 sm:gap-3">
-                <CheckCircle className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+            {features.map((feature, index) => (
+              <li key={feature} className="flex items-start gap-2 sm:gap-3 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <CheckCircle className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0 animate-pulse" />
                 <span className="text-xs sm:text-base text-muted-foreground">{feature}</span>
               </li>
             ))}
@@ -83,13 +87,18 @@ export function TargetSection({
             </div>
           )}
         </div>
-        <div className={cn("aspect-video bg-muted rounded-2xl overflow-hidden", imageRight ? "lg:order-1" : "")}>
-          <img
-            src={imageSrc || "/placeholder.svg"}
-            alt={imageAlt}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+        <div className={cn("aspect-video bg-muted rounded-2xl overflow-hidden relative", imageRight ? "lg:order-1" : "")}>
+          {visual ? (
+            visual
+          ) : (
+            <Image
+              src={imageSrc || "/placeholder.svg"}
+              alt={imageAlt || "Section image"}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          )}
         </div>
       </div>
     </section>

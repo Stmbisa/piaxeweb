@@ -33,7 +33,7 @@ export function Header() {
       <div className="container flex h-14 sm:h-16 items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-6">
           <Link href="/" className="flex items-center gap-1.5 sm:gap-2" aria-label="Piaxis Home">
-            <Image src="/images/logo.png" alt="piaxis Logo" width={32} height={32} className="w-7 h-7 sm:w-8 sm:h-8" priority />
+            <Image src="/images/logo.png" alt="Piaxis - Secure Payments & Escrow Platform Logo" width={32} height={32} className="w-7 h-7 sm:w-8 sm:h-8" priority />
             <span className="font-bold text-lg sm:text-xl text-primary">Piaxis</span>
           </Link>
           <nav className="hidden md:flex gap-6" role="navigation" aria-label="Main navigation">

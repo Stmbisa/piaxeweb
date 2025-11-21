@@ -35,10 +35,13 @@ export default function AboutPage() {
                 {/* Hero Section */}
                 <section className="text-center max-w-4xl mx-auto mb-12 md:mb-16 animate-fade-in">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6 leading-tight">
-                        Rebuilding commerce on programmable trust.
+                        We Declared War on the Trust Tax.
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-4">
-                        Piaxis turns payments into programmable trust — escrow with delivery, geo, approval, time & rating conditions; POS‑free checkout; social selling; fundraising caps; payroll escrow; remote cart pay; restricted spend remittance; credit lines; APIs. We started in Uganda and East Africa and are expanding quickly.
+                        In Uganda, we pay a hidden tax. It's not VAT. It's the cost of looking over your shoulder. The cost of 'Pay on Delivery' rejections. The cost of the 'Fake Land Title.'
+                    </p>
+                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-4">
+                        We built Piaxis to kill that tax. We believe that if you do the work, you should get paid. If you pay the money, you should get the goods. Everything else is noise.
                     </p>
                     <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 px-4">
                         <button className="glass-button-primary rounded-full px-6 md:px-8 py-3 w-full sm:w-auto">
