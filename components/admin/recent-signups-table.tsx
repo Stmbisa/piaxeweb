@@ -39,6 +39,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth/context";
 import { API_ENDPOINTS } from "@/lib/config/env";
+import { useAdminAPI } from "@/lib/hooks/use-admin-api";
 import {
   ChevronDown,
   Search,
@@ -68,6 +69,7 @@ export function RecentSignupsTable({
 }: RecentSignupsTableProps) {
   const { token, user } = useAuth();
   const { toast } = useToast();
+  const { fetchWithAuth } = useAdminAPI();
   const [signups, setSignups] = useState<RecentSignup[]>(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,13 +112,8 @@ export function RecentSignupsTable({
       // Add sort order
       url += `&sort_order=${sortOrder}`;
 
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        credentials: "include",
       });
 
       if (!response.ok) {
@@ -190,15 +187,9 @@ export function RecentSignupsTable({
         url += "?confirm_self_revocation=true";
       }
 
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
         body: JSON.stringify({ is_admin: isAdmin }),
-        credentials: "include",
       });
 
       if (!response.ok) {
@@ -263,20 +254,20 @@ export function RecentSignupsTable({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-glass-appear">
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground z-10" />
           <Input
             placeholder="Search users..."
-            className="pl-8"
+            className="pl-8 glass-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Select value={accountTypeFilter} onValueChange={setAccountTypeFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] glass-input">
             <SelectValue placeholder="Account Type" />
           </SelectTrigger>
           <SelectContent>
@@ -290,10 +281,14 @@ export function RecentSignupsTable({
       </div>
 
       {/* Error Message */}
-      {error && <div className="text-red-500 text-sm py-2">{error}</div>}
+      {error && (
+        <div className="glass-card p-4 border-l-4 border-l-destructive animate-glass-appear">
+          <p className="text-destructive text-sm font-medium">{error}</p>
+        </div>
+      )}
 
       {/* Users Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md glass-card-enhanced overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -404,6 +399,7 @@ export function RecentSignupsTable({
           <Button
             variant="outline"
             size="sm"
+            className="glass-button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
@@ -412,6 +408,7 @@ export function RecentSignupsTable({
           <Button
             variant="outline"
             size="sm"
+            className="glass-button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
           >
@@ -422,7 +419,7 @@ export function RecentSignupsTable({
 
       {/* Admin Status Change Dialog */}
       <AlertDialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
-        <AlertDialogContent className="sm:max-w-[500px]">
+        <AlertDialogContent className="sm:max-w-[500px] glass-card-enhanced">
           <AlertDialogHeader>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />

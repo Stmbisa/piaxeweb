@@ -280,20 +280,20 @@ export function MerchantVerificationsTable({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-glass-appear">
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground z-10" />
           <Input
             placeholder="Search verifications..."
-            className="pl-8"
+            className="pl-8 glass-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] glass-input">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -307,10 +307,14 @@ export function MerchantVerificationsTable({
       </div>
 
       {/* Error Message */}
-      {error && <div className="text-red-500 text-sm py-2">{error}</div>}
+      {error && (
+        <div className="glass-card p-4 border-l-4 border-l-destructive animate-glass-appear">
+          <p className="text-destructive text-sm font-medium">{error}</p>
+        </div>
+      )}
 
       {/* Verifications Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md glass-card-enhanced overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -461,6 +465,7 @@ export function MerchantVerificationsTable({
           <Button
             variant="outline"
             size="sm"
+            className="glass-button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
@@ -469,6 +474,7 @@ export function MerchantVerificationsTable({
           <Button
             variant="outline"
             size="sm"
+            className="glass-button"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
           >
@@ -482,7 +488,7 @@ export function MerchantVerificationsTable({
         open={showVerificationDialog}
         onOpenChange={setShowVerificationDialog}
       >
-        <DialogContent>
+        <DialogContent className="glass-card-enhanced">
           <DialogHeader>
             <DialogTitle>
               {verificationAction === "approve"
@@ -526,7 +532,7 @@ export function MerchantVerificationsTable({
 
       {/* Document Viewer Dialog */}
       <Dialog open={showDocumentDialog} onOpenChange={setShowDocumentDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] glass-card-enhanced">
           <DialogHeader>
             <DialogTitle>Document Viewer</DialogTitle>
           </DialogHeader>

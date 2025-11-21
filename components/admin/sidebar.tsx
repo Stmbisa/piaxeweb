@@ -61,10 +61,11 @@ export function AdminSidebar() {
   };
 
   const sidebarClasses = cn(
-    "h-screen bg-background border-r flex flex-col z-50",
-    "transition-all duration-300 ease-in-out",
+    "h-screen glass-card-enhanced flex flex-col z-50",
+    "transition-all duration-300 ease-in-out animate-glass-appear",
+    "border-r-0", // Remove default border, glass handles it
     isMobileMenuOpen
-      ? "fixed inset-y-0 left-0 w-64 shadow-lg"
+      ? "fixed inset-y-0 left-0 w-64 shadow-2xl"
       : "w-64 hidden lg:flex flex-shrink-0"
   );
 
@@ -80,6 +81,7 @@ export function AdminSidebar() {
         <Button
           variant="outline"
           size="icon"
+          className="glass-icon-button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
@@ -102,10 +104,12 @@ export function AdminSidebar() {
       <div className={sidebarClasses}>
         <div className="flex flex-col flex-1 overflow-y-auto">
           {/* Logo */}
-          <div className="p-6 border-b">
+          <div className="p-6 border-b border-border/20">
             <Link href={`/${ADMIN_PREFIX}/admin/dashboard`}>
-              <div className="flex items-center space-x-2">
-                <span className="font-bold text-xl">Admin Portal</span>
+              <div className="flex items-center space-x-2 group">
+                <span className="font-bold text-xl text-gradient-primary bg-clip-text text-transparent">
+                  Admin Portal
+                </span>
               </div>
             </Link>
           </div>
@@ -117,17 +121,26 @@ export function AdminSidebar() {
                 key={route.href}
                 href={route.href}
                 onClick={() => setIsMobileMenuOpen(false)}
+                className="group"
               >
                 <div
                   className={cn(
-                    "flex items-center px-4 py-3 text-sm rounded-md",
-                    "transition-colors duration-200",
+                    "flex items-center px-4 py-3 text-sm rounded-lg",
+                    "transition-all duration-300 ease-out",
+                    "glass-base",
                     isActive(route.href)
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "hover:bg-muted"
+                      ? "bg-primary/20 text-primary font-semibold shadow-lg scale-[1.02]"
+                      : "hover:bg-muted/50 hover:scale-[1.01] hover:shadow-md"
                   )}
                 >
-                  <route.icon className="h-5 w-5 mr-3" />
+                  <route.icon
+                    className={cn(
+                      "h-5 w-5 mr-3 transition-colors duration-200",
+                      isActive(route.href)
+                        ? "text-primary"
+                        : "text-muted-foreground group-hover:text-primary"
+                    )}
+                  />
                   <span>{route.name}</span>
                 </div>
               </Link>
@@ -135,12 +148,12 @@ export function AdminSidebar() {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t mt-auto">
-            <div className="flex items-center justify-between">
+          <div className="p-4 border-t border-border/20 mt-auto">
+            <div className="flex items-center justify-between gap-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center"
+                className="flex items-center glass-button hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />

@@ -27,10 +27,12 @@ export function AdminProtectedRoute({
   if (isLoading) {
     return (
       fallback || (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Loading...</p>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background/80 to-muted/30">
+          <div className="text-center space-y-4 glass-card-enhanced p-8 animate-glass-appear">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto"></div>
+            <p className="text-muted-foreground font-medium">
+              Loading admin portal...
+            </p>
           </div>
         </div>
       )
