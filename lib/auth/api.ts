@@ -5,7 +5,8 @@ import {
 } from "./merchant-api";
 
 // Authentication API utilities
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.gopiaxis.com';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.gopiaxis.com";
 
 export interface User {
   id: string;
@@ -22,6 +23,7 @@ export interface User {
   };
   is_verified: boolean;
   has_api_pin: boolean;
+  is_admin?: boolean;
   avatar: string | null;
   developer_profile?: {
     developer_name: string;
@@ -70,7 +72,10 @@ export interface ApiError {
   details?: any;
 }
 
-import { deviceHeadersForContext, SEND_DEVICE_HEADER_IN_BROWSER } from "../utils";
+import {
+  deviceHeadersForContext,
+  SEND_DEVICE_HEADER_IN_BROWSER,
+} from "../utils";
 
 class AuthAPI {
   private getHeaders(token?: string): HeadersInit {
@@ -204,7 +209,10 @@ class AuthAPI {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.detail || errorData.message || `Token refresh failed (${response.status})`;
+        const errorMessage =
+          errorData.detail ||
+          errorData.message ||
+          `Token refresh failed (${response.status})`;
         throw new Error(errorMessage);
       }
 
@@ -212,8 +220,10 @@ class AuthAPI {
     } catch (error) {
       console.error("Token refresh error:", error);
       // If it's a network error, provide a more helpful message
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Network error: Unable to refresh authentication. Please check your connection.');
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error(
+          "Network error: Unable to refresh authentication. Please check your connection."
+        );
       }
       throw error;
     }
@@ -234,7 +244,10 @@ class AuthAPI {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.detail || errorData.message || `Failed to get user profile (${response.status})`;
+        const errorMessage =
+          errorData.detail ||
+          errorData.message ||
+          `Failed to get user profile (${response.status})`;
         throw new Error(errorMessage);
       }
 
@@ -242,8 +255,10 @@ class AuthAPI {
     } catch (error) {
       console.error("Profile fetch error:", error);
       // If it's a network error, provide a more helpful message
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Network error: Unable to fetch user profile. Please check your connection.');
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error(
+          "Network error: Unable to fetch user profile. Please check your connection."
+        );
       }
       throw error;
     }
@@ -397,16 +412,19 @@ class AuthAPI {
         name: `${businessData.business_name} - Main Store`,
         description: `Main location for ${businessData.business_name}`,
         address: businessData.business_address,
+        location: businessData.business_address, // Required field
+        store_type: "retail", // Required field
+        currency: "UGX", // Required field
         contact_email: businessData.business_email,
         contact_phone: businessData.business_phone,
         business_hours: {
-          Monday: { open: "09:00", close: "17:00" },
-          Tuesday: { open: "09:00", close: "17:00" },
-          Wednesday: { open: "09:00", close: "17:00" },
-          Thursday: { open: "09:00", close: "17:00" },
-          Friday: { open: "09:00", close: "17:00" },
-          Saturday: { open: "10:00", close: "16:00" },
-          Sunday: { open: "closed", close: "closed" },
+          monday: "09:00-17:00",
+          tuesday: "09:00-17:00",
+          wednesday: "09:00-17:00",
+          thursday: "09:00-17:00",
+          friday: "09:00-17:00",
+          saturday: "10:00-16:00",
+          sunday: "closed",
         },
         notification_preferences: {
           email_notifications: true,
