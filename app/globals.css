@@ -29,7 +29,7 @@
     --radius: 0.75rem;
 
     --glass-bg-rgb: 255 255 255;
-    --glass-border-rgb: 230 230 240;
+    --glass-border-rgb: 200 200 220;
     --glass-highlight-rgb: 255 255 255;
     --glass-shadow-rgb: 100 100 120;
     --glass-icon-color-hsl: var(--foreground);
@@ -557,11 +557,11 @@ html {
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(var(--glass-border-rgb), 0.2);
+    border: 1px solid rgba(var(--glass-border-rgb), 0.6);
     background: linear-gradient(145deg,
-      rgba(var(--glass-bg-rgb), 0.8) 0%,
-      rgba(var(--glass-bg-rgb), 0.6) 50%,
-      rgba(var(--glass-bg-rgb), 0.4) 100%);
+      rgba(var(--glass-bg-rgb), 0.9) 0%,
+      rgba(var(--glass-bg-rgb), 0.7) 50%,
+      rgba(var(--glass-bg-rgb), 0.5) 100%);
     box-shadow:
       0 20px 60px 0 rgba(var(--glass-shadow-rgb), 0.15),
       inset 0 2px 4px 0 rgba(var(--glass-highlight-rgb), 0.3),

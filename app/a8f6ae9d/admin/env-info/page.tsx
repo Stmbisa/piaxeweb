@@ -68,8 +68,8 @@ export default function EnvInfoPage() {
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0,_rgba(255,255,255,0)_60%)]" />
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Environment Info</h1>
-            <p className="text-sm text-white/70">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white">Environment Info</h1>
+            <p className="text-sm text-muted-foreground">
               Masked metadata for environment secrets (safe for diagnostics)
             </p>
           </div>
@@ -78,7 +78,7 @@ export default function EnvInfoPage() {
             size="sm"
             onClick={fetchEnvInfo}
             disabled={loading}
-            className="backdrop-blur-md bg-white/10 border-white/20 text-white"
+            className="backdrop-blur-md bg-white/10 border-white/20 text-gray-900 dark:text-white"
           >
             <RefreshCw
               className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
@@ -109,7 +109,7 @@ export default function EnvInfoPage() {
 
       {/* Environment Path */}
       {envInfo && (
-        <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+        <Card className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-xl">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-transparent to-primary/10" />
           <CardHeader className="relative z-10">
             <CardTitle>Environment File Path</CardTitle>
@@ -126,7 +126,7 @@ export default function EnvInfoPage() {
       )}
 
       {/* Secrets Info */}
-      <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+      <Card className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/15 via-transparent to-amber-500/15" />
         <CardHeader className="relative z-10">
           <CardTitle>Environment Secrets</CardTitle>
@@ -147,7 +147,7 @@ export default function EnvInfoPage() {
               {Object.entries(envInfo.secrets).map(([key, secret]) => (
                 <div
                   key={key}
-                  className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  className="relative overflow-hidden rounded-xl border border-white/10 bg-gray-50 dark:bg-white/5 p-4 backdrop-blur-sm"
                 >
                   <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
                   <div className="relative flex items-center justify-between">
