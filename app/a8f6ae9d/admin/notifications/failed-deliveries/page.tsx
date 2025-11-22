@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RefreshCw, AlertCircle, Filter, RotateCcw } from "lucide-react";
+import { RefreshCw, AlertCircle, Filter, RotateCcw, CornerUpRight } from "lucide-react";
 
 interface FailedDeliveryRecord {
     id?: string;
@@ -33,7 +33,10 @@ export default function FailedDeliveriesPage() {
         if (!token) return;
         setLoading(true); setError(null);
         try {
-            const data = await adminAPI.getFailedNotificationDeliveries(token, p, 20);
+            const data = await adminAPI.getFailedNotificationDeliveries(token, p, 20, {
+              event_type: eventFilter || undefined,
+              channel: channelFilter || undefined,
+            });
             // Unknown schema; treat as array or object list
             if (Array.isArray(data)) {
                 setRecords(data as FailedDeliveryRecord[]);
@@ -141,20 +144,51 @@ export default function FailedDeliveriesPage() {
                     {!loading && filtered && filtered.length === 0 && (
                         <p className="text-sm text-white/60">No failed deliveries found.</p>
                     )}
-                    {!loading && filtered && filtered.map(rec => (
+                                        {!loading && filtered && filtered.map(rec => (
                         <div key={(rec.id || rec.recipient_id || rec.attempted_at || Math.random()).toString()} className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
                             <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
-                            <div className="relative grid md:grid-cols-3 gap-2 text-xs">
-                                <div><span className="font-semibold">Recipient:</span> {rec.recipient_id || '—'}</div>
-                                <div><span className="font-semibold">Event:</span> {rec.event_type || '—'}</div>
-                                <div><span className="font-semibold">Channel:</span> {rec.channel || '—'}</div>
-                                <div className="md:col-span-3"><span className="font-semibold">Error:</span> {rec.error || '—'}</div>
-                                <div><span className="font-semibold">Attempted:</span> {rec.attempted_at || '—'}</div>
-                            </div>
+                                                        <div className="relative flex flex-col gap-2 text-xs">
+                                                            <div className="grid md:grid-cols-3 gap-2">
+                                                                <div><span className="font-semibold">Recipient:</span> {rec.recipient_id || '—'}</div>
+                                                                <div><span className="font-semibold">Event:</span> {rec.event_type || '—'}</div>
+                                                                <div><span className="font-semibold">Channel:</span> {rec.channel || '—'}</div>
+                                                            </div>
+                                                            <div className=""><span className="font-semibold">Error:</span> {rec.error || '—'}</div>
+                                                            <div className="flex items-center justify-between">
+                                                                <div><span className="font-semibold">Attempted:</span> {rec.attempted_at || '—'}</div>
+                                                                {rec.id ? (
+                                                                    <RetryButton id={rec.id} token={token} onDone={()=> setRecords(prev => prev ? prev.filter(r => r !== rec) : prev)} />
+                                                                ) : null}
+                                                            </div>
+                                                        </div>
                         </div>
                     ))}
                 </CardContent>
             </Card>
+        </div>
+    );
+}
+
+function RetryButton({ id, token, onDone }: { id: string; token: string | null; onDone: () => void }) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const retry = async () => {
+        if (!token) return;
+        setLoading(true); setError(null);
+        try {
+            await adminAPI.retryFailedNotificationDelivery(token, id);
+            onDone();
+        } catch (e) {
+            setError(e instanceof Error ? e.message : String(e));
+        } finally { setLoading(false); }
+    };
+    return (
+        <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={retry} disabled={loading} className="flex items-center">
+                {loading ? <RefreshCw className="h-3 w-3 mr-1 animate-spin" /> : <CornerUpRight className="h-3 w-3 mr-1" />}
+                Retry
+            </Button>
+            {error && <span className="text-[10px] text-red-400 max-w-[140px] truncate" title={error}>{error}</span>}
         </div>
     );
 }

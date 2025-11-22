@@ -1,5 +1,7 @@
 import { API_ENDPOINTS } from "@/lib/config/env";
 import { getDeviceIdFromToken } from "@/lib/utils";
+import { NOTIFICATION_FALLBACKS } from "@/lib/api/fallbacks";
+import type { NotificationFilters } from "@/lib/api/fallbacks";
 
 // Types
 export interface AdminUser {
@@ -499,17 +501,11 @@ export const adminAPI = {
       send_immediately?: boolean;
     }
   ): Promise<any> => {
-    const response = await fetchWithFallback(
-      [
-        `/api/proxy/wallet/admin/notifications/send`,
-        `/api/proxy/wallet/admin/notification/send`,
-      ],
-      {
-        method: "POST",
-        headers: getHeaders(token),
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetchWithFallback(NOTIFICATION_FALLBACKS.send, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
     if (!response.ok) {
       const text = await response.text();
       throw new Error(
@@ -522,30 +518,21 @@ export const adminAPI = {
   getFailedNotificationDeliveries: async (
     token: string,
     page = 1,
-    perPage = 20
+    perPage = 20,
+    filters: NotificationFilters = {}
   ): Promise<any> => {
-    const response = await fetchWithFallback(
-      [
-        `/api/proxy/wallet/admin/notifications/failed-deliveries?page=${page}&per_page=${perPage}`,
-        `/api/proxy/wallet/admin/notification/failed-deliveries?page=${page}&per_page=${perPage}`,
-        `/api/proxy/wallet/admin/notifications/failed?page=${page}&per_page=${perPage}`,
-      ],
-      { headers: getHeaders(token) }
-    );
+    const paths = NOTIFICATION_FALLBACKS.failedDeliveries(page, perPage, filters);
+    const response = await fetchWithFallback(paths, { headers: getHeaders(token) });
     if (!response.ok) throw new Error("Failed to get failed deliveries");
     return response.json().catch(() => null);
   },
 
-  getNotificationTemplates: async (token: string): Promise<NotificationTemplate[]> => {
+  getNotificationTemplates: async (
+    token: string
+  ): Promise<NotificationTemplate[]> => {
     const response = await fetchWithFallback(
-      [
-        `/api/proxy/wallet/admin/notifications/templates`,
-        `/api/proxy/wallet/admin/notification/templates`,
-      ],
-
-      {
-        headers: getHeaders(token),
-      }
+      NOTIFICATION_FALLBACKS.templatesList,
+      { headers: getHeaders(token) }
     );
     if (!response.ok) throw new Error("Failed to get notification templates");
     return response.json();
@@ -562,18 +549,11 @@ export const adminAPI = {
       html_template?: string | null;
     }
   ): Promise<NotificationTemplate> => {
-    const response = await fetchWithFallback(
-      [
-        `/api/proxy/wallet/admin/notifications/templates`,
-        `/api/proxy/wallet/admin/notification/templates`,
-      ],
-
-      {
-        method: "POST",
-        headers: getHeaders(token),
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetchWithFallback(NOTIFICATION_FALLBACKS.templatesCreate, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
     if (!response.ok) throw new Error("Failed to create notification template");
     return response.json();
   },
@@ -590,10 +570,7 @@ export const adminAPI = {
     }
   ): Promise<NotificationTemplate> => {
     const response = await fetchWithFallback(
-      [
-        `/api/proxy/wallet/admin/notifications/templates/${templateId}`,
-        `/api/proxy/wallet/admin/notification/templates/${templateId}`,
-      ],
+      NOTIFICATION_FALLBACKS.templateUpdate(templateId),
       {
         method: "PATCH",
         headers: getHeaders(token),
@@ -602,6 +579,26 @@ export const adminAPI = {
     );
     if (!response.ok) throw new Error("Failed to update notification template");
     return response.json();
+  },
+
+  retryFailedNotificationDelivery: async (
+    token: string,
+    deliveryId: string
+  ): Promise<any> => {
+    const response = await fetchWithFallback(
+      NOTIFICATION_FALLBACKS.failedDeliveryRetry(deliveryId),
+      {
+        method: "POST",
+        headers: getHeaders(token),
+      }
+    );
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(
+        `Failed to retry failed delivery: ${response.status} ${text}`
+      );
+    }
+    return response.json().catch(() => null);
   },
 
   debugAuthInfo: async (token: string): Promise<any> => {
