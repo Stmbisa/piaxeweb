@@ -379,7 +379,7 @@ export function TicketList() {
 
       {/* Update Dialog */}
       <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
-        <DialogContent className="glass-card-enhanced">
+        <DialogContent className="glass-modal z-[100]">
           <DialogHeader>
             <DialogTitle>Update Ticket</DialogTitle>
             <DialogDescription>
@@ -460,7 +460,7 @@ export function TicketList() {
 
       {/* Assign Dialog */}
       <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-        <DialogContent className="glass-card-enhanced">
+        <DialogContent className="glass-modal z-[100]">
           <DialogHeader>
             <DialogTitle>Assign Ticket</DialogTitle>
             <DialogDescription>
