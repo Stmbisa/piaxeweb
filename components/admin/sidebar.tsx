@@ -14,6 +14,7 @@ import {
   LogOut,
   Store,
   Server,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { ADMIN_PREFIX } from "@/lib/config/env";
@@ -48,6 +49,11 @@ export function AdminSidebar() {
       name: "Environment Info",
       href: `/${ADMIN_PREFIX}/admin/env-info`,
       icon: Server,
+    },
+    {
+      name: "Support",
+      href: `/${ADMIN_PREFIX}/admin/support`,
+      icon: MessageSquare,
     },
     {
       name: "Settings",

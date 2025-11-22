@@ -98,16 +98,38 @@ export const API_ENDPOINTS = {
 
     // Support
     SUPPORT: {
-      TICKETS: `${API_BASE_URL}/support/tickets`,
-      TICKET_DETAIL: (id: string) => `${API_BASE_URL}/support/tickets/${id}`,
-      ASSIGN_TICKET: (id: string) => `${API_BASE_URL}/support/tickets/${id}/assign`,
-      DASHBOARD: `${API_BASE_URL}/support/dashboard`,
+      TICKETS: `${API_BASE_URL}/support/admin/tickets`,
+      LIST_TICKETS: `${API_BASE_URL}/support/admin/tickets`,
+      TICKET_DETAIL: (id: string) =>
+        `${API_BASE_URL}/support/admin/tickets/${id}`,
+      UPDATE_TICKET: (id: string) =>
+        `${API_BASE_URL}/support/admin/tickets/${id}`,
+      ASSIGN_TICKET: (id: string) =>
+        `${API_BASE_URL}/support/admin/tickets/${id}/assign`,
+      DASHBOARD: `${API_BASE_URL}/support/admin/dashboard`,
       EMAIL_TO_TICKET: `${API_BASE_URL}/support/email-to-ticket`,
+      CONVERT_EMAIL: `${API_BASE_URL}/support/email-to-ticket`,
       AGENTS: `${API_BASE_URL}/support/agents`,
+      LIST_AGENTS: `${API_BASE_URL}/support/agents`,
+      CREATE_AGENT: `${API_BASE_URL}/support/agents`,
       AGENT_DETAIL: (id: string) => `${API_BASE_URL}/support/agents/${id}`,
+      UPDATE_AGENT: (id: string) => `${API_BASE_URL}/support/agents/${id}`,
+      DEACTIVATE_AGENT: (id: string) => `${API_BASE_URL}/support/agents/${id}`,
       KB_ARTICLES: `${API_BASE_URL}/support/knowledge-base/articles`,
-      KB_ARTICLE_DETAIL: (id: string) => `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
-      KB_ARTICLE_VOTE: (id: string) => `${API_BASE_URL}/support/knowledge-base/articles/${id}/vote`,
+      LIST_KB_ARTICLES: `${API_BASE_URL}/support/knowledge-base/articles`,
+      CREATE_KB_ARTICLE: `${API_BASE_URL}/support/knowledge-base/articles`,
+      KB_ARTICLE_DETAIL: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
+      GET_KB_ARTICLE: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
+      UPDATE_KB_ARTICLE: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
+      DELETE_KB_ARTICLE: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
+      KB_ARTICLE_VOTE: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}/vote`,
+      VOTE_ARTICLE: (id: string) =>
+        `${API_BASE_URL}/support/knowledge-base/articles/${id}/vote`,
     },
   },
 

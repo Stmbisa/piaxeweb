@@ -12,6 +12,7 @@ const ALLOWED_PREFIXES = [
   "users/admin/", // Admin user management endpoints
   "monitoring/", // Monitoring & health endpoints
   "escrow/", // Escrow admin stats endpoints
+  "support/", // Support ticketing endpoints
 ];
 
 function isAllowed(path: string) {
