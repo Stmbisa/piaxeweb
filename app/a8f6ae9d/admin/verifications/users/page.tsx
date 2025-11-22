@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/context";
+import { adminAPI } from "@/lib/api/admin";
 
 export default function UserVerificationsPage() {
   const { token } = useAuth();
@@ -25,26 +26,7 @@ export default function UserVerificationsPage() {
       setError(null);
 
       try {
-        const response = await fetch(
-          `/api/proxy/users/admin/verifications/users?status=Pending&limit=10`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            `Failed to fetch verifications: ${response.status} - ${errorText}`
-          );
-        }
-
-        const data = await response.json();
+        const data = await adminAPI.getUserVerifications(token, "Pending", 20);
         setVerifications(data);
       } catch (err) {
         console.error("Error fetching verifications:", err);
@@ -62,21 +44,29 @@ export default function UserVerificationsPage() {
   }, [token]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-glass-appear">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">
           User Verifications
         </h1>
       </div>
-      <Card>
+      <Card className="glass-card-enhanced">
         <CardHeader>
-          <CardTitle>Verification Requests</CardTitle>
+          <CardTitle className="text-gradient-primary bg-clip-text text-transparent">Verification Requests</CardTitle>
           <CardDescription>
             Review and manage user identity verification requests.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UserVerificationsTable initialData={verifications} />
+          {loading ? (
+            <div className="space-y-2">
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+            </div>
+          ) : (
+            <UserVerificationsTable initialData={verifications} />
+          )}
         </CardContent>
       </Card>
     </div>

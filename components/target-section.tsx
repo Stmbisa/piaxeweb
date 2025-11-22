@@ -62,17 +62,17 @@ export function TargetSection({
               {buttonsToRender.map((button, index) => {
                 const isDownloadApp = button.text === "Download App";
                 const isStartSelling = button.text === "Start Selling" || button.text === "Start Social Selling";
-                
+
                 let buttonClass = "rounded-full px-4 sm:px-8 text-xs sm:text-sm font-medium shadow-lg hover:scale-105 transition-all duration-300";
-                
+
                 if (isDownloadApp || isStartSelling) {
                   buttonClass = `glass-button-primary ${buttonClass}`;
                 } else {
                   buttonClass = `glass-button-secondary ${buttonClass}`;
                 }
-                
+
                 const finalLink = isDownloadApp ? "#mobile-preview" : button.link;
-                
+
                 return (
                   <a
                     key={index}

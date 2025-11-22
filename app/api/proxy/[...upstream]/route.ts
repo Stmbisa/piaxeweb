@@ -9,7 +9,9 @@ const ALLOWED_PREFIXES = [
   "wallet/",
   "shopping_and_inventory/",
   "auth/devices",
-  "users/admin/", // Allow admin endpoints
+  "users/admin/", // Admin user management endpoints
+  "monitoring/", // Monitoring & health endpoints
+  "escrow/", // Escrow admin stats endpoints
 ];
 
 function isAllowed(path: string) {
@@ -38,6 +40,7 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
   const needsTrailing = [
     "wallet/wallets",
     "shopping_and_inventory/stores",
+    "monitoring/health/celery",
   ].includes(path);
   const url = `${API_BASE_URL}/${path}${needsTrailing ? "/" : ""}${
     req.nextUrl.search

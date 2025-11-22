@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/context";
+import { adminAPI } from "@/lib/api/admin";
 
 export default function RecentSignupsPage() {
   const { token } = useAuth();
@@ -25,26 +26,7 @@ export default function RecentSignupsPage() {
       setError(null);
 
       try {
-        const response = await fetch(
-          `/api/proxy/users/admin/recent-signups?limit=10`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-            credentials: "include",
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            `Failed to fetch recent signups: ${response.status} - ${errorText}`
-          );
-        }
-
-        const data = await response.json();
+        const data = await adminAPI.getRecentSignups(token, 20);
         setRecentSignups(data);
       } catch (err) {
         console.error("Error fetching recent signups:", err);
@@ -62,19 +44,27 @@ export default function RecentSignupsPage() {
   }, [token]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-glass-appear">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Recent Signups</h1>
       </div>
-      <Card>
+      <Card className="glass-card-enhanced">
         <CardHeader>
-          <CardTitle>User Registrations</CardTitle>
+          <CardTitle className="text-gradient-primary bg-clip-text text-transparent">User Registrations</CardTitle>
           <CardDescription>
             View and manage recent user registrations on the platform.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RecentSignupsTable initialData={recentSignups} />
+          {loading ? (
+            <div className="space-y-2">
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+              <div className="h-10 bg-muted/50 rounded animate-pulse" />
+            </div>
+          ) : (
+            <RecentSignupsTable initialData={recentSignups} />
+          )}
         </CardContent>
       </Card>
     </div>

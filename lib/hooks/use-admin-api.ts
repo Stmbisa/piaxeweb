@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
 import { useToast } from "@/hooks/use-toast";
+import { getDeviceIdFromToken } from "@/lib/utils";
 
 /**
  * Hook for making admin API calls with automatic token expiration handling
@@ -65,12 +66,17 @@ export function useAdminAPI() {
         throw new Error("No authentication token available");
       }
 
-      const headers = {
+      const headers: Record<string, string> = {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         Accept: "application/json",
         ...options.headers,
       };
+
+      const deviceId = getDeviceIdFromToken(token);
+      if (deviceId) {
+        headers["X-Device-ID"] = deviceId;
+      }
 
       try {
         const response = await fetch(url, {

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth/context";
-import { API_ENDPOINTS } from "@/lib/config/env";
+import { adminAPI } from "@/lib/api/admin";
 import { useEffect, useState } from "react";
 import { AlertCircle, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
 
@@ -44,23 +44,7 @@ export default function EnvInfoPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/proxy/users/admin/env-info`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Failed to fetch environment info: ${response.status} - ${errorText}`
-        );
-      }
-
-      const data = await response.json();
+      const data = await adminAPI.adminEnvInfo(token);
       setEnvInfo(data);
     } catch (err) {
       console.error("Error fetching environment info:", err);
@@ -79,27 +63,29 @@ export default function EnvInfoPage() {
   }, [token]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Environment Info
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Masked metadata for environment secrets (safe for diagnostics)
-          </p>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-primary/20 via-background/60 to-secondary/20 p-6 md:p-8 backdrop-blur-xl">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0,_rgba(255,255,255,0)_60%)]" />
+        <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold text-white">Environment Info</h1>
+            <p className="text-sm text-white/70">
+              Masked metadata for environment secrets (safe for diagnostics)
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchEnvInfo}
+            disabled={loading}
+            className="backdrop-blur-md bg-white/10 border-white/20 text-white"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchEnvInfo}
-          disabled={loading}
-        >
-          <RefreshCw
-            className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-          />
-          Refresh
-        </Button>
       </div>
 
       {/* Error Alert */}
@@ -123,15 +109,16 @@ export default function EnvInfoPage() {
 
       {/* Environment Path */}
       {envInfo && (
-        <Card>
-          <CardHeader>
+        <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-transparent to-primary/10" />
+          <CardHeader className="relative z-10">
             <CardTitle>Environment File Path</CardTitle>
             <CardDescription>
               Location of the environment configuration file
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <code className="text-sm bg-muted px-3 py-2 rounded-md">
+          <CardContent className="relative z-10">
+            <code className="text-sm bg-black/40 px-3 py-2 rounded-md text-white">
               {envInfo.env_path}
             </code>
           </CardContent>
@@ -139,15 +126,16 @@ export default function EnvInfoPage() {
       )}
 
       {/* Secrets Info */}
-      <Card>
-        <CardHeader>
+      <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/15 via-transparent to-amber-500/15" />
+        <CardHeader className="relative z-10">
           <CardTitle>Environment Secrets</CardTitle>
           <CardDescription>
             Masked metadata showing presence, length, and last 4 characters of
             each secret
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           {loading ? (
             <div className="space-y-4">
               <Skeleton className="h-20 w-full" />
@@ -157,8 +145,12 @@ export default function EnvInfoPage() {
           ) : envInfo ? (
             <div className="space-y-4">
               {Object.entries(envInfo.secrets).map(([key, secret]) => (
-                <div key={key} className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-center justify-between">
+                <div
+                  key={key}
+                  className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                >
+                  <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
+                  <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <code className="text-sm font-semibold">{key}</code>
                       {secret.present ? (
@@ -177,35 +169,37 @@ export default function EnvInfoPage() {
                       )}
                     </div>
                   </div>
-                  {secret.present ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Length:</span>
-                        <span className="ml-2 font-medium">
-                          {secret.length}
-                        </span>
+                  <div className="relative mt-3">
+                    {secret.present ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Length:</span>
+                          <span className="ml-2 font-medium">
+                            {secret.length}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Last 4 chars:
+                          </span>
+                          <code className="ml-2 font-mono bg-black/40 px-2 py-1 rounded text-white">
+                            {secret.last4 || "N/A"}
+                          </code>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Last 4 chars:
-                        </span>
-                        <code className="ml-2 font-mono bg-muted px-2 py-1 rounded">
-                          {secret.last4 || "N/A"}
-                        </code>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        This secret is not present in the environment file
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      This secret is not present in the environment file
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
+            <p className="text-muted-foreground">
               No environment information available
-            </div>
+            </p>
           )}
         </CardContent>
       </Card>

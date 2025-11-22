@@ -10,25 +10,25 @@ interface PrimitiveDef {
 }
 
 const primitives: PrimitiveDef[] = [
-    { 
-        key: 'escrow', 
-        title: 'The Trust Shield', 
-        payoff: 'Never pay for air again. Money stays locked until you hold the item in your hand.', 
+    {
+        key: 'escrow',
+        title: 'The Trust Shield',
+        payoff: 'Never pay for air again. Money stays locked until you hold the item in your hand.',
         icon: <Lock className='w-5 h-5' />,
         animation: <LockAnimation />
     },
-    { 
-        key: 'pos_free', 
-        title: 'The Line Skipper', 
-        payoff: 'Walk into a store. Scan. Pay. Leave. No queues. No cashiers. Just you and the exit.', 
+    {
+        key: 'pos_free',
+        title: 'The Line Skipper',
+        payoff: 'Walk into a store. Scan. Pay. Leave. No queues. No cashiers. Just you and the exit.',
         icon: <QrCode className='w-5 h-5' />,
         animation: <ScanAnimation />
     },
     { key: 'social_links', title: 'Social Links & QR', payoff: 'Share shoppable links across every social channel.', icon: <Link className='w-5 h-5' /> },
-    { 
-        key: 'remote_cart', 
-        title: 'The Sugar Daddy Link', 
-        payoff: 'Shopping for school fees? Scan the items. Send the cart link to Dad. He pays instantly from London.', 
+    {
+        key: 'remote_cart',
+        title: 'The Sugar Daddy Link',
+        payoff: 'Shopping for school fees? Scan the items. Send the cart link to Dad. He pays instantly from London.',
         icon: <ShoppingCart className='w-5 h-5' />,
         animation: <MapAnimation />
     },
@@ -40,7 +40,7 @@ const primitives: PrimitiveDef[] = [
     { key: 'crm_ai', title: 'The Pocket HQ', payoff: 'Your phone is now your Head Office. AI tracks your leads, sends SMS campaigns, and closes deals while you sleep.', icon: <Cpu className='w-5 h-5' /> },
     { key: 'notifications', title: 'Notifications', payoff: 'Programmable events and trust status updates.', icon: <Bell className='w-5 h-5' /> },
     { key: 'apis', title: 'APIs', payoff: 'Payments + programmable escrow in a few lines.', icon: <Code2 className='w-5 h-5' /> },
-        { key: 'tax_compliance', title: 'Automated Tax Compliance', payoff: 'Integrated URA eFRIS invoicing. Stay compliant, automatically.', icon: <Shield className='w-5 h-5' /> },
+    { key: 'tax_compliance', title: 'Automated Tax Compliance', payoff: 'Integrated URA eFRIS invoicing. Stay compliant, automatically.', icon: <Shield className='w-5 h-5' /> },
 ]
 
 export function PrimitivesGrid() {

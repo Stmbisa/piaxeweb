@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,19 +10,28 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth/context";
-import { API_ENDPOINTS } from "@/lib/config/env";
+import {
+  adminAPI,
+  DetailedHealth,
+  EscrowStats,
+  SystemStats,
+} from "@/lib/api/admin";
 import { RecentSignupsTable } from "./recent-signups-table";
 import { UserVerificationsTable } from "./user-verifications-table";
 import {
   AlertCircle,
   RefreshCw,
-  Users,
   ClipboardCheck,
-  CheckCircle2,
   UserPlus,
+  Activity,
+  Server,
+  ShieldCheck,
+  HeartPulse,
+  FileText,
+  LineChart,
 } from "lucide-react";
-import { getDeviceIdFromToken } from "@/lib/utils";
-import { useAdminAPI } from "@/lib/hooks/use-admin-api";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface DashboardStats {
   recentSignups: number;
@@ -31,11 +40,27 @@ interface DashboardStats {
   totalUsers: number;
 }
 
+interface CeleryHealthPayload {
+  detail?: {
+    status?: string;
+    last_heartbeat?: string | null;
+  };
+}
+
 export function AdminDashboardOverview() {
-  const { token, user, isAuthenticated } = useAuth();
-  const { fetchWithAuth } = useAdminAPI();
+  const { token } = useAuth();
   const [recentSignups, setRecentSignups] = useState<any[]>([]);
   const [pendingVerifications, setPendingVerifications] = useState<any[]>([]);
+  const [escrowStats, setEscrowStats] = useState<EscrowStats | null>(null);
+  const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
+  const [detailedHealth, setDetailedHealth] = useState<DetailedHealth | null>(
+    null
+  );
+  const [celeryHealth, setCeleryHealth] = useState<CeleryHealthPayload | null>(
+    null
+  );
+  const [auditLog, setAuditLog] = useState<any | null>(null);
+  const [metricsPreview, setMetricsPreview] = useState<string[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     recentSignups: 0,
     pendingVerifications: 0,
@@ -46,63 +71,60 @@ export function AdminDashboardOverview() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
-    if (!token) {
-      return;
-    }
+    if (!token) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      // Use proxy to avoid CORS issues
-      const signupsUrl = `/api/proxy/users/admin/recent-signups?limit=5`;
+      const [
+        signups,
+        verifications,
+        escrow,
+        system,
+        health,
+        celery,
+        audits,
+        metrics,
+      ] = await Promise.all([
+        adminAPI.getRecentSignups(token, 5),
+        adminAPI.getUserVerifications(token, "Pending", 5),
+        adminAPI.getEscrowStats(token).catch(() => null),
+        adminAPI.getSystemStats(token).catch(() => null),
+        adminAPI.getDetailedHealth(token).catch(() => null),
+        adminAPI.getCeleryHealth(token).catch(() => null),
+        adminAPI.getRecentAuditEvents(token, 5).catch(() => null),
+        adminAPI.getMetrics(token).catch(() => null),
+      ]);
 
-      const signupsResponse = await fetchWithAuth(signupsUrl, {
-        method: "GET",
-      });
+      setRecentSignups(signups);
+      setPendingVerifications(verifications);
+      setEscrowStats(escrow);
+      setSystemStats(system);
+      setDetailedHealth(health);
+      setCeleryHealth(celery);
+      setAuditLog(audits);
 
-      if (!signupsResponse.ok) {
-        const errorText = await signupsResponse.text();
-        throw new Error(
-          `Failed to fetch recent signups: ${signupsResponse.status} - ${errorText}`
-        );
+      if (typeof metrics === "string") {
+        const preview = metrics
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .slice(0, 8);
+        setMetricsPreview(preview);
+      } else {
+        setMetricsPreview([]);
       }
 
-      const signupsData = await signupsResponse.json();
-      setRecentSignups(signupsData);
-
-      // Fetch pending verifications
-      const verificationsUrl = `/api/proxy/users/admin/verifications/users?status=Pending&limit=5`;
-
-      const verificationsResponse = await fetchWithAuth(verificationsUrl, {
-        method: "GET",
-      });
-
-      if (!verificationsResponse.ok) {
-        const errorText = await verificationsResponse.text();
-        throw new Error(
-          `Failed to fetch verifications: ${verificationsResponse.status} - ${errorText}`
-        );
-      }
-
-      const verificationsData = await verificationsResponse.json();
-      setPendingVerifications(verificationsData);
-
-      // Set stats
       setStats({
-        recentSignups: signupsData.length,
-        pendingVerifications: verificationsData.length,
-        verifiedUsers: 45, // Sample placeholder data
-        totalUsers: 178, // Sample placeholder data
+        recentSignups: signups.length,
+        pendingVerifications: verifications.length,
+        verifiedUsers: 0, // Placeholder, API doesn't provide total count directly yet
+        totalUsers: 0, // Placeholder
       });
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
-      // Don't set error for token expiration - it's handled by the hook
-      if (
-        err instanceof Error &&
-        err.message !== "SESSION_EXPIRED" &&
-        err.message !== "TOKEN_REFRESHED"
-      ) {
+      if (err instanceof Error) {
         setError(`Failed to load dashboard data: ${err.message}`);
       }
     } finally {
@@ -114,78 +136,135 @@ export function AdminDashboardOverview() {
     fetchDashboardData();
   }, [token]);
 
+  const formatLabel = (value: string) =>
+    value
+      .replace(/[\-_]/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
+  const healthChecks = useMemo(() => {
+    if (!detailedHealth?.checks) return [];
+    return Object.entries(detailedHealth.checks);
+  }, [detailedHealth]);
+
+  const celeryStatus = celeryHealth?.detail?.status || "unknown";
+  const celeryIsHealthy = celeryStatus.toLowerCase() === "healthy";
+  const celeryHeartbeat = celeryHealth?.detail?.last_heartbeat || null;
+  const celeryUnavailable = !celeryHealth || celeryStatus === "unknown";
+
+  const systemHealthLabel = systemStats
+    ? systemStats.application.system_status === "healthy"
+      ? "Healthy"
+      : "Needs Attention"
+    : "Pending";
+
+  const summaryCards = [
+    {
+      key: "recent-signups",
+      title: "Recent Signups",
+      value: String(stats.recentSignups),
+      subtitle: "Last 5 registrations",
+      icon: UserPlus,
+      gradient: "from-sky-500/25 via-sky-400/10 to-transparent",
+      iconClass: "text-sky-200",
+    },
+    {
+      key: "pending-verifications",
+      title: "Pending Verifications",
+      value: String(stats.pendingVerifications),
+      subtitle: "Awaiting review",
+      icon: ClipboardCheck,
+      gradient: "from-amber-500/25 via-amber-400/10 to-transparent",
+      iconClass: "text-amber-200",
+    },
+    {
+      key: "active-escrows",
+      title: "Active Escrows",
+      value: String(escrowStats?.active_escrow_count || 0),
+      subtitle: escrowStats?.current_total_held_converted
+        ? `Total Held ${escrowStats.current_total_held_converted}`
+        : "Pulling balances",
+      icon: ShieldCheck,
+      gradient: "from-emerald-500/25 via-emerald-400/10 to-transparent",
+      iconClass: "text-emerald-200",
+    },
+    {
+      key: "escrow-release",
+      title: "Release Latency",
+      value: escrowStats?.average_release_seconds
+        ? `${Math.round(escrowStats.average_release_seconds)}s avg`
+        : "—",
+      subtitle:
+        escrowStats?.p90_release_seconds
+          ? `P50 ${Math.round(escrowStats.p50_release_seconds)}s · P90 ${Math.round(
+              escrowStats.p90_release_seconds
+            )}s`
+          : "Awaiting flow data",
+      icon: HeartPulse,
+      gradient: "from-rose-500/25 via-rose-400/10 to-transparent",
+      iconClass: "text-rose-200",
+    },
+    {
+      key: "system-health",
+      title: "System Health",
+      value: systemHealthLabel,
+      subtitle: systemStats
+        ? `CPU ${systemStats.system.cpu_percent || 0}% · Mem ${
+            systemStats.system.memory.percent || 0
+          }%`
+        : "Watching services",
+      icon: Activity,
+      gradient: "from-purple-500/25 via-purple-400/10 to-transparent",
+      iconClass: "text-purple-200",
+      renderValue: () => (
+        <Badge
+          className={cn(
+            "px-2 py-0.5 text-xs font-semibold uppercase tracking-wide",
+            systemHealthLabel === "Healthy"
+              ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/40"
+              : "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+          )}
+        >
+          {systemHealthLabel}
+        </Badge>
+      ),
+    },
+  ];
+
   return (
-    <div className="space-y-6 animate-glass-appear">
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="glass-card-enhanced border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Recent Signups
-            </CardTitle>
-            <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-7 w-20" />
-            ) : (
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {stats.recentSignups}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="glass-card-enhanced border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">
-              Pending Verifications
-            </CardTitle>
-            <ClipboardCheck className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-7 w-20" />
-            ) : (
-              <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {stats.pendingVerifications}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="glass-card-enhanced border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">
-              Verified Users
-            </CardTitle>
-            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-7 w-20" />
-            ) : (
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {stats.verifiedUsers}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card className="glass-card-enhanced border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">
-              Total Users
-            </CardTitle>
-            <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-7 w-20" />
-            ) : (
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {stats.totalUsers}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+    <div className="space-y-8 animate-glass-appear">
+      {/* Highlight Metrics */}
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {summaryCards.map((card) => (
+          <Card
+            key={card.key}
+            className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-25px_rgba(68,85,255,0.65)]"
+          >
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${card.gradient}`}
+            />
+            <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.22)_0,_rgba(255,255,255,0)_55%)]" />
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+                {card.title}
+              </CardTitle>
+              <card.icon className={cn("h-5 w-5", card.iconClass)} />
+            </CardHeader>
+            <CardContent className="relative z-10 space-y-2">
+              {loading ? (
+                <Skeleton className="h-7 w-24" />
+              ) : card.renderValue ? (
+                card.renderValue()
+              ) : (
+                <div className="text-3xl font-semibold text-white">
+                  {card.value}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground/80">
+                {card.subtitle}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Error Alert */}
@@ -210,40 +289,248 @@ export function AdminDashboardOverview() {
         </Alert>
       )}
 
-      {/* Recent Signups */}
-      <Card className="glass-card-enhanced animate-glass-appear">
-        <CardHeader>
-          <CardTitle className="text-gradient-primary bg-clip-text text-transparent">
-            Recent Signups
-          </CardTitle>
-          <CardDescription>
-            The most recent user registrations on the platform.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
+      {/* Deep Health + Metrics */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl xl:col-span-2">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-primary/10" />
+          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.2)_0,_rgba(255,255,255,0)_60%)]" />
+          <CardHeader className="relative z-10">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-white">
+                  Service Health Checks
+                </CardTitle>
+                <CardDescription>
+                  {detailedHealth?.timestamp
+                    ? `Reported ${new Date(
+                        detailedHealth.timestamp
+                      ).toLocaleString()}`
+                    : "Live system diagnostics"}
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchDashboardData}
+                className="backdrop-blur-sm bg-white/10 border-white/20 text-white"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+              </Button>
             </div>
-          ) : (
-            <RecentSignupsTable initialData={recentSignups} />
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            {loading && healthChecks.length === 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-28 w-full" />
+                <Skeleton className="h-28 w-full" />
+                <Skeleton className="h-28 w-full" />
+                <Skeleton className="h-28 w-full" />
+              </div>
+            ) : healthChecks.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No health diagnostics available yet.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {healthChecks.map(([checkName, payload]) => {
+                  const data = payload as Record<string, any>;
+                  const status = (data?.status as string) || "unknown";
+                  const metaEntries = Object.entries(data || {})
+                    .filter(([key]) => key !== "status")
+                    .slice(0, 3);
+                  return (
+                    <div
+                      key={checkName}
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5/50 p-4 backdrop-blur-sm"
+                    >
+                      <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-white/20 via-transparent to-transparent group-hover:opacity-60 transition-opacity" />
+                      <div className="relative z-10 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Server className="h-4 w-4 text-white/80" />
+                            <span className="text-sm font-semibold text-white">
+                              {formatLabel(checkName)}
+                            </span>
+                          </div>
+                          <Badge
+                            className={cn(
+                              "px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                              status.toLowerCase() === "healthy"
+                                ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/40"
+                                : status.toLowerCase() === "unhealthy"
+                                ? "bg-rose-500/20 text-rose-100 border border-rose-400/40"
+                                : "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+                            )}
+                          >
+                            {formatLabel(status)}
+                          </Badge>
+                        </div>
+                        <div className="space-y-2 text-xs text-muted-foreground/90">
+                          {metaEntries.length === 0 ? (
+                            <p>No additional telemetry.</p>
+                          ) : (
+                            metaEntries.map(([key, value]) => (
+                              <div
+                                key={`${checkName}-${key}`}
+                                className="flex items-center justify-between gap-3"
+                              >
+                                <span>{formatLabel(key)}</span>
+                                <span className="text-white/80 font-medium">
+                                  {typeof value === "boolean"
+                                    ? value
+                                      ? "Yes"
+                                      : "No"
+                                    : String(value)}
+                                </span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-purple-500/10 to-transparent" />
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <HeartPulse className="h-5 w-5" />
+              Worker & Metrics Pulse
+            </CardTitle>
+            <CardDescription>
+              Celery workers and Prometheus snapshot
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-10 space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-white">
+                  Celery Workers
+                </span>
+                <Badge
+                  className={cn(
+                    "px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                    celeryIsHealthy
+                      ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/40"
+                      : celeryUnavailable
+                      ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+                      : "bg-rose-500/20 text-rose-100 border border-rose-400/40"
+                  )}
+                >
+                  {celeryUnavailable ? "Unavailable" : formatLabel(celeryStatus)}
+                </Badge>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground/80">
+                {celeryUnavailable
+                  ? "Health endpoint unreachable (503/timeout)."
+                  : `Last heartbeat: ${celeryHeartbeat ? new Date(celeryHeartbeat).toLocaleString() : "N/A"}`}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                <LineChart className="h-4 w-4" />
+                Prometheus Preview
+              </div>
+              <div className="mt-3 max-h-48 overflow-y-auto rounded-xl bg-black/40 p-3 text-[11px] font-mono text-emerald-200 shadow-inner">
+                {metricsPreview.length === 0 ? (
+                  <p className="text-muted-foreground/70">
+                    Metrics endpoint unreachable right now.
+                  </p>
+                ) : (
+                  metricsPreview.map((line, index) => (
+                    <div key={index} className="whitespace-pre">
+                      {line}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Signups & Audit Trail */}
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card className="glass-card-enhanced relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl xl:col-span-2">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-secondary/10" />
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-lg font-semibold text-white">
+              Recent Signups
+            </CardTitle>
+            <CardDescription className="text-muted-foreground/90">
+              The most recent user registrations on the platform.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            {loading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : (
+              <RecentSignupsTable initialData={recentSignups} />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card-enhanced relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-transparent to-red-500/10" />
+          <CardHeader className="relative z-10">
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Audit Trail
+            </CardTitle>
+            <CardDescription>
+              Most recent security audit events.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-10 space-y-3 text-sm text-muted-foreground/90">
+            {Array.isArray(auditLog?.events) && auditLog.events.length > 0 ? (
+              <div className="space-y-3">
+                {auditLog.events.slice(0, 5).map((event: any, index: number) => (
+                  <div
+                    key={index}
+                    className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm"
+                  >
+                    <p className="text-xs text-muted-foreground/70">
+                      {auditLog.timestamp
+                        ? new Date(auditLog.timestamp).toLocaleString()
+                        : "Timestamp unavailable"}
+                    </p>
+                    <pre className="mt-2 overflow-x-auto text-[11px] text-white/90">
+{JSON.stringify(event, null, 2)}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>
+                {auditLog?.note || "No audit events have been recorded yet."}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Pending Verifications */}
-      <Card className="glass-card-enhanced animate-glass-appear">
-        <CardHeader>
-          <CardTitle className="text-gradient-primary bg-clip-text text-transparent">
+      <Card className="glass-card-enhanced relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 dark:bg-slate-950/40 backdrop-blur-xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/15 via-transparent to-emerald-500/10" />
+        <CardHeader className="relative z-10">
+          <CardTitle className="text-lg font-semibold text-white">
             Pending Verifications
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground/90">
             Users waiting for identity verification approval.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           {loading ? (
             <div className="space-y-2">
               <Skeleton className="h-10 w-full" />

@@ -2,14 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import ImageKit from "imagekit";
 import { IMAGEKIT_CONFIG } from "@/lib/config/env";
 
-const imagekit = new ImageKit({
-  publicKey: IMAGEKIT_CONFIG.PUBLIC_KEY,
-  privateKey: IMAGEKIT_CONFIG.PRIVATE_KEY,
-  urlEndpoint: IMAGEKIT_CONFIG.URL_ENDPOINT,
-});
+let imagekit: ImageKit | null = null;
+
+try {
+  if (
+    IMAGEKIT_CONFIG.PUBLIC_KEY &&
+    IMAGEKIT_CONFIG.PRIVATE_KEY &&
+    IMAGEKIT_CONFIG.URL_ENDPOINT
+  ) {
+    imagekit = new ImageKit({
+      publicKey: IMAGEKIT_CONFIG.PUBLIC_KEY,
+      privateKey: IMAGEKIT_CONFIG.PRIVATE_KEY,
+      urlEndpoint: IMAGEKIT_CONFIG.URL_ENDPOINT,
+    });
+  }
+} catch (error) {
+  console.warn("ImageKit initialization skipped:", error);
+}
 
 export async function POST(request: NextRequest) {
-  if (!IMAGEKIT_CONFIG.PRIVATE_KEY || !IMAGEKIT_CONFIG.URL_ENDPOINT) {
+  if (!imagekit || !IMAGEKIT_CONFIG.PRIVATE_KEY || !IMAGEKIT_CONFIG.URL_ENDPOINT) {
     return NextResponse.json(
       { error: "ImageKit server credentials are not configured." },
       { status: 500 }

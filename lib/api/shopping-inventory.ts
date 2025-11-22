@@ -237,8 +237,16 @@ class ShoppingInventoryAPI {
       });
 
       if (!response.ok) {
-        console.error("Stores fetch failed with status:", response.status);
         const errorText = await response.text();
+        
+        // Handle "Account is not verified" as a specific case (empty stores list)
+        // This prevents the dashboard from crashing/showing error when user is just not verified yet
+        if (response.status === 400 && errorText.includes("Account is not verified")) {
+          console.warn("User account not verified for stores, returning empty list");
+          return [];
+        }
+
+        console.error("Stores fetch failed with status:", response.status);
         console.error("Error response:", errorText);
         throw new Error(
           `Failed to fetch stores: ${response.status} - ${errorText}`

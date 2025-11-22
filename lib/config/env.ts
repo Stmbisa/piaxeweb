@@ -77,6 +77,38 @@ export const API_ENDPOINTS = {
 
     // Environment info (masked secrets metadata)
     ENV_INFO: `${API_BASE_URL}/users/admin/env-info`,
+
+    // User management
+    LIST_USERS: `${API_BASE_URL}/users/users`,
+    LIST_MERCHANTS: `${API_BASE_URL}/users/merchants`,
+    BOOTSTRAP_ADMINS: `${API_BASE_URL}/users/admin/bootstrap`,
+    EMAIL_DIAGNOSTIC: `${API_BASE_URL}/users/admin/email-diagnostic`,
+
+    // Escrow Stats
+    ESCROW_STATS: `${API_BASE_URL}/escrow/admin/stats`, // Assumed path based on context
+
+    // Monitoring
+    MONITORING: {
+      METRICS: `${API_BASE_URL}/monitoring/metrics`,
+      HEALTH_DETAILED: `${API_BASE_URL}/monitoring/health/detailed`,
+      HEALTH_CELERY: `${API_BASE_URL}/monitoring/health/celery`,
+      SYSTEM_STATS: `${API_BASE_URL}/monitoring/system/stats`,
+      AUDIT_RECENT: `${API_BASE_URL}/monitoring/audit/recent`,
+    },
+
+    // Support
+    SUPPORT: {
+      TICKETS: `${API_BASE_URL}/support/tickets`,
+      TICKET_DETAIL: (id: string) => `${API_BASE_URL}/support/tickets/${id}`,
+      ASSIGN_TICKET: (id: string) => `${API_BASE_URL}/support/tickets/${id}/assign`,
+      DASHBOARD: `${API_BASE_URL}/support/dashboard`,
+      EMAIL_TO_TICKET: `${API_BASE_URL}/support/email-to-ticket`,
+      AGENTS: `${API_BASE_URL}/support/agents`,
+      AGENT_DETAIL: (id: string) => `${API_BASE_URL}/support/agents/${id}`,
+      KB_ARTICLES: `${API_BASE_URL}/support/knowledge-base/articles`,
+      KB_ARTICLE_DETAIL: (id: string) => `${API_BASE_URL}/support/knowledge-base/articles/${id}`,
+      KB_ARTICLE_VOTE: (id: string) => `${API_BASE_URL}/support/knowledge-base/articles/${id}/vote`,
+    },
   },
 
   WALLET: {
