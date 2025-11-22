@@ -77,40 +77,40 @@ export default function FailedDeliveriesPage() {
                         <h1 className="text-3xl font-semibold text-white">Failed Notification Deliveries</h1>
                         <p className="text-sm text-white/70">Review delivery failures for remediation & retries.</p>
                     </div>
-                                        <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <Button variant="outline" size="sm" onClick={() => fetchRecords(page)} disabled={loading} className="backdrop-blur-md bg-white/10 border-white/20 text-white">
                             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Refresh
                         </Button>
                         <Button variant="outline" size="sm" disabled={loading || page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Prev</Button>
                         <Button variant="outline" size="sm" disabled={loading} onClick={() => setPage(p => p + 1)}>Next</Button>
-                                                <Button variant={autoRetry?"default":"outline"} size="sm" onClick={()=> setAutoRetry(a=> !a)}>
-                                                    <RotateCcw className="h-4 w-4 mr-2" /> {autoRetry?"Auto-Retry On":"Auto-Retry Off"}
-                                                </Button>
-                                                <div className="flex items-center gap-2 text-xs px-2 py-1 rounded-md bg-black/30 text-white/70">
-                                                    <Filter className="h-3 w-3" />
-                                                    <input
-                                                        placeholder="Event filter"
-                                                        value={eventFilter}
-                                                        onChange={e=> setEventFilter(e.target.value)}
-                                                        className="bg-transparent focus:outline-none placeholder:text-white/30 w-28"
-                                                    />
-                                                    <select
-                                                        value={channelFilter}
-                                                        onChange={e=> setChannelFilter(e.target.value)}
-                                                        className="bg-transparent focus:outline-none"
-                                                    >
-                                                        <option value="">All Channels</option>
-                                                        <option value="email">email</option>
-                                                        <option value="sms">sms</option>
-                                                        <option value="websocket">websocket</option>
-                                                        <option value="push">push</option>
-                                                    </select>
-                                                </div>
-                                                {(eventFilter || channelFilter) && (
-                                                    <Button variant="outline" size="sm" onClick={()=> { setEventFilter(""); setChannelFilter(""); }}>
-                                                        Clear Filters
-                                                    </Button>
-                                                )}
+                        <Button variant={autoRetry ? "default" : "outline"} size="sm" onClick={() => setAutoRetry(a => !a)}>
+                            <RotateCcw className="h-4 w-4 mr-2" /> {autoRetry ? "Auto-Retry On" : "Auto-Retry Off"}
+                        </Button>
+                        <div className="flex items-center gap-2 text-xs px-2 py-1 rounded-md bg-black/30 text-white/70">
+                            <Filter className="h-3 w-3" />
+                            <input
+                                placeholder="Event filter"
+                                value={eventFilter}
+                                onChange={e => setEventFilter(e.target.value)}
+                                className="bg-transparent focus:outline-none placeholder:text-white/30 w-28"
+                            />
+                            <select
+                                value={channelFilter}
+                                onChange={e => setChannelFilter(e.target.value)}
+                                className="bg-transparent focus:outline-none"
+                            >
+                                <option value="">All Channels</option>
+                                <option value="email">email</option>
+                                <option value="sms">sms</option>
+                                <option value="websocket">websocket</option>
+                                <option value="push">push</option>
+                            </select>
+                        </div>
+                        {(eventFilter || channelFilter) && (
+                            <Button variant="outline" size="sm" onClick={() => { setEventFilter(""); setChannelFilter(""); }}>
+                                Clear Filters
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -126,10 +126,10 @@ export default function FailedDeliveriesPage() {
             <Card className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/15 via-transparent to-primary/10" />
                 <CardHeader className="relative z-10">
-                                        <CardTitle>Failed Deliveries (page {page})</CardTitle>
-                                        <CardDescription>
-                                            {error ? `Error: ${error} (attempt ${retryAttempts}/${maxRetries})` : `Total ${filtered.length} shown`}
-                                        </CardDescription>
+                    <CardTitle>Failed Deliveries (page {page})</CardTitle>
+                    <CardDescription>
+                        {error ? `Error: ${error} (attempt ${retryAttempts}/${maxRetries})` : `Total ${filtered.length} shown`}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10 space-y-4">
                     {loading && (

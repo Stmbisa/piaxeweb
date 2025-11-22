@@ -16,7 +16,7 @@ import {
   Server,
   Bell,
   FileText,
-  AlertTriangle,
+  AlertTriangle,  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { ADMIN_PREFIX } from "@/lib/config/env";
@@ -67,6 +67,11 @@ export function AdminSidebar() {
       name: "Failed Deliveries",
       href: `/${ADMIN_PREFIX}/admin/notifications/failed-deliveries`,
       icon: AlertTriangle,
+    },
+    {
+      name: "Support",
+      href: `/${ADMIN_PREFIX}/admin/support`,
+      icon: MessageSquare,
     },
     {
       name: "Settings",

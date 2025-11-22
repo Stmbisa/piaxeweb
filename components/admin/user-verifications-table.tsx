@@ -668,7 +668,7 @@ export function UserVerificationsTable({
         open={showVerificationDialog}
         onOpenChange={setShowVerificationDialog}
       >
-        <DialogContent className="glass-card-enhanced">
+        <DialogContent className="glass-modal z-[100]">
           <DialogHeader>
             <DialogTitle>
               {verificationAction === "approve"
@@ -715,7 +715,7 @@ export function UserVerificationsTable({
         open={showDocumentDialog}
         onOpenChange={handleDocumentDialogChange}
       >
-        <DialogContent className="sm:max-w-[700px] glass-card-enhanced">
+        <DialogContent className="sm:max-w-[700px] glass-modal z-[100]">
           <DialogHeader>
             <DialogTitle>Verification Documents</DialogTitle>
             <DialogDescription>

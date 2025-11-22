@@ -252,60 +252,96 @@ export const adminAPI = {
     return response.json();
   },
 
-  getRecentSignups: async (token: string, limit = 20): Promise<RecentSignup[]> => {
-    const response = await fetch(`/api/proxy/users/admin/recent-signups?limit=${limit}`, {
-      headers: getHeaders(token),
-    });
+  getRecentSignups: async (
+    token: string,
+    limit = 20
+  ): Promise<RecentSignup[]> => {
+    const response = await fetch(
+      `/api/proxy/users/admin/recent-signups?limit=${limit}`,
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to get recent signups");
     return response.json();
   },
 
   // Verifications
-  getUserVerifications: async (token: string, status?: string, limit = 50): Promise<VerificationRequest[]> => {
+  getUserVerifications: async (
+    token: string,
+    status?: string,
+    limit = 50
+  ): Promise<VerificationRequest[]> => {
     let url = `/api/proxy/users/admin/verifications/users?limit=${limit}`;
     if (status) url += `&status=${status}`;
     const response = await fetch(url, { headers: getHeaders(token) });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get user verifications: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to get user verifications: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
-  getMerchantVerifications: async (token: string, status?: string, limit = 50): Promise<VerificationRequest[]> => {
+  getMerchantVerifications: async (
+    token: string,
+    status?: string,
+    limit = 50
+  ): Promise<VerificationRequest[]> => {
     let url = `/api/proxy/users/admin/verifications/merchants?limit=${limit}`;
     if (status) url += `&status=${status}`;
     const response = await fetch(url, { headers: getHeaders(token) });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get merchant verifications: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to get merchant verifications: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
   getUserDetails: async (token: string, accountId: string): Promise<any> => {
-    const response = await fetch(API_ENDPOINTS.AUTH.GET_USER_DETAILS(accountId), {
-      headers: getHeaders(token),
-    });
+    const response = await fetch(
+      API_ENDPOINTS.AUTH.GET_USER_DETAILS(accountId),
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get user details: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to get user details: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
-  getUserVerificationDocuments: async (token: string, userProfileId: string): Promise<any> => {
-    const response = await fetch(`/api/proxy/users/admin/verifications/users/${userProfileId}/documents`, {
-      headers: getHeaders(token),
-    });
+  getUserVerificationDocuments: async (
+    token: string,
+    userProfileId: string
+  ): Promise<any> => {
+    const response = await fetch(
+      `/api/proxy/users/admin/verifications/users/${userProfileId}/documents`,
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get user verification documents: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to get user verification documents: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
-  setUserAdminStatus: async (token: string, accountId: string, isAdmin: boolean, confirmSelfRevocation = false): Promise<any> => {
+  setUserAdminStatus: async (
+    token: string,
+    accountId: string,
+    isAdmin: boolean,
+    confirmSelfRevocation = false
+  ): Promise<any> => {
     let url = `/api/proxy/users/admin/users/${accountId}/admin-status`;
     if (confirmSelfRevocation) url += `?confirm_self_revocation=true`;
 
@@ -316,13 +352,18 @@ export const adminAPI = {
     });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to set user admin status: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to set user admin status: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
   // Admin Tools
-  adminEmailDiagnostic: async (token: string, recipient: string): Promise<void> => {
+  adminEmailDiagnostic: async (
+    token: string,
+    recipient: string
+  ): Promise<void> => {
     const response = await fetch(API_ENDPOINTS.ADMIN.EMAIL_DIAGNOSTIC, {
       method: "POST",
       headers: getHeaders(token),
@@ -330,7 +371,9 @@ export const adminAPI = {
     });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to send diagnostic email: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to send diagnostic email: ${response.status} - ${errorText}`
+      );
     }
   },
 
@@ -340,33 +383,54 @@ export const adminAPI = {
     });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to get env info: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Failed to get env info: ${response.status} - ${errorText}`
+      );
     }
     return response.json();
   },
 
-  verifyUser: async (token: string, accountId: string, status: string, reason?: string) => {
-    const response = await fetch(`/api/proxy/users/admin/verify/user/${accountId}`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify({ status, reason }),
-    });
+  verifyUser: async (
+    token: string,
+    accountId: string,
+    status: string,
+    reason?: string
+  ) => {
+    const response = await fetch(
+      `/api/proxy/users/admin/verify/user/${accountId}`,
+      {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ status, reason }),
+      }
+    );
     if (!response.ok) throw new Error("Failed to verify user");
     return response.json();
   },
 
-  verifyMerchant: async (token: string, accountId: string, status: string, reason?: string) => {
-    const response = await fetch(`/api/proxy/users/admin/verify/merchant/${accountId}`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify({ status, reason }),
-    });
+  verifyMerchant: async (
+    token: string,
+    accountId: string,
+    status: string,
+    reason?: string
+  ) => {
+    const response = await fetch(
+      `/api/proxy/users/admin/verify/merchant/${accountId}`,
+      {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ status, reason }),
+      }
+    );
     if (!response.ok) throw new Error("Failed to verify merchant");
     return response.json();
   },
 
   // Stats & Monitoring
-  getEscrowStats: async (token: string, useCache = true): Promise<EscrowStats> => {
+  getEscrowStats: async (
+    token: string,
+    useCache = true
+  ): Promise<EscrowStats> => {
     const response = await fetch(
       `/api/proxy/wallet/admin/escrows/live-stats?use_cache=${useCache}`,
       {
@@ -410,9 +474,12 @@ export const adminAPI = {
   },
 
   getRecentAuditEvents: async (token: string, limit = 100): Promise<any> => {
-    const response = await fetch(`/api/proxy/monitoring/audit/recent?limit=${limit}`, {
-      headers: getHeaders(token),
-    });
+    const response = await fetch(
+      `/api/proxy/monitoring/audit/recent?limit=${limit}`,
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to get recent audit events");
     return response.json();
   },
@@ -445,7 +512,9 @@ export const adminAPI = {
     );
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Failed to send admin notification: ${response.status} ${text}`);
+      throw new Error(
+        `Failed to send admin notification: ${response.status} ${text}`
+      );
     }
     return response.json().catch(() => null);
   },
@@ -473,6 +542,7 @@ export const adminAPI = {
         `/api/proxy/wallet/admin/notifications/templates`,
         `/api/proxy/wallet/admin/notification/templates`,
       ],
+
       {
         headers: getHeaders(token),
       }
@@ -497,6 +567,7 @@ export const adminAPI = {
         `/api/proxy/wallet/admin/notifications/templates`,
         `/api/proxy/wallet/admin/notification/templates`,
       ],
+
       {
         method: "POST",
         headers: getHeaders(token),
@@ -544,42 +615,59 @@ export const adminAPI = {
 
   // Support
   getSupportDashboard: async (token: string) => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.DASHBOARD, {
+    const response = await fetch(`/api/proxy/support/admin/dashboard`, {
       headers: getHeaders(token),
     });
     if (!response.ok) throw new Error("Failed to get support dashboard");
     return response.json();
   },
 
-  listTickets: async (token: string, params: any = {}): Promise<SupportTicket[]> => {
+  listTickets: async (
+    token: string,
+    params: any = {}
+  ): Promise<SupportTicket[]> => {
     const query = new URLSearchParams(params).toString();
-    const response = await fetch(`${API_ENDPOINTS.ADMIN.SUPPORT.LIST_TICKETS}?${query}`, {
+    const response = await fetch(`/api/proxy/support/admin/tickets?${query}`, {
       headers: getHeaders(token),
     });
     if (!response.ok) throw new Error("Failed to list tickets");
     return response.json();
   },
 
-  updateTicket: async (token: string, ticketId: string, data: any): Promise<SupportTicket> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.UPDATE_TICKET(ticketId), {
-      method: "PATCH",
-      headers: getHeaders(token),
-      body: JSON.stringify(data),
-    });
+  updateTicket: async (
+    token: string,
+    ticketId: string,
+    data: any
+  ): Promise<SupportTicket> => {
+    const response = await fetch(
+      `/api/proxy/support/admin/tickets/${ticketId}`,
+      {
+        method: "PUT",
+        headers: getHeaders(token),
+        body: JSON.stringify(data),
+      }
+    );
     if (!response.ok) throw new Error("Failed to update ticket");
     return response.json();
   },
 
-  assignTicket: async (token: string, ticketId: string, agentId: string): Promise<void> => {
-    const response = await fetch(`${API_ENDPOINTS.ADMIN.SUPPORT.ASSIGN_TICKET(ticketId)}?agent_id=${agentId}`, {
-      method: "POST",
-      headers: getHeaders(token),
-    });
+  assignTicket: async (
+    token: string,
+    ticketId: string,
+    agentId: string
+  ): Promise<void> => {
+    const response = await fetch(
+      `/api/proxy/support/admin/tickets/${ticketId}/assign?agent_id=${agentId}`,
+      {
+        method: "POST",
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to assign ticket");
   },
 
   convertEmailToTicket: async (token: string, data: any): Promise<void> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.CONVERT_EMAIL, {
+    const response = await fetch(`/api/proxy/support/email-to-ticket`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify(data),
@@ -589,15 +677,18 @@ export const adminAPI = {
 
   // Support Agents
   listSupportAgents: async (token: string): Promise<SupportAgent[]> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.LIST_AGENTS, {
+    const response = await fetch(`/api/proxy/support/agents`, {
       headers: getHeaders(token),
     });
     if (!response.ok) throw new Error("Failed to list support agents");
     return response.json();
   },
 
-  createSupportAgent: async (token: string, data: any): Promise<SupportAgent> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.CREATE_AGENT, {
+  createSupportAgent: async (
+    token: string,
+    data: any
+  ): Promise<SupportAgent> => {
+    const response = await fetch(`/api/proxy/support/agents`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify(data),
@@ -606,8 +697,12 @@ export const adminAPI = {
     return response.json();
   },
 
-  updateSupportAgent: async (token: string, agentId: string, data: any): Promise<SupportAgent> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.UPDATE_AGENT(agentId), {
+  updateSupportAgent: async (
+    token: string,
+    agentId: string,
+    data: any
+  ): Promise<SupportAgent> => {
+    const response = await fetch(`/api/proxy/support/agents/${agentId}`, {
       method: "PATCH",
       headers: getHeaders(token),
       body: JSON.stringify(data),
@@ -616,8 +711,11 @@ export const adminAPI = {
     return response.json();
   },
 
-  deactivateSupportAgent: async (token: string, agentId: string): Promise<void> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.DEACTIVATE_AGENT(agentId), {
+  deactivateSupportAgent: async (
+    token: string,
+    agentId: string
+  ): Promise<void> => {
+    const response = await fetch(`/api/proxy/support/agents/${agentId}`, {
       method: "DELETE",
       headers: getHeaders(token),
     });
@@ -625,56 +723,94 @@ export const adminAPI = {
   },
 
   // Knowledge Base
-  listKnowledgeBaseArticles: async (token: string, params: any = {}): Promise<KnowledgeBaseArticle[]> => {
+  listKnowledgeBaseArticles: async (
+    token: string,
+    params: any = {}
+  ): Promise<KnowledgeBaseArticle[]> => {
     const query = new URLSearchParams(params).toString();
-    const response = await fetch(`${API_ENDPOINTS.ADMIN.SUPPORT.LIST_KB_ARTICLES}?${query}`, {
-      headers: getHeaders(token),
-    });
+    const response = await fetch(
+      `/api/proxy/support/knowledge-base/articles?${query}`,
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to list knowledge base articles");
     return response.json();
   },
 
-  getKnowledgeBaseArticle: async (token: string, articleId: string): Promise<KnowledgeBaseArticle> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.GET_KB_ARTICLE(articleId), {
-      headers: getHeaders(token),
-    });
+  getKnowledgeBaseArticle: async (
+    token: string,
+    articleId: string
+  ): Promise<KnowledgeBaseArticle> => {
+    const response = await fetch(
+      `/api/proxy/support/knowledge-base/articles/${articleId}`,
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to get knowledge base article");
     return response.json();
   },
 
-  createKnowledgeBaseArticle: async (token: string, data: any): Promise<KnowledgeBaseArticle> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.CREATE_KB_ARTICLE, {
+  createKnowledgeBaseArticle: async (
+    token: string,
+    data: any
+  ): Promise<KnowledgeBaseArticle> => {
+    const response = await fetch(`/api/proxy/support/knowledge-base/articles`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error("Failed to create knowledge base article");
+    if (!response.ok)
+      throw new Error("Failed to create knowledge base article");
     return response.json();
   },
 
-  updateKnowledgeBaseArticle: async (token: string, articleId: string, data: any): Promise<KnowledgeBaseArticle> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.UPDATE_KB_ARTICLE(articleId), {
-      method: "PATCH",
-      headers: getHeaders(token),
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error("Failed to update knowledge base article");
+  updateKnowledgeBaseArticle: async (
+    token: string,
+    articleId: string,
+    data: any
+  ): Promise<KnowledgeBaseArticle> => {
+    const response = await fetch(
+      `/api/proxy/support/knowledge-base/articles/${articleId}`,
+      {
+        method: "PATCH",
+        headers: getHeaders(token),
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok)
+      throw new Error("Failed to update knowledge base article");
     return response.json();
   },
 
-  deleteKnowledgeBaseArticle: async (token: string, articleId: string): Promise<void> => {
-    const response = await fetch(API_ENDPOINTS.ADMIN.SUPPORT.DELETE_KB_ARTICLE(articleId), {
-      method: "DELETE",
-      headers: getHeaders(token),
-    });
-    if (!response.ok) throw new Error("Failed to delete knowledge base article");
+  deleteKnowledgeBaseArticle: async (
+    token: string,
+    articleId: string
+  ): Promise<void> => {
+    const response = await fetch(
+      `/api/proxy/support/knowledge-base/articles/${articleId}`,
+      {
+        method: "DELETE",
+        headers: getHeaders(token),
+      }
+    );
+    if (!response.ok)
+      throw new Error("Failed to delete knowledge base article");
   },
 
-  voteOnArticle: async (token: string, articleId: string, helpful: boolean): Promise<void> => {
-    const response = await fetch(`${API_ENDPOINTS.ADMIN.SUPPORT.VOTE_ARTICLE(articleId)}?helpful=${helpful}`, {
-      method: "POST",
-      headers: getHeaders(token),
-    });
+  voteOnArticle: async (
+    token: string,
+    articleId: string,
+    helpful: boolean
+  ): Promise<void> => {
+    const response = await fetch(
+      `/api/proxy/support/knowledge-base/articles/${articleId}/vote?helpful=${helpful}`,
+      {
+        method: "POST",
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to vote on article");
   },
 };
