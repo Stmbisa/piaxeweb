@@ -238,7 +238,7 @@ class ShoppingInventoryAPI {
 
       if (!response.ok) {
         const errorText = await response.text();
-        
+
         // Handle "Account is not verified" as a specific case (empty stores list)
         // This prevents the dashboard from crashing/showing error when user is just not verified yet
         if (response.status === 400 && errorText.includes("Account is not verified")) {

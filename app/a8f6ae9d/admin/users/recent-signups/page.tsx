@@ -31,8 +31,7 @@ export default function RecentSignupsPage() {
       } catch (err) {
         console.error("Error fetching recent signups:", err);
         setError(
-          `Failed to load signups: ${
-            err instanceof Error ? err.message : String(err)
+          `Failed to load signups: ${err instanceof Error ? err.message : String(err)
           }`
         );
       } finally {

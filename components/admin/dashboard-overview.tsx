@@ -196,8 +196,8 @@ export function AdminDashboardOverview() {
       subtitle:
         escrowStats?.p90_release_seconds
           ? `P50 ${Math.round(escrowStats.p50_release_seconds)}s · P90 ${Math.round(
-              escrowStats.p90_release_seconds
-            )}s`
+            escrowStats.p90_release_seconds
+          )}s`
           : "Awaiting flow data",
       icon: HeartPulse,
       gradient: "from-rose-500/25 via-rose-400/10 to-transparent",
@@ -208,9 +208,8 @@ export function AdminDashboardOverview() {
       title: "System Health",
       value: systemHealthLabel,
       subtitle: systemStats
-        ? `CPU ${systemStats.system.cpu_percent || 0}% · Mem ${
-            systemStats.system.memory.percent || 0
-          }%`
+        ? `CPU ${systemStats.system.cpu_percent || 0}% · Mem ${systemStats.system.memory.percent || 0
+        }%`
         : "Watching services",
       icon: Activity,
       gradient: "from-purple-500/25 via-purple-400/10 to-transparent",
@@ -303,8 +302,8 @@ export function AdminDashboardOverview() {
                 <CardDescription>
                   {detailedHealth?.timestamp
                     ? `Reported ${new Date(
-                        detailedHealth.timestamp
-                      ).toLocaleString()}`
+                      detailedHealth.timestamp
+                    ).toLocaleString()}`
                     : "Live system diagnostics"}
                 </CardDescription>
               </div>
@@ -358,8 +357,8 @@ export function AdminDashboardOverview() {
                               status.toLowerCase() === "healthy"
                                 ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/40"
                                 : status.toLowerCase() === "unhealthy"
-                                ? "bg-rose-500/20 text-rose-100 border border-rose-400/40"
-                                : "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+                                  ? "bg-rose-500/20 text-rose-100 border border-rose-400/40"
+                                  : "bg-amber-500/20 text-amber-100 border border-amber-400/40"
                             )}
                           >
                             {formatLabel(status)}
@@ -418,8 +417,8 @@ export function AdminDashboardOverview() {
                     celeryIsHealthy
                       ? "bg-emerald-500/20 text-emerald-100 border border-emerald-400/40"
                       : celeryUnavailable
-                      ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
-                      : "bg-rose-500/20 text-rose-100 border border-rose-400/40"
+                        ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+                        : "bg-rose-500/20 text-rose-100 border border-rose-400/40"
                   )}
                 >
                   {celeryUnavailable ? "Unavailable" : formatLabel(celeryStatus)}
@@ -505,7 +504,7 @@ export function AdminDashboardOverview() {
                         : "Timestamp unavailable"}
                     </p>
                     <pre className="mt-2 overflow-x-auto text-[11px] text-white/90">
-{JSON.stringify(event, null, 2)}
+                      {JSON.stringify(event, null, 2)}
                     </pre>
                   </div>
                 ))}

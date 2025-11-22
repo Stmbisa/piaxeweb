@@ -49,8 +49,7 @@ export default function EnvInfoPage() {
     } catch (err) {
       console.error("Error fetching environment info:", err);
       setError(
-        `Failed to load environment info: ${
-          err instanceof Error ? err.message : String(err)
+        `Failed to load environment info: ${err instanceof Error ? err.message : String(err)
         }`
       );
     } finally {

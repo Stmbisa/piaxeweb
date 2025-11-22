@@ -31,8 +31,7 @@ export default function UserVerificationsPage() {
       } catch (err) {
         console.error("Error fetching verifications:", err);
         setError(
-          `Failed to load verifications: ${
-            err instanceof Error ? err.message : String(err)
+          `Failed to load verifications: ${err instanceof Error ? err.message : String(err)
           }`
         );
       } finally {

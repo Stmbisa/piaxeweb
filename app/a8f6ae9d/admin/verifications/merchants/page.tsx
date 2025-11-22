@@ -31,8 +31,7 @@ export default function MerchantVerificationsPage() {
       } catch (err) {
         console.error("Error fetching merchant verifications:", err);
         setError(
-          `Failed to load verifications: ${
-            err instanceof Error ? err.message : String(err)
+          `Failed to load verifications: ${err instanceof Error ? err.message : String(err)
           }`
         );
       } finally {

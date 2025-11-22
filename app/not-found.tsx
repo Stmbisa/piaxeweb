@@ -6,7 +6,7 @@ export default function NotFound() {
       {/* Animated background elements */}
       <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-700/25 opacity-30" />
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      
+
       <div className="text-center p-8 max-w-md mx-4 glass-card animate-glass-appear relative z-10">
         <div className="mb-6">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">

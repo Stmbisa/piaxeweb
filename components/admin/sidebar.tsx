@@ -14,6 +14,9 @@ import {
   LogOut,
   Store,
   Server,
+  Bell,
+  FileText,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { ADMIN_PREFIX } from "@/lib/config/env";
@@ -48,6 +51,22 @@ export function AdminSidebar() {
       name: "Environment Info",
       href: `/${ADMIN_PREFIX}/admin/env-info`,
       icon: Server,
+    },
+    // Notifications group
+    {
+      name: "Send Notification",
+      href: `/${ADMIN_PREFIX}/admin/notifications/send`,
+      icon: Bell,
+    },
+    {
+      name: "Templates",
+      href: `/${ADMIN_PREFIX}/admin/notifications/templates`,
+      icon: FileText,
+    },
+    {
+      name: "Failed Deliveries",
+      href: `/${ADMIN_PREFIX}/admin/notifications/failed-deliveries`,
+      icon: AlertTriangle,
     },
     {
       name: "Settings",

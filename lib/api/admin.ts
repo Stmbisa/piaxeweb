@@ -216,6 +216,22 @@ const getHeaders = (
   return headers;
 };
 
+// Generic fetch with fallback path variants (tries sequentially until non-404 or last response)
+async function fetchWithFallback(paths: string[], init: RequestInit): Promise<Response> {
+  let last: Response | undefined;
+  for (const p of paths) {
+    try {
+      const res = await fetch(p, init);
+      last = res;
+      if (res.status !== 404) return res; // Accept first non-404
+    } catch (e) {
+      // Network error; proceed to next variant
+    }
+  }
+  if (!last) throw new Error("All fallback paths failed to fetch");
+  return last;
+}
+
 // Admin API Functions
 
 export const adminAPI = {
@@ -292,7 +308,7 @@ export const adminAPI = {
   setUserAdminStatus: async (token: string, accountId: string, isAdmin: boolean, confirmSelfRevocation = false): Promise<any> => {
     let url = `/api/proxy/users/admin/users/${accountId}/admin-status`;
     if (confirmSelfRevocation) url += `?confirm_self_revocation=true`;
-    
+
     const response = await fetch(url, {
       method: "POST",
       headers: getHeaders(token),
@@ -416,11 +432,17 @@ export const adminAPI = {
       send_immediately?: boolean;
     }
   ): Promise<any> => {
-    const response = await fetch(`/api/proxy/wallet/admin/notifications/send`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify(payload),
-    });
+    const response = await fetchWithFallback(
+      [
+        `/api/proxy/wallet/admin/notifications/send`,
+        `/api/proxy/wallet/admin/notification/send`,
+      ],
+      {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify(payload),
+      }
+    );
     if (!response.ok) {
       const text = await response.text();
       throw new Error(`Failed to send admin notification: ${response.status} ${text}`);
@@ -433,8 +455,12 @@ export const adminAPI = {
     page = 1,
     perPage = 20
   ): Promise<any> => {
-    const response = await fetch(
-      `/api/proxy/wallet/admin/notifications/failed-deliveries?page=${page}&per_page=${perPage}`,
+    const response = await fetchWithFallback(
+      [
+        `/api/proxy/wallet/admin/notifications/failed-deliveries?page=${page}&per_page=${perPage}`,
+        `/api/proxy/wallet/admin/notification/failed-deliveries?page=${page}&per_page=${perPage}`,
+        `/api/proxy/wallet/admin/notifications/failed?page=${page}&per_page=${perPage}`,
+      ],
       { headers: getHeaders(token) }
     );
     if (!response.ok) throw new Error("Failed to get failed deliveries");
@@ -442,9 +468,15 @@ export const adminAPI = {
   },
 
   getNotificationTemplates: async (token: string): Promise<NotificationTemplate[]> => {
-    const response = await fetch(`/api/proxy/wallet/admin/notifications/templates`, {
-      headers: getHeaders(token),
-    });
+    const response = await fetchWithFallback(
+      [
+        `/api/proxy/wallet/admin/notifications/templates`,
+        `/api/proxy/wallet/admin/notification/templates`,
+      ],
+      {
+        headers: getHeaders(token),
+      }
+    );
     if (!response.ok) throw new Error("Failed to get notification templates");
     return response.json();
   },
@@ -460,11 +492,17 @@ export const adminAPI = {
       html_template?: string | null;
     }
   ): Promise<NotificationTemplate> => {
-    const response = await fetch(`/api/proxy/wallet/admin/notifications/templates`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify(payload),
-    });
+    const response = await fetchWithFallback(
+      [
+        `/api/proxy/wallet/admin/notifications/templates`,
+        `/api/proxy/wallet/admin/notification/templates`,
+      ],
+      {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify(payload),
+      }
+    );
     if (!response.ok) throw new Error("Failed to create notification template");
     return response.json();
   },
@@ -480,8 +518,11 @@ export const adminAPI = {
       is_active?: boolean | null;
     }
   ): Promise<NotificationTemplate> => {
-    const response = await fetch(
-      `/api/proxy/wallet/admin/notifications/templates/${templateId}`,
+    const response = await fetchWithFallback(
+      [
+        `/api/proxy/wallet/admin/notifications/templates/${templateId}`,
+        `/api/proxy/wallet/admin/notification/templates/${templateId}`,
+      ],
       {
         method: "PATCH",
         headers: getHeaders(token),
@@ -498,7 +539,7 @@ export const adminAPI = {
     // Since I can't see it in env.ts, I'll skip adding it to avoid errors, or add it if I can infer the path.
     // User said: Debug Auth Info ... Authorizations: BearerAuth ...
     // I'll skip for now as it's for debugging.
-    return {}; 
+    return {};
   },
 
   // Support
