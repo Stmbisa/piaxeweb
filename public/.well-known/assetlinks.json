@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.piaxis.myapp",
+      "sha256_cert_fingerprints": [
+        "79:5E:15:30:AB:6A:44:91:85:3F:5D:37:DB:58:A0:D4:7A:38:CE:24:3D:39:50:0F:E2:7C:34:06:CA:59:A8:F7"
+      ]
+    }
+  }
+]
