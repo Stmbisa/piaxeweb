@@ -392,6 +392,30 @@ export const adminAPI = {
     return response.json();
   },
 
+  crmRecurringNextRunDryRun: async (
+    token: string,
+    pattern: Record<string, any>,
+    endDate?: string | null
+  ): Promise<{
+    now: string;
+    next_run: string | null;
+    end_date: string | null;
+    within_end_date: boolean;
+  }> => {
+    const response = await fetch(`/api/proxy/admin/crm/recurring/next-run`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ pattern, end_date: endDate ?? null }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to compute next run: ${response.status} - ${errorText}`
+      );
+    }
+    return response.json();
+  },
+
   verifyUser: async (
     token: string,
     accountId: string,

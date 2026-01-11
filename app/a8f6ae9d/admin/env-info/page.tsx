@@ -62,7 +62,7 @@ export default function EnvInfoPage() {
   }, [token]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-glass-appear">
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-primary/20 via-background/60 to-secondary/20 p-6 md:p-8 backdrop-blur-xl">
         <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0,_rgba(255,255,255,0)_60%)]" />
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

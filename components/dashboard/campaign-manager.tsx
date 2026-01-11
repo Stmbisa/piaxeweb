@@ -34,8 +34,12 @@ type Draft = {
   description: string
   recipientsText: string
 
-  scheduleType: "immediate" | "scheduled"
+  currency: string
+
+  scheduleType: "immediate" | "scheduled" | "recurring"
   scheduledAtLocal: string
+  endAtLocal: string
+  recurringPatternJson: string
 
   fromName: string
   replyTo: string
@@ -62,8 +66,12 @@ const DEFAULT_DRAFT: Draft = {
   description: "",
   recipientsText: "",
 
+  currency: "UGX",
+
   scheduleType: "immediate",
   scheduledAtLocal: "",
+  endAtLocal: "",
+  recurringPatternJson: "{}",
 
   fromName: "",
   replyTo: "",
@@ -107,21 +115,25 @@ function getStatusBadgeClass(status?: string) {
   }
 }
 
-function buildSchedule(draft: Draft): CampaignSchedule {
-  if (draft.scheduleType === "scheduled" && draft.scheduledAtLocal) {
+function buildSchedule(draft: Draft, recurringPattern: Record<string, unknown>): CampaignSchedule {
+  const endDateIso = draft.endAtLocal ? new Date(draft.endAtLocal).toISOString() : null
+
+  if ((draft.scheduleType === "scheduled" || draft.scheduleType === "recurring") && draft.scheduledAtLocal) {
     return {
-      schedule_type: "scheduled",
+      schedule_type: draft.scheduleType,
       start_date: new Date(draft.scheduledAtLocal).toISOString(),
+      end_date: endDateIso,
       timezone: "UTC",
-      recurring_pattern: {},
+      recurring_pattern: recurringPattern,
     }
   }
 
   return {
     schedule_type: "immediate",
     start_date: new Date().toISOString(),
+    end_date: endDateIso,
     timezone: "UTC",
-    recurring_pattern: {},
+    recurring_pattern: recurringPattern,
   }
 }
 
@@ -143,6 +155,21 @@ function parseJsonObject(input: string, errorMessage: string): Record<string, st
     normalized[String(key)] = value == null ? "" : String(value)
   }
   return normalized
+}
+
+function parseJsonRecord(input: string, errorMessage: string): Record<string, unknown> {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(input || "{}")
+  } catch {
+    throw new Error(errorMessage)
+  }
+
+  if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
+    throw new Error(errorMessage)
+  }
+
+  return parsed as Record<string, unknown>
 }
 
 export function CampaignManager() {
@@ -219,7 +246,46 @@ export function CampaignManager() {
       return
     }
 
-    const schedule = buildSchedule(draft)
+    if ((draft.scheduleType === "scheduled" || draft.scheduleType === "recurring") && !draft.scheduledAtLocal) {
+      toast({
+        title: "Missing schedule",
+        description: "Start date/time is required when schedule is set to Scheduled or Recurring.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    let recurringPattern: Record<string, unknown>
+    try {
+      recurringPattern = parseJsonRecord(draft.recurringPatternJson, "Recurring pattern must be valid JSON object.")
+    } catch (error: any) {
+      toast({
+        title: "Invalid recurring pattern",
+        description: error?.message || "Recurring pattern must be valid JSON object.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (draft.scheduleType === "recurring" && Object.keys(recurringPattern || {}).length === 0) {
+      toast({
+        title: "Missing recurring pattern",
+        description: "Recurring pattern is required when schedule is set to Recurring.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const schedule = buildSchedule(draft, recurringPattern)
+
+    if ((schedule.schedule_type === "scheduled" || schedule.schedule_type === "recurring") && schedule.end_date && schedule.end_date <= schedule.start_date) {
+      toast({
+        title: "Invalid end date",
+        description: "End date/time must be after the start date/time.",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       setCreating(true)
@@ -239,7 +305,7 @@ export function CampaignManager() {
           description: draft.description.trim() || null,
           recipients,
           content: draft.emailContent,
-          currency: "UGX",
+          currency: draft.currency.trim() || "UGX",
           features: [],
           email_settings: {
             from_name: draft.fromName.trim(),
@@ -272,7 +338,7 @@ export function CampaignManager() {
           description: draft.description.trim() || null,
           recipients,
           content: draft.smsContent,
-          currency: "UGX",
+          currency: draft.currency.trim() || "UGX",
           country_code: draft.countryCode.trim(),
           schedule,
         }
@@ -322,7 +388,7 @@ export function CampaignManager() {
           description: draft.description.trim() || null,
           recipients,
           voice_script: voiceScript,
-          currency: "UGX",
+          currency: draft.currency.trim() || "UGX",
           country_code: draft.countryCode.trim(),
           schedule,
           retry_attempts: Math.max(1, parseInt(draft.retryAttempts || "1", 10) || 1),
@@ -422,6 +488,11 @@ export function CampaignManager() {
                   <Input value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} />
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Currency</Label>
+                  <Input value={draft.currency} onChange={(e) => setDraft((d) => ({ ...d, currency: e.target.value }))} placeholder="UGX" />
+                </div>
+
                 <div className="space-y-2 md:col-span-2">
                   <Label>Recipients (one per line)</Label>
                   <Textarea
@@ -434,19 +505,44 @@ export function CampaignManager() {
 
                 <div className="space-y-2">
                   <Label>Schedule</Label>
-                  <Tabs value={draft.scheduleType} onValueChange={(v) => setDraft((d) => ({ ...d, scheduleType: v as Draft["scheduleType"] }))}>
+                  <Tabs
+                    value={draft.scheduleType}
+                    onValueChange={(v) => {
+                      const next = v as Draft["scheduleType"]
+                      setDraft((d) => ({
+                        ...d,
+                        scheduleType: next,
+                        ...(next === "immediate"
+                          ? { scheduledAtLocal: "", endAtLocal: "", recurringPatternJson: "{}" }
+                          : null),
+                      }))
+                    }}
+                  >
                     <TabsList>
                       <TabsTrigger value="immediate">Immediate</TabsTrigger>
                       <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+                      <TabsTrigger value="recurring">Recurring</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
-                {draft.scheduleType === "scheduled" ? (
-                  <div className="space-y-2">
-                    <Label>Start date/time</Label>
-                    <Input type="datetime-local" value={draft.scheduledAtLocal} onChange={(e) => setDraft((d) => ({ ...d, scheduledAtLocal: e.target.value }))} />
-                  </div>
+                {draft.scheduleType === "scheduled" || draft.scheduleType === "recurring" ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Start date/time</Label>
+                      <Input type="datetime-local" value={draft.scheduledAtLocal} onChange={(e) => setDraft((d) => ({ ...d, scheduledAtLocal: e.target.value }))} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End date/time (optional)</Label>
+                      <Input type="datetime-local" value={draft.endAtLocal} onChange={(e) => setDraft((d) => ({ ...d, endAtLocal: e.target.value }))} />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>
+                        Recurring pattern (JSON{draft.scheduleType === "recurring" ? ", required" : ", optional"})
+                      </Label>
+                      <Textarea value={draft.recurringPatternJson} onChange={(e) => setDraft((d) => ({ ...d, recurringPatternJson: e.target.value }))} rows={4} />
+                    </div>
+                  </>
                 ) : null}
               </div>
 

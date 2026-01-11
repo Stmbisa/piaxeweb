@@ -146,11 +146,12 @@ export interface EmailSettings {
   track_unsubscribes?: boolean;
 }
 
-export type CampaignScheduleType = "immediate" | "scheduled";
+export type CampaignScheduleType = "immediate" | "scheduled" | "recurring";
 
 export interface CampaignSchedule {
   schedule_type: CampaignScheduleType;
   start_date: string;
+  end_date?: string | null;
   timezone: string;
   recurring_pattern?: Record<string, unknown>;
 }

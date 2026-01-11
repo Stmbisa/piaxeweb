@@ -5,7 +5,7 @@ import { MessageSquare } from "lucide-react";
 
 export default function TicketsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-glass-appear">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
