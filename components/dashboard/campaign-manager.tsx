@@ -1,68 +1,189 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToast } from '@/hooks/use-toast'
-import { crmAPI, type Campaign as APICampaign } from '@/lib/api/crm'
-import { useAuth } from '@/lib/auth/context'
+import { useEffect, useMemo, useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/hooks/use-toast"
 import {
-  Megaphone,
-  Plus,
-  Eye,
-  Edit2,
-  Trash2,
-  Target,
-  TrendingUp,
-  DollarSign,
-  Users,
-  Calendar,
-  BarChart3,
-  Send,
-  Gift,
-  Percent
-} from 'lucide-react'
+  crmAPI,
+  type CampaignSchedule,
+  type EmailCampaignCreate,
+  type SMSCampaignCreate,
+  type VoiceCampaignCreate,
+  type VoiceScript,
+} from "@/lib/api/crm"
+import { useAuth } from "@/lib/auth/context"
 
-interface Campaign {
+type CampaignListItem = {
   id: string
   name: string
-  type: 'discount' | 'social' | 'email' | 'referral'
-  status: 'active' | 'scheduled' | 'completed' | 'draft'
-  startDate: string
-  endDate: string
-  budget: number
-  spent: number
-  reach: number
-  conversions: number
+  type?: string
+  status?: string
+  created_at?: string
+}
+
+type CampaignKind = "email" | "sms" | "voice"
+
+type Draft = {
+  name: string
   description: string
+  recipientsText: string
+
+  scheduleType: "immediate" | "scheduled"
+  scheduledAtLocal: string
+
+  fromName: string
+  replyTo: string
+  subjectLine: string
+  previewText: string
+  emailContent: string
+
+  countryCode: string
+  smsContent: string
+
+  voiceInitialMessage: string
+  voiceMenuOptionsJson: string
+  voiceResponsesJson: string
+  voiceFallbackMessage: string
+  voiceGoodbyeMessage: string
+  retryAttempts: string
+  retryDelayMinutes: string
+  recordCalls: boolean
+  maxDurationSeconds: string
+}
+
+const DEFAULT_DRAFT: Draft = {
+  name: "",
+  description: "",
+  recipientsText: "",
+
+  scheduleType: "immediate",
+  scheduledAtLocal: "",
+
+  fromName: "",
+  replyTo: "",
+  subjectLine: "",
+  previewText: "",
+  emailContent: "",
+
+  countryCode: "",
+  smsContent: "",
+
+  voiceInitialMessage: "",
+  voiceMenuOptionsJson: "{}",
+  voiceResponsesJson: "{}",
+  voiceFallbackMessage: "",
+  voiceGoodbyeMessage: "",
+  retryAttempts: "1",
+  retryDelayMinutes: "30",
+  recordCalls: false,
+  maxDurationSeconds: "300",
+}
+
+function parseRecipients(text: string): string[] {
+  return text
+    .split(/\n|,|;/g)
+    .map((value) => value.trim())
+    .filter(Boolean)
+}
+
+function getStatusBadgeClass(status?: string) {
+  switch (status) {
+    case "active":
+      return "bg-green-100 text-green-700 border-green-200"
+    case "draft":
+      return "bg-gray-100 text-gray-700 border-gray-200"
+    case "paused":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200"
+    case "completed":
+      return "bg-blue-100 text-blue-700 border-blue-200"
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200"
+  }
+}
+
+function buildSchedule(draft: Draft): CampaignSchedule {
+  if (draft.scheduleType === "scheduled" && draft.scheduledAtLocal) {
+    return {
+      schedule_type: "scheduled",
+      start_date: new Date(draft.scheduledAtLocal).toISOString(),
+      timezone: "UTC",
+      recurring_pattern: {},
+    }
+  }
+
+  return {
+    schedule_type: "immediate",
+    start_date: new Date().toISOString(),
+    timezone: "UTC",
+    recurring_pattern: {},
+  }
+}
+
+function parseJsonObject(input: string, errorMessage: string): Record<string, string> {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(input || "{}")
+  } catch {
+    throw new Error(errorMessage)
+  }
+
+  if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
+    throw new Error(errorMessage)
+  }
+
+  const obj = parsed as Record<string, unknown>
+  const normalized: Record<string, string> = {}
+  for (const [key, value] of Object.entries(obj)) {
+    normalized[String(key)] = value == null ? "" : String(value)
+  }
+  return normalized
 }
 
 export function CampaignManager() {
-  const [campaigns, setCampaigns] = useState<APICampaign[]>([])
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const { user, token } = useAuth()
+  const { token } = useAuth()
   const { toast } = useToast()
 
-  // Load campaigns on component mount
-  useEffect(() => {
-    loadCampaigns()
-  }, [])
+  const [campaigns, setCampaigns] = useState<CampaignListItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [sendingId, setSendingId] = useState<string | null>(null)
+
+  const [createKind, setCreateKind] = useState<CampaignKind>("email")
+  const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFT)
+
+  const recipients = useMemo(() => parseRecipients(draft.recipientsText), [draft.recipientsText])
 
   const loadCampaigns = async () => {
     if (!token) return
 
     try {
       setLoading(true)
-      const campaignsResponse = await crmAPI.getCampaigns(token)
-      setCampaigns(campaignsResponse.campaigns)
-    } catch (error) {
-      console.error('Error loading campaigns:', error)
+      const response: any = await crmAPI.getCampaigns(token)
+      const items: any[] = Array.isArray(response) ? response : response?.campaigns || []
+
+      setCampaigns(
+        items
+          .filter((c) => c && c.id && c.name)
+          .map((c) => ({
+            id: String(c.id),
+            name: String(c.name),
+            type: c.type != null ? String(c.type) : undefined,
+            status: c.status != null ? String(c.status) : undefined,
+            created_at: c.created_at != null ? String(c.created_at) : undefined,
+          }))
+      )
+    } catch (error: any) {
+      console.error("Error loading campaigns:", error)
       toast({
         title: "Error",
-        description: "Failed to load campaigns",
+        description: error?.message || "Failed to load campaigns",
         variant: "destructive",
       })
     } finally {
@@ -70,55 +191,189 @@ export function CampaignManager() {
     }
   }
 
-  const handleDeleteCampaign = async (campaignId: string) => {
+  useEffect(() => {
+    loadCampaigns()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
+
+  const resetDraft = () => setDraft(DEFAULT_DRAFT)
+
+  const handleCreate = async () => {
+    if (!token) return
+
+    if (!draft.name.trim()) {
+      toast({
+        title: "Missing required fields",
+        description: "Campaign name is required.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (recipients.length === 0) {
+      toast({
+        title: "Missing recipients",
+        description: "Add at least one recipient (contact id, email, or phone).",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const schedule = buildSchedule(draft)
+
+    try {
+      setCreating(true)
+
+      if (createKind === "email") {
+        if (!draft.fromName.trim() || !draft.subjectLine.trim() || !draft.emailContent.trim()) {
+          toast({
+            title: "Missing required fields",
+            description: "From name, subject, and content are required for email campaigns.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        const payload: EmailCampaignCreate = {
+          name: draft.name.trim(),
+          description: draft.description.trim() || null,
+          recipients,
+          content: draft.emailContent,
+          currency: "UGX",
+          features: [],
+          email_settings: {
+            from_name: draft.fromName.trim(),
+            reply_to: draft.replyTo.trim() || null,
+            subject_line: draft.subjectLine.trim(),
+            preview_text: draft.previewText.trim() || null,
+            template_type: "plain",
+            track_opens: true,
+            track_clicks: true,
+            track_unsubscribes: true,
+          },
+          schedule,
+          ab_test_enabled: false,
+          ab_test_variants: [],
+        }
+
+        await crmAPI.createEmailCampaign(token, payload)
+      } else if (createKind === "sms") {
+        if (!draft.countryCode.trim() || !draft.smsContent.trim()) {
+          toast({
+            title: "Missing required fields",
+            description: "Country code and message content are required for SMS campaigns.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        const payload: SMSCampaignCreate = {
+          name: draft.name.trim(),
+          description: draft.description.trim() || null,
+          recipients,
+          content: draft.smsContent,
+          currency: "UGX",
+          country_code: draft.countryCode.trim(),
+          schedule,
+        }
+
+        await crmAPI.createSmsCampaign(token, payload)
+      } else {
+        if (!draft.countryCode.trim()) {
+          toast({
+            title: "Missing required fields",
+            description: "Country code is required for voice campaigns.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        if (!draft.voiceInitialMessage.trim()) {
+          toast({
+            title: "Missing required fields",
+            description: "Initial message is required for voice campaigns.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        if (!draft.voiceFallbackMessage.trim() || !draft.voiceGoodbyeMessage.trim()) {
+          toast({
+            title: "Missing required fields",
+            description: "Fallback and goodbye messages are required for voice campaigns.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        const menuOptions = parseJsonObject(draft.voiceMenuOptionsJson, "Menu options must be valid JSON object.")
+        const responses = parseJsonObject(draft.voiceResponsesJson, "Responses must be valid JSON object.")
+
+        const voiceScript: VoiceScript = {
+          initial_message: draft.voiceInitialMessage.trim(),
+          menu_options: menuOptions,
+          responses,
+          fallback_message: draft.voiceFallbackMessage.trim(),
+          goodbye_message: draft.voiceGoodbyeMessage.trim(),
+        }
+
+        const payload: VoiceCampaignCreate = {
+          name: draft.name.trim(),
+          description: draft.description.trim() || null,
+          recipients,
+          voice_script: voiceScript,
+          currency: "UGX",
+          country_code: draft.countryCode.trim(),
+          schedule,
+          retry_attempts: Math.max(1, parseInt(draft.retryAttempts || "1", 10) || 1),
+          retry_delay_minutes: Math.max(0, parseInt(draft.retryDelayMinutes || "30", 10) || 0),
+          record_calls: Boolean(draft.recordCalls),
+          max_duration_seconds: Math.max(1, parseInt(draft.maxDurationSeconds || "300", 10) || 300),
+        }
+
+        await crmAPI.createVoiceCampaign(token, payload)
+      }
+
+      toast({
+        title: "Created",
+        description: "Campaign created successfully.",
+      })
+
+      setShowCreateForm(false)
+      resetDraft()
+      await loadCampaigns()
+    } catch (error: any) {
+      console.error("Error creating campaign:", error)
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to create campaign",
+        variant: "destructive",
+      })
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleSend = async (campaignId: string) => {
     if (!token) return
 
     try {
-      await crmAPI.deleteCampaign(token, campaignId)
-      setCampaigns(campaigns.filter(c => c.id !== campaignId))
+      setSendingId(campaignId)
+      await crmAPI.sendCampaign(token, campaignId)
       toast({
-        title: "Success",
-        description: "Campaign deleted successfully",
+        title: "Scheduled",
+        description: "Campaign scheduled for execution.",
       })
-    } catch (error) {
-      console.error('Error deleting campaign:', error)
+      await loadCampaigns()
+    } catch (error: any) {
+      console.error("Error scheduling campaign:", error)
       toast({
         title: "Error",
-        description: "Failed to delete campaign",
+        description: error?.message || "Failed to schedule campaign",
         variant: "destructive",
       })
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700 border-green-200'
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'completed':
-        return 'bg-gray-100 text-gray-700 border-gray-200'
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200'
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200'
-    }
-  }
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'discount':
-        return <Percent className="w-4 h-4" />
-      case 'social':
-        return <Users className="w-4 h-4" />
-      case 'email':
-        return <Send className="w-4 h-4" />
-      case 'sms':
-        return <Send className="w-4 h-4" />
-      case 'notification':
-        return <Megaphone className="w-4 h-4" />
-      default:
-        return <Megaphone className="w-4 h-4" />
+    } finally {
+      setSendingId(null)
     }
   }
 
@@ -126,348 +381,210 @@ export function CampaignManager() {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
           <p className="text-muted-foreground">Loading campaigns...</p>
         </div>
       </div>
     )
   }
 
-  const activeCampaigns = campaigns.filter(c => c.status === 'active').length
-  const totalSent = campaigns.reduce((sum, c) => sum + c.metrics.sent_count, 0)
-  const totalDelivered = campaigns.reduce((sum, c) => sum + c.metrics.delivered_count, 0)
-  const totalOpened = campaigns.reduce((sum, c) => sum + c.metrics.opened_count, 0)
-  const totalConversions = campaigns.reduce((sum, c) => sum + c.metrics.conversion_count, 0)
-  const totalSpent = campaigns.reduce((sum, c) => sum + (c.metrics.sent_count * 50), 0) // Estimated cost
-  const totalReach = totalSent // Using sent count as reach
-
   return (
     <div className="space-y-6">
-      {/* Campaign Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Campaigns</p>
-                <p className="text-2xl font-bold">{activeCampaigns}</p>
-              </div>
-              <Megaphone className="w-8 h-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Sent</p>
-                <p className="text-2xl font-bold">{totalSent.toLocaleString()}</p>
-              </div>
-              <Target className="w-8 h-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Conversions</p>
-                <p className="text-2xl font-bold text-green-600">{totalConversions}</p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Open Rate</p>
-                <p className="text-2xl font-bold">
-                  {totalSent > 0 ? Math.round((totalOpened / totalSent) * 100) : 0}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {totalOpened.toLocaleString()} opened
-                </p>
-              </div>
-              <DollarSign className="w-8 h-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Campaign Actions */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Marketing Campaigns</h2>
-          <p className="text-muted-foreground">Create and manage your marketing campaigns</p>
+          <h2 className="text-xl font-semibold">Campaigns</h2>
+          <p className="text-sm text-muted-foreground">Create Email, SMS, and Voice campaigns.</p>
         </div>
-        <Button
-          onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Create Campaign
-        </Button>
+        <Button onClick={() => setShowCreateForm((v) => !v)}>{showCreateForm ? "Close" : "New Campaign"}</Button>
       </div>
 
-      {/* Campaign Management Tabs */}
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">All Campaigns</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+      {showCreateForm ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Campaign</CardTitle>
+            <CardDescription>Choose a campaign type and fill in the required fields.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Tabs value={createKind} onValueChange={(v) => setCreateKind(v as CampaignKind)}>
+              <TabsList>
+                <TabsTrigger value="email">Email</TabsTrigger>
+                <TabsTrigger value="sms">SMS</TabsTrigger>
+                <TabsTrigger value="voice">Voice</TabsTrigger>
+              </TabsList>
 
-        <TabsContent value="all" className="space-y-4">
-          <div className="grid gap-4">
-            {campaigns.map((campaign) => (
-              <Card key={campaign.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                        {getTypeIcon(campaign.type)}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{campaign.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {campaign.content.message.length > 100
-                            ? campaign.content.message.substring(0, 100) + '...'
-                            : campaign.content.message}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            Created: {new Date(campaign.created_at).toLocaleDateString()}
-                          </span>
-                          <Badge className={getStatusColor(campaign.status)}>
-                            {campaign.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-8">
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Audience</p>
-                        <p className="font-semibold">
-                          {campaign.target_audience.customer_segments.length} segments
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {campaign.target_audience.tags.length} tags
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Performance</p>
-                        <p className="font-semibold">{campaign.metrics.sent_count} sent</p>
-                        <p className="text-sm text-green-600">{campaign.metrics.conversion_count} conversions</p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => handleDeleteCampaign(campaign.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span>Delivery Progress</span>
-                      <span>
-                        {campaign.metrics.sent_count > 0
-                          ? Math.round((campaign.metrics.delivered_count / campaign.metrics.sent_count) * 100)
-                          : 0}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${campaign.metrics.sent_count > 0
-                            ? Math.min((campaign.metrics.delivered_count / campaign.metrics.sent_count) * 100, 100)
-                            : 0}%`
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="active" className="space-y-4">
-          <div className="grid gap-4">
-            {campaigns
-              .filter(campaign => campaign.status === 'active')
-              .map((campaign) => (
-                <Card key={campaign.id} className="border-green-200 bg-green-50/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg text-green-900">{campaign.name}</h3>
-                        <p className="text-sm text-green-700 mb-2">{campaign.content.message}</p>
-                        <div className="flex items-center gap-4 text-sm text-green-600">
-                          <span>{campaign.metrics.sent_count} people reached</span>
-                          <span>{campaign.metrics.conversion_count} conversions</span>
-                          <span>UGX {Math.round(campaign.metrics.sent_count * 50).toLocaleString()} spent</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          View Details
-                        </Button>
-                        <Button size="sm">
-                          Manage
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="scheduled" className="space-y-4">
-          <div className="grid gap-4">
-            {campaigns
-              .filter(campaign => campaign.status === 'draft' || campaign.status === 'paused')
-              .map((campaign) => (
-                <Card key={campaign.id} className="border-blue-200 bg-blue-50/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg text-blue-900">{campaign.name}</h3>
-                        <p className="text-sm text-blue-700 mb-2">{campaign.content.message}</p>
-                        <p className="text-sm text-blue-600">
-                          Created: {new Date(campaign.created_at).toLocaleDateString()} | Messages: {campaign.metrics.sent_count}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          Edit
-                        </Button>
-                        <Button size="sm">
-                          Launch Now
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Campaign Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <div key={campaign.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{campaign.name}</p>
-                        <p className="text-sm text-muted-foreground">{campaign.type}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{campaign.metrics.conversion_count} conversions</p>
-                        <p className="text-sm text-muted-foreground">
-                          {campaign.metrics.sent_count > 0 ? ((campaign.metrics.conversion_count / campaign.metrics.sent_count) * 100).toFixed(1) : 0}% conversion rate
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Campaign name</Label>
+                  <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="space-y-2">
+                  <Label>Description (optional)</Label>
+                  <Input value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} />
+                </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>ROI Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 border rounded-lg">
-                    <span>Total Investment</span>
-                    <span className="font-semibold">UGX {totalSpent.toLocaleString()}</span>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Recipients (one per line)</Label>
+                  <Textarea
+                    value={draft.recipientsText}
+                    onChange={(e) => setDraft((d) => ({ ...d, recipientsText: e.target.value }))}
+                    placeholder="contact-id-uuid\nuser@example.com\n+256700000000"
+                  />
+                  <p className="text-xs text-muted-foreground">Parsed recipients: {recipients.length}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Schedule</Label>
+                  <Tabs value={draft.scheduleType} onValueChange={(v) => setDraft((d) => ({ ...d, scheduleType: v as Draft["scheduleType"] }))}>
+                    <TabsList>
+                      <TabsTrigger value="immediate">Immediate</TabsTrigger>
+                      <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+
+                {draft.scheduleType === "scheduled" ? (
+                  <div className="space-y-2">
+                    <Label>Start date/time</Label>
+                    <Input type="datetime-local" value={draft.scheduledAtLocal} onChange={(e) => setDraft((d) => ({ ...d, scheduledAtLocal: e.target.value }))} />
                   </div>
-                  <div className="flex justify-between items-center p-3 border rounded-lg">
-                    <span>Total Conversions</span>
-                    <span className="font-semibold text-green-600">{totalConversions}</span>
+                ) : null}
+              </div>
+
+              <TabsContent value="email" className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>From name</Label>
+                    <Input value={draft.fromName} onChange={(e) => setDraft((d) => ({ ...d, fromName: e.target.value }))} />
                   </div>
-                  <div className="flex justify-between items-center p-3 border rounded-lg">
-                    <span>Cost per Conversion</span>
-                    <span className="font-semibold">
-                      UGX {totalConversions > 0 ? Math.round(totalSpent / totalConversions).toLocaleString() : '0'}
-                    </span>
+                  <div className="space-y-2">
+                    <Label>Reply-To (optional)</Label>
+                    <Input value={draft.replyTo} onChange={(e) => setDraft((d) => ({ ...d, replyTo: e.target.value }))} />
                   </div>
-                  <div className="flex justify-between items-center p-3 border rounded-lg bg-primary/5">
-                    <span>Overall Reach</span>
-                    <span className="font-semibold text-primary">{totalReach.toLocaleString()}</span>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Subject</Label>
+                    <Input value={draft.subjectLine} onChange={(e) => setDraft((d) => ({ ...d, subjectLine: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Preview text (optional)</Label>
+                    <Input value={draft.previewText} onChange={(e) => setDraft((d) => ({ ...d, previewText: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Email content</Label>
+                    <Textarea value={draft.emailContent} onChange={(e) => setDraft((d) => ({ ...d, emailContent: e.target.value }))} rows={8} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </TabsContent>
 
-      {/* Quick Campaign Templates */}
+              <TabsContent value="sms" className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Country code</Label>
+                    <Input value={draft.countryCode} onChange={(e) => setDraft((d) => ({ ...d, countryCode: e.target.value }))} placeholder="256" />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>SMS message</Label>
+                    <Textarea value={draft.smsContent} onChange={(e) => setDraft((d) => ({ ...d, smsContent: e.target.value }))} rows={5} />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="voice" className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Country code</Label>
+                    <Input value={draft.countryCode} onChange={(e) => setDraft((d) => ({ ...d, countryCode: e.target.value }))} placeholder="256" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Retry attempts</Label>
+                    <Input value={draft.retryAttempts} onChange={(e) => setDraft((d) => ({ ...d, retryAttempts: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Retry delay (minutes)</Label>
+                    <Input value={draft.retryDelayMinutes} onChange={(e) => setDraft((d) => ({ ...d, retryDelayMinutes: e.target.value }))} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Max duration (seconds)</Label>
+                    <Input value={draft.maxDurationSeconds} onChange={(e) => setDraft((d) => ({ ...d, maxDurationSeconds: e.target.value }))} />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Initial message</Label>
+                    <Textarea value={draft.voiceInitialMessage} onChange={(e) => setDraft((d) => ({ ...d, voiceInitialMessage: e.target.value }))} rows={3} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Menu options (JSON)</Label>
+                    <Textarea value={draft.voiceMenuOptionsJson} onChange={(e) => setDraft((d) => ({ ...d, voiceMenuOptionsJson: e.target.value }))} rows={4} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Responses (JSON)</Label>
+                    <Textarea value={draft.voiceResponsesJson} onChange={(e) => setDraft((d) => ({ ...d, voiceResponsesJson: e.target.value }))} rows={4} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Fallback message</Label>
+                    <Textarea value={draft.voiceFallbackMessage} onChange={(e) => setDraft((d) => ({ ...d, voiceFallbackMessage: e.target.value }))} rows={2} />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Goodbye message</Label>
+                    <Textarea value={draft.voiceGoodbyeMessage} onChange={(e) => setDraft((d) => ({ ...d, voiceGoodbyeMessage: e.target.value }))} rows={2} />
+                  </div>
+                  <div className="flex items-center gap-2 md:col-span-2">
+                    <input id="record_calls" type="checkbox" checked={draft.recordCalls} onChange={(e) => setDraft((d) => ({ ...d, recordCalls: e.target.checked }))} />
+                    <Label htmlFor="record_calls">Record calls</Label>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <div className="flex gap-2 pt-2">
+                <Button disabled={creating} onClick={handleCreate}>
+                  {creating ? "Creating..." : "Create"}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={creating}
+                  onClick={() => {
+                    setShowCreateForm(false)
+                    resetDraft()
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Tabs>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card>
         <CardHeader>
-          <CardTitle>Quick Campaign Templates</CardTitle>
-          <CardDescription>
-            Start with proven campaign templates for your business
-          </CardDescription>
+          <CardTitle>Existing campaigns</CardTitle>
+          <CardDescription>Manage campaigns created in CRM.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Percent className="w-8 h-8 text-orange-500 mb-2" />
-              <h4 className="font-semibold mb-1">Discount Campaign</h4>
-              <p className="text-sm text-muted-foreground">Percentage or fixed amount discounts</p>
-            </div>
-            <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Users className="w-8 h-8 text-blue-500 mb-2" />
-              <h4 className="font-semibold mb-1">Social Media Boost</h4>
-              <p className="text-sm text-muted-foreground">Promote products on social platforms</p>
-            </div>
-            <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Gift className="w-8 h-8 text-purple-500 mb-2" />
-              <h4 className="font-semibold mb-1">Referral Program</h4>
-              <p className="text-sm text-muted-foreground">Reward customers for referrals</p>
-            </div>
-            <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
-              <Send className="w-8 h-8 text-green-500 mb-2" />
-              <h4 className="font-semibold mb-1">Email Marketing</h4>
-              <p className="text-sm text-muted-foreground">Direct email campaigns to customers</p>
-            </div>
-          </div>
+        <CardContent className="space-y-3">
+          {campaigns.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No campaigns found.</div>
+          ) : (
+            campaigns.map((campaign) => (
+              <div key={campaign.id} className="flex items-center justify-between border rounded-lg p-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="font-medium truncate">{campaign.name}</div>
+                    {campaign.type ? <Badge variant="outline">{campaign.type}</Badge> : null}
+                    <Badge className={getStatusBadgeClass(campaign.status)} variant="outline">
+                      {campaign.status || "unknown"}
+                    </Badge>
+                  </div>
+                  {campaign.created_at ? (
+                    <div className="text-xs text-muted-foreground">Created: {new Date(campaign.created_at).toLocaleString()}</div>
+                  ) : null}
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button size="sm" onClick={() => handleSend(campaign.id)} disabled={sendingId === campaign.id}>
+                    {sendingId === campaign.id ? "Scheduling..." : "Launch Now"}
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>
