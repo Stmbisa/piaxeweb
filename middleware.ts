@@ -20,6 +20,15 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request (e.g. /, /dashboard, /about, etc.)
   const path = request.nextUrl.pathname
 
+  // Expose admin UI under /admin/* while keeping the internal security prefix folder.
+  // /admin/...  ->  /a8f6ae9d/admin/...
+  const adminPrefix = process.env.NEXT_PUBLIC_ADMIN_PREFIX || "a8f6ae9d";
+  if (path === "/admin" || path.startsWith("/admin/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${adminPrefix}${path}`;
+    return NextResponse.rewrite(url);
+  }
+
   // Define paths that require authentication
   const protectedPaths = ['/dashboard']
 

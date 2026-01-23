@@ -8,11 +8,14 @@ const API_BASE_URL =
 const ALLOWED_PREFIXES = [
   "wallet/",
   "shopping_and_inventory/",
+  "payments/",
+  "chain_payments/", // Chain payments settlement monitoring
   "auth/devices",
   "users/admin/", // Admin user management endpoints
   "monitoring/", // Monitoring & health endpoints
   "escrow/", // Escrow admin stats endpoints
   "support/", // Support ticketing endpoints
+  "admin/crm/", // Admin tools (CRM)
 ];
 
 function isAllowed(path: string) {
@@ -115,36 +118,36 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
 
 export async function GET(
   req: NextRequest,
-  ctx: { params: Promise<{ upstream: string[] }> | { upstream: string[] } }
+  ctx: { params: Promise<{ upstream: string[] }> }
 ) {
-  const { upstream } = await (ctx.params as any);
+  const { upstream } = await ctx.params;
   return handle(req, upstream);
 }
 export async function POST(
   req: NextRequest,
-  ctx: { params: Promise<{ upstream: string[] }> | { upstream: string[] } }
+  ctx: { params: Promise<{ upstream: string[] }> }
 ) {
-  const { upstream } = await (ctx.params as any);
+  const { upstream } = await ctx.params;
   return handle(req, upstream);
 }
 export async function PUT(
   req: NextRequest,
-  ctx: { params: Promise<{ upstream: string[] }> | { upstream: string[] } }
+  ctx: { params: Promise<{ upstream: string[] }> }
 ) {
-  const { upstream } = await (ctx.params as any);
+  const { upstream } = await ctx.params;
   return handle(req, upstream);
 }
 export async function PATCH(
   req: NextRequest,
-  ctx: { params: Promise<{ upstream: string[] }> | { upstream: string[] } }
+  ctx: { params: Promise<{ upstream: string[] }> }
 ) {
-  const { upstream } = await (ctx.params as any);
+  const { upstream } = await ctx.params;
   return handle(req, upstream);
 }
 export async function DELETE(
   req: NextRequest,
-  ctx: { params: Promise<{ upstream: string[] }> | { upstream: string[] } }
+  ctx: { params: Promise<{ upstream: string[] }> }
 ) {
-  const { upstream } = await (ctx.params as any);
+  const { upstream } = await ctx.params;
   return handle(req, upstream);
 }

@@ -24,7 +24,6 @@ import {
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
-import { ADMIN_PREFIX } from "@/lib/config/env";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -166,7 +165,7 @@ export function SupportDashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/${ADMIN_PREFIX}/admin/support/tickets`}>
+              <Link href="/admin/support/tickets">
             <Button variant="default" className="glass-button-primary">
               View All Tickets
             </Button>

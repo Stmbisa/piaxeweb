@@ -41,6 +41,7 @@ import {
   Building,
   Wallet,
 } from "lucide-react";
+import Link from "next/link";
 
 const PAYMENT_STATUS_COLORS = {
   pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -241,6 +242,11 @@ export function PaymentsManager() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/business/dashboard/payments/chain-settlements">
+            <Button variant="outline" className="flex items-center gap-2">
+              Chain Settlements
+            </Button>
+          </Link>
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export

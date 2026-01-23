@@ -132,6 +132,76 @@ export interface CampaignUpdate {
   };
 }
 
+// Email Campaign Types (matches /crm/campaigns/email)
+export type EmailTemplateType = "plain" | "html" | "dynamic";
+
+export interface EmailSettings {
+  from_name: string;
+  reply_to: string | null;
+  subject_line: string;
+  preview_text: string | null;
+  template_type: EmailTemplateType;
+  track_opens?: boolean;
+  track_clicks?: boolean;
+  track_unsubscribes?: boolean;
+}
+
+export type CampaignScheduleType = "immediate" | "scheduled" | "recurring";
+
+export interface CampaignSchedule {
+  schedule_type: CampaignScheduleType;
+  start_date: string;
+  end_date?: string | null;
+  timezone: string;
+  recurring_pattern?: Record<string, unknown>;
+}
+
+export interface EmailCampaignCreate {
+  name: string;
+  description?: string | null;
+  recipients: Array<string>;
+  content: string;
+  currency: string;
+  features?: Array<string>;
+  email_settings: EmailSettings;
+  schedule: CampaignSchedule;
+  ab_test_enabled?: boolean;
+  ab_test_variants?: Array<Record<string, unknown>>;
+}
+
+// SMS / Voice Campaign Types (matches /crm/campaigns/sms and /crm/campaigns/voice)
+export interface SMSCampaignCreate {
+  name: string;
+  description?: string | null;
+  recipients: Array<string>;
+  content: string;
+  currency: string;
+  country_code: string;
+  schedule: CampaignSchedule;
+}
+
+export interface VoiceScript {
+  initial_message: string;
+  menu_options: Record<string, string>;
+  responses: Record<string, string>;
+  fallback_message: string;
+  goodbye_message: string;
+}
+
+export interface VoiceCampaignCreate {
+  name: string;
+  description?: string | null;
+  recipients: Array<string>;
+  voice_script: VoiceScript;
+  currency: string;
+  country_code: string;
+  schedule: CampaignSchedule;
+  retry_attempts?: number;
+  retry_delay_minutes?: number;
+  record_calls?: boolean;
+  max_duration_seconds?: number;
+}
+
 // Segment Types
 export interface CustomerSegment {
   id: string;
@@ -481,6 +551,72 @@ class CRMAPI {
     }
   }
 
+  async createEmailCampaign(token: string, campaignData: EmailCampaignCreate): Promise<Campaign> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/crm/campaigns/email`, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
+        body: JSON.stringify(campaignData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Email campaign creation failed");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Email campaign creation error:", error);
+      throw error;
+    }
+  }
+
+  async createSmsCampaign(token: string, campaignData: SMSCampaignCreate): Promise<Campaign> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/crm/campaigns/sms`, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
+        body: JSON.stringify(campaignData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "SMS campaign creation failed");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("SMS campaign creation error:", error);
+      throw error;
+    }
+  }
+
+  async createVoiceCampaign(token: string, campaignData: VoiceCampaignCreate): Promise<Campaign> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/crm/campaigns/voice`, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
+        body: JSON.stringify(campaignData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Voice campaign creation failed");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Voice campaign creation error:", error);
+      throw error;
+    }
+  }
+
   async getCampaigns(
     token: string,
     params?: {
@@ -602,21 +738,25 @@ class CRMAPI {
   async sendCampaign(
     token: string,
     campaignId: string
-  ): Promise<{ message: string; sent_count: number }> {
+  ): Promise<{ message: string; campaign_id?: string; schedule_type?: string }> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/crm/campaigns/${campaignId}/send`,
-        {
-          method: "POST",
-          headers: this.getHeaders(token),
-          credentials: "include",
-          mode: "cors",
-        }
-      );
+      // Backend does not expose /send. Scheduling with schedule_type=immediate triggers execution.
+      const response = await fetch(`${API_BASE_URL}/crm/campaigns/${campaignId}/schedule`, {
+        method: "POST",
+        headers: this.getHeaders(token),
+        credentials: "include",
+        mode: "cors",
+        body: JSON.stringify({
+          schedule_type: "immediate",
+          start_date: new Date().toISOString(),
+          timezone: "UTC",
+          recurring_pattern: {},
+        }),
+      });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Campaign send failed");
+        throw new Error(error.message || "Campaign schedule failed");
       }
 
       return await response.json();

@@ -16,10 +16,11 @@ import {
   Server,
   Bell,
   FileText,
-  AlertTriangle,  MessageSquare,
+  AlertTriangle,
+  MessageSquare,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
-import { ADMIN_PREFIX } from "@/lib/config/env";
 
 export function AdminSidebar() {
   const { logout } = useAuth();
@@ -29,53 +30,63 @@ export function AdminSidebar() {
   const routes = [
     {
       name: "Dashboard",
-      href: `/${ADMIN_PREFIX}/admin/dashboard`,
+      href: `/admin/dashboard`,
       icon: LayoutDashboard,
     },
     {
       name: "Recent Signups",
-      href: `/${ADMIN_PREFIX}/admin/users/recent-signups`,
+      href: `/admin/users/recent-signups`,
       icon: Users,
     },
     {
       name: "User Verifications",
-      href: `/${ADMIN_PREFIX}/admin/verifications/users`,
+      href: `/admin/verifications/users`,
       icon: ClipboardCheck,
     },
     {
       name: "Merchant Verifications",
-      href: `/${ADMIN_PREFIX}/admin/verifications/merchants`,
+      href: `/admin/verifications/merchants`,
       icon: Store,
     },
     {
       name: "Environment Info",
-      href: `/${ADMIN_PREFIX}/admin/env-info`,
+      href: `/admin/env-info`,
       icon: Server,
+    },
+    {
+      name: "CRM Recurring Dry-Run",
+      href: `/admin/crm/recurring-dry-run`,
+      icon: FileText,
+    },
+    {
+      name: "Chain Settlements",
+      href: `/admin/chain-settlements`,
+      icon: CreditCard,
     },
     // Notifications group
     {
       name: "Send Notification",
-      href: `/${ADMIN_PREFIX}/admin/notifications/send`,
+      href: `/admin/notifications/send`,
       icon: Bell,
     },
     {
       name: "Templates",
-      href: `/${ADMIN_PREFIX}/admin/notifications/templates`,
+      href: `/admin/notifications/templates`,
       icon: FileText,
     },
     {
       name: "Failed Deliveries",
-      href: `/${ADMIN_PREFIX}/admin/notifications/failed-deliveries`,
+      href: `/admin/notifications/failed-deliveries`,
       icon: AlertTriangle,
     },
     {
       name: "Support",
-      href: `/${ADMIN_PREFIX}/admin/support`,
+      href: `/admin/support`,
       icon: MessageSquare,
     },
     {
       name: "Settings",
-      href: `/${ADMIN_PREFIX}/admin/settings`,
+      href: `/admin/settings`,
       icon: Settings,
     },
   ];
@@ -129,7 +140,7 @@ export function AdminSidebar() {
         <div className="flex flex-col flex-1 overflow-y-auto">
           {/* Logo */}
           <div className="p-6 border-b border-border/20">
-            <Link href={`/${ADMIN_PREFIX}/admin/dashboard`}>
+              <Link href={`/admin/dashboard`}>
               <div className="flex items-center space-x-2 group">
                 <span className="font-bold text-xl text-gradient-primary bg-clip-text text-transparent">
                   Admin Portal
