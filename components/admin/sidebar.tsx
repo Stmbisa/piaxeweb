@@ -16,7 +16,9 @@ import {
   Server,
   Bell,
   FileText,
-  AlertTriangle,  MessageSquare,
+  AlertTriangle,
+  MessageSquare,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 
@@ -55,6 +57,11 @@ export function AdminSidebar() {
       name: "CRM Recurring Dry-Run",
       href: `/admin/crm/recurring-dry-run`,
       icon: FileText,
+    },
+    {
+      name: "Chain Settlements",
+      href: `/admin/chain-settlements`,
+      icon: CreditCard,
     },
     // Notifications group
     {

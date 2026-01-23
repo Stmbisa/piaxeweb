@@ -8,6 +8,7 @@ const API_BASE_URL =
 const ALLOWED_PREFIXES = [
   "wallet/",
   "shopping_and_inventory/",
+  "chain_payments/", // Chain payments settlement monitoring
   "auth/devices",
   "users/admin/", // Admin user management endpoints
   "monitoring/", // Monitoring & health endpoints
