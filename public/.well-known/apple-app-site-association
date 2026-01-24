@@ -1,0 +1,23 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "XXXXXXXXXX.com.piaxis.myapp",
+        "paths": [
+          "/pay/*",
+          "/request/*",
+          "/cart/*",
+          "/join-group/*",
+          "/escrow/*",
+          "/invite/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "XXXXXXXXXX.com.piaxis.myapp"
+    ]
+  }
+}

@@ -4,11 +4,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/context";
+import { PinProvider } from "@/lib/auth/pin-context";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import SWRegister from "@/components/sw-register";
+import { ScopedPinModal } from "@/components/ScopedPinModal";
 import { siteConfig, absoluteUrl, defaultImages } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -170,15 +172,18 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <QueryProvider>
-              <div className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <PWAInstallPrompt />
-                <SWRegister />
-              </div>
-            </QueryProvider>
+            <PinProvider>
+              <QueryProvider>
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <PWAInstallPrompt />
+                  <SWRegister />
+                  <ScopedPinModal />
+                </div>
+              </QueryProvider>
+            </PinProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

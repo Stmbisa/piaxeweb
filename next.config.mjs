@@ -18,7 +18,7 @@ const nextConfig = {
     ],
   },
   output: 'standalone',
-  // Add headers for PWA optimization
+  // Add headers for PWA optimization and deep linking
   async headers() {
     return [
       {
@@ -31,6 +31,26 @@ const nextConfig = {
           {
             key: 'Content-Type',
             value: 'application/manifest+json',
+          },
+        ],
+      },
+      {
+        // Apple App Site Association - must be served as JSON
+        source: '/.well-known/apple-app-site-association',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json',
+          },
+        ],
+      },
+      {
+        // Android Asset Links
+        source: '/.well-known/assetlinks.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json',
           },
         ],
       },
