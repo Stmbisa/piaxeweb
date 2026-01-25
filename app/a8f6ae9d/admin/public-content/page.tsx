@@ -113,8 +113,7 @@ export default function AdminPublicContentPage() {
     setError(null);
     try {
       const surfaces = tSurfaces
-        .split(/[,
-\s]+/)
+      .split(/[\s,]+/)
         .map((s) => s.trim())
         .filter(Boolean);
 
