@@ -199,6 +199,61 @@ export interface KnowledgeBaseArticle {
   updated_at: string;
 }
 
+export interface PublicUpdateAdmin {
+  id: string;
+  title: string;
+  message: string;
+  kind: "feature" | "sacco" | "project" | "general";
+  time_label?: string | null;
+  image_url?: string | null;
+  action_label?: string | null;
+  action_url?: string | null;
+  action_type?: "open_url" | null;
+  is_active: boolean;
+  priority: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublicTipAdmin {
+  id: string;
+  title: string;
+  message: string;
+  image_url?: string | null;
+  surfaces: string[];
+  store_id?: string | null;
+  is_active: boolean;
+  priority: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeliveryRequestAdmin {
+  id: string;
+  order_id: string;
+  store_id: string;
+  buyer_id: string;
+  status:
+    | "requested"
+    | "assigned"
+    | "picked_up"
+    | "in_transit"
+    | "delivered"
+    | "cancelled";
+  delivery_location: any;
+  provider?: string | null;
+  provider_request_id?: string | null;
+  assigned_rider_name?: string | null;
+  assigned_rider_phone?: string | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Helper for headers with automatic device ID propagation
 const getHeaders = (
   token: string,
@@ -833,5 +888,118 @@ export const adminAPI = {
       }
     );
     if (!response.ok) throw new Error("Failed to vote on article");
+  },
+
+  // Public Content (Updates/Tips)
+  listPublicUpdates: async (token: string): Promise<PublicUpdateAdmin[]> => {
+    const response = await fetch(`/api/proxy/admin/public_content/updates`, {
+      headers: getHeaders(token),
+    });
+    if (!response.ok) throw new Error("Failed to list public updates");
+    return response.json();
+  },
+
+  createPublicUpdate: async (
+    token: string,
+    payload: Partial<PublicUpdateAdmin>
+  ): Promise<PublicUpdateAdmin> => {
+    const response = await fetch(`/api/proxy/admin/public_content/updates`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("Failed to create public update");
+    return response.json();
+  },
+
+  updatePublicUpdate: async (
+    token: string,
+    id: string,
+    payload: Partial<PublicUpdateAdmin>
+  ): Promise<PublicUpdateAdmin> => {
+    const response = await fetch(`/api/proxy/admin/public_content/updates/${id}`, {
+      method: "PATCH",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("Failed to update public update");
+    return response.json();
+  },
+
+  deletePublicUpdate: async (token: string, id: string): Promise<void> => {
+    const response = await fetch(`/api/proxy/admin/public_content/updates/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(token),
+    });
+    if (!response.ok) throw new Error("Failed to delete public update");
+  },
+
+  listPublicTips: async (token: string): Promise<PublicTipAdmin[]> => {
+    const response = await fetch(`/api/proxy/admin/public_content/tips`, {
+      headers: getHeaders(token),
+    });
+    if (!response.ok) throw new Error("Failed to list public tips");
+    return response.json();
+  },
+
+  createPublicTip: async (
+    token: string,
+    payload: Partial<PublicTipAdmin>
+  ): Promise<PublicTipAdmin> => {
+    const response = await fetch(`/api/proxy/admin/public_content/tips`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("Failed to create public tip");
+    return response.json();
+  },
+
+  updatePublicTip: async (
+    token: string,
+    id: string,
+    payload: Partial<PublicTipAdmin>
+  ): Promise<PublicTipAdmin> => {
+    const response = await fetch(`/api/proxy/admin/public_content/tips/${id}`, {
+      method: "PATCH",
+      headers: getHeaders(token),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error("Failed to update public tip");
+    return response.json();
+  },
+
+  deletePublicTip: async (token: string, id: string): Promise<void> => {
+    const response = await fetch(`/api/proxy/admin/public_content/tips/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(token),
+    });
+    if (!response.ok) throw new Error("Failed to delete public tip");
+  },
+
+  // Delivery Requests
+  listDeliveryRequests: async (token: string): Promise<DeliveryRequestAdmin[]> => {
+    const response = await fetch(`/api/proxy/shopping_and_inventory/delivery_requests`, {
+      headers: getHeaders(token),
+    });
+    if (!response.ok) throw new Error("Failed to list delivery requests");
+    return response.json();
+  },
+
+  updateDeliveryRequest: async (
+    token: string,
+    id: string,
+    payload: Partial<DeliveryRequestAdmin>
+  ): Promise<DeliveryRequestAdmin> => {
+    const response = await fetch(
+      `/api/proxy/shopping_and_inventory/delivery_requests/${id}`,
+      {
+        method: "PATCH",
+        headers: getHeaders(token),
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!response.ok) throw new Error("Failed to update delivery request");
+    return response.json();
   },
 };

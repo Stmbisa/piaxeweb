@@ -19,6 +19,7 @@ import {
   AlertTriangle,
   MessageSquare,
   CreditCard,
+  Truck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 
@@ -78,6 +79,16 @@ export function AdminSidebar() {
       name: "Failed Deliveries",
       href: `/admin/notifications/failed-deliveries`,
       icon: AlertTriangle,
+    },
+    {
+      name: "Public Content",
+      href: `/admin/public-content`,
+      icon: FileText,
+    },
+    {
+      name: "Delivery Requests",
+      href: `/admin/delivery-requests`,
+      icon: Truck,
     },
     {
       name: "Support",
