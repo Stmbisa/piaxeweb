@@ -13,9 +13,10 @@ type Props = {
   fallbackHref?: string; // web fallback path
   autoOpen?: boolean;
   pathOverride?: string; // when current path isn't the intended app path
+  showCopyLink?: boolean;
 };
 
-export function OpenAppCTA({ title, description, fallbackHref, autoOpen = true, pathOverride }: Props) {
+export function OpenAppCTA({ title, description, fallbackHref, autoOpen = true, pathOverride, showCopyLink = false }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -26,6 +27,10 @@ export function OpenAppCTA({ title, description, fallbackHref, autoOpen = true, 
   }, [pathname, searchParams, pathOverride]);
 
   const customSchemeUrl = useMemo(() => buildCustomSchemeUrl(currentPathWithQuery), [currentPathWithQuery]);
+  const webUrl = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return window.location.href;
+  }, []);
 
   const [attempted, setAttempted] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
@@ -70,6 +75,20 @@ export function OpenAppCTA({ title, description, fallbackHref, autoOpen = true, 
 
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => (window.location.href = customSchemeUrl)}>Open in app</Button>
+          {showCopyLink ? (
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(webUrl || window.location.href);
+                } catch {
+                  // ignore
+                }
+              }}
+            >
+              Copy link
+            </Button>
+          ) : null}
           {androidStore ? (
             <Button variant="secondary" asChild>
               <a href={androidStore} rel="noreferrer">Install (Android)</a>
