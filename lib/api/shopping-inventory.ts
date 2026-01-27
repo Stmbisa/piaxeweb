@@ -159,6 +159,23 @@ export interface ScannedProduct {
   store_product_id?: string;
 }
 
+export interface ManualCashSaleRequest {
+  product_id: string;
+  quantity: number;
+  amount: number;
+  notes?: string;
+}
+
+export interface ManualCashSaleResponse {
+  message: string;
+  store_id: string;
+  product_id: string;
+  quantity_sold: number;
+  amount: number;
+  inventory_quantity_available: number;
+  chain_settlement?: any;
+}
+
 class ShoppingInventoryAPI {
   private getBase(): string {
     return API_BASE_URL;
@@ -432,6 +449,40 @@ class ShoppingInventoryAPI {
       return await response.json();
     } catch (error) {
       console.error("Product fetch error:", error);
+      throw error;
+    }
+  }
+
+  async recordManualCashSale(
+    token: string,
+    storeId: string,
+    data: ManualCashSaleRequest
+  ): Promise<ManualCashSaleResponse> {
+    try {
+      const url = `/api/proxy/shopping_and_inventory/stores/${storeId}/sales/manual-cash`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Manual cash sale failed:", response.status, errorText);
+        throw new Error(
+          `Failed to record cash sale: ${response.status} - ${errorText}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Manual cash sale error:", error);
       throw error;
     }
   }

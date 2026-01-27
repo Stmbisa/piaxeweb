@@ -3,7 +3,11 @@
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth/context"
-import { shoppingInventoryAPI, type Store } from "@/lib/api/shopping-inventory"
+import {
+    shoppingInventoryAPI,
+    type Store,
+    type Product,
+} from "@/lib/api/shopping-inventory"
 import { StoreSidebar } from "@/components/dashboard/store-sidebar"
 import { ProductsManager } from "@/components/business/products-manager"
 import { OrdersManager } from "@/components/business/orders-manager"
@@ -154,6 +158,111 @@ function StoreDashboardContent() {
 
 // Simple overview component for the store
 function StoreOverview({ store }: { store: Store }) {
+    const { token } = useAuth()
+    const { toast } = useToast()
+
+    const [showManualSale, setShowManualSale] = useState(false)
+    const [products, setProducts] = useState<Product[]>([])
+    const [productsLoading, setProductsLoading] = useState(false)
+
+    const [productId, setProductId] = useState("")
+    const [quantity, setQuantity] = useState("1")
+    const [amount, setAmount] = useState("")
+    const [notes, setNotes] = useState("")
+    const [saving, setSaving] = useState(false)
+
+    useEffect(() => {
+        if (!showManualSale) return
+        if (!token) return
+
+        const run = async () => {
+            try {
+                setProductsLoading(true)
+                const list = await shoppingInventoryAPI.getProducts(token, store.id, { limit: 100 })
+                setProducts(list)
+            } catch (e: any) {
+                console.error(e)
+                toast({
+                    title: "Error",
+                    description: e?.message ?? "Failed to load products",
+                    variant: "destructive",
+                })
+            } finally {
+                setProductsLoading(false)
+            }
+        }
+
+        run()
+    }, [showManualSale, token, store.id, toast])
+
+    const submitManualSale = async () => {
+        if (!token) {
+            toast({
+                title: "Not signed in",
+                description: "Please sign in again.",
+                variant: "destructive",
+            })
+            return
+        }
+
+        const q = Number.parseInt(quantity, 10)
+        const a = Number.parseFloat(amount)
+
+        if (!productId) {
+            toast({
+                title: "Missing product",
+                description: "Select a product to sell.",
+                variant: "destructive",
+            })
+            return
+        }
+        if (!Number.isFinite(q) || q <= 0) {
+            toast({
+                title: "Invalid quantity",
+                description: "Quantity must be greater than 0.",
+                variant: "destructive",
+            })
+            return
+        }
+        if (!Number.isFinite(a) || a <= 0) {
+            toast({
+                title: "Invalid amount",
+                description: "Amount must be greater than 0.",
+                variant: "destructive",
+            })
+            return
+        }
+
+        try {
+            setSaving(true)
+            const res = await shoppingInventoryAPI.recordManualCashSale(token, store.id, {
+                product_id: productId,
+                quantity: q,
+                amount: a,
+                notes: notes.trim() || undefined,
+            })
+
+            toast({
+                title: "Cash sale recorded",
+                description: `${res.message} (Remaining stock: ${res.inventory_quantity_available})`,
+            })
+            setShowManualSale(false)
+            setProductId("")
+            setQuantity("1")
+            setAmount("")
+            setNotes("")
+        } catch (e: any) {
+            console.error(e)
+            toast({
+                title: "Error",
+                description: e?.message ?? "Failed to record cash sale",
+                variant: "destructive",
+            })
+        } finally {
+            setSaving(false)
+        }
+    }
+
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -191,8 +300,106 @@ function StoreOverview({ store }: { store: Store }) {
                         <h4 className="font-medium text-foreground mb-2">View Analytics</h4>
                         <p className="text-sm text-muted-foreground">Check your sales performance</p>
                     </button>
+
+                    <button
+                        onClick={() => setShowManualSale(true)}
+                        className="glass-button text-left p-4 rounded-lg transition-all duration-300 hover:glass-hover"
+                    >
+                        <h4 className="font-medium text-foreground mb-2">Record Cash Sale</h4>
+                        <p className="text-sm text-muted-foreground">Deduct stock and record an offline sale</p>
+                    </button>
                 </div>
             </div>
+
+            {showManualSale && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="glass-card-enhanced w-full max-w-xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-foreground">Manual Cash Sale</h3>
+                            <button
+                                onClick={() => setShowManualSale(false)}
+                                className="text-muted-foreground hover:text-foreground"
+                                aria-label="Close"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-1">Product</label>
+                                {productsLoading ? (
+                                    <div className="text-sm text-muted-foreground">Loading products...</div>
+                                ) : (
+                                    <select
+                                        value={productId}
+                                        onChange={(e) => setProductId(e.target.value)}
+                                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                                    >
+                                        <option value="">Select a product</option>
+                                        {products.map((p) => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-1">Quantity</label>
+                                    <input
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(e.target.value)}
+                                        inputMode="numeric"
+                                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                                        placeholder="1"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-1">Amount ({store.currency})</label>
+                                    <input
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        inputMode="decimal"
+                                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                                        placeholder={`e.g. 25000`}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-1">Notes (optional)</label>
+                                <textarea
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                                    rows={3}
+                                    placeholder="e.g. Cash sale at counter"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 justify-end pt-2">
+                                <button
+                                    onClick={() => setShowManualSale(false)}
+                                    className="glass-button px-4 py-2 rounded-lg"
+                                    disabled={saving}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={submitManualSale}
+                                    className="glass-button-primary px-4 py-2 rounded-lg font-semibold"
+                                    disabled={saving || productsLoading}
+                                >
+                                    {saving ? "Saving..." : "Record Sale"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
