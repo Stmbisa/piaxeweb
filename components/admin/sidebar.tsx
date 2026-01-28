@@ -64,6 +64,11 @@ export function AdminSidebar() {
       href: `/admin/chain-settlements`,
       icon: CreditCard,
     },
+    {
+      name: "Bulk Escrow",
+      href: `/admin/escrows/bulk`,
+      icon: Users,
+    },
     // Notifications group
     {
       name: "Send Notification",

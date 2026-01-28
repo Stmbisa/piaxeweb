@@ -44,6 +44,7 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
   // Some upstream endpoints require a trailing slash (e.g. wallet/wallets/, shopping_and_inventory/stores/)
   const needsTrailing = [
     "wallet/wallets",
+    "wallet/bulk-escrows",
     "shopping_and_inventory/stores",
     "monitoring/health/celery",
   ].includes(path);
