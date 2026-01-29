@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
 import { getSharedCartDetailsByToken, paySharedCart, type SharedCartDetails } from "@/lib/api/shared-carts";
+
+type PayMethod = "piaxis" | "mtn" | "airtel";
 
 function fmtMoney(currency: string, amount: string | number | null | undefined) {
   if (amount === null || amount === undefined) return "—";
@@ -23,6 +28,10 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [details, setDetails] = useState<SharedCartDetails | null>(null);
+
+  const [paymentMethod, setPaymentMethod] = useState<PayMethod>("mtn");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -58,7 +67,9 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
 
   const onPay = async () => {
     if (!details) return;
-    if (!token) {
+    const cartType = (details.cart_type || "instore").toLowerCase() === "ecommerce" ? "ecommerce" : "instore";
+
+    if (paymentMethod === "piaxis" && !token) {
       toast({
         title: "Login required",
         description: "Sign in to pay with Piaxis balance on web.",
@@ -67,15 +78,31 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
       return;
     }
 
-    const cartType = (details.cart_type || "instore").toLowerCase() === "ecommerce" ? "ecommerce" : "instore";
+    if ((paymentMethod === "mtn" || paymentMethod === "airtel") && !phoneNumber.trim()) {
+      toast({
+        title: "Missing phone number",
+        description: "Enter a phone number for mobile money payments.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setPaying(true);
-      await paySharedCart(token, cartToken, cartType, {
+      const payload: Record<string, any> = {
         payment_type: "direct",
-        payment_method: "piaxis",
+        payment_method: paymentMethod,
         currency: details.currency || "UGX",
-      });
+      };
+
+      if (paymentMethod === "mtn" || paymentMethod === "airtel") {
+        payload.user_info = {
+          phone_number: phoneNumber.trim(),
+          ...(email.trim() ? { email: email.trim() } : {}),
+        };
+      }
+
+      await paySharedCart(token, cartToken, cartType, payload);
       toast({ title: "Paid", description: "Payment sent successfully." });
       const refreshed = await getSharedCartDetailsByToken(token, cartToken);
       setDetails(refreshed);
@@ -112,7 +139,8 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
     );
   }
 
-  const canPay = !!token && (details.status || "").includes("pending");
+  const isPending = (details.status || "").includes("pending");
+  const canPay = isPending && (paymentMethod !== "piaxis" || !!token) && (paymentMethod === "piaxis" || !!phoneNumber.trim());
 
   return (
     <div className="space-y-4">
@@ -156,14 +184,80 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
         </CardContent>
       </Card>
 
-      <div className="flex gap-2">
-        <Button onClick={onPay} disabled={!canPay || paying}>
-          {paying ? "Paying…" : "Pay with Piaxis balance"}
-        </Button>
-        {!token ? (
-          <div className="text-sm text-muted-foreground self-center">Sign in to pay on web (or pay in mobile app).</div>
-        ) : null}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Method</div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant={paymentMethod === "mtn" ? "default" : "outline"}
+                onClick={() => setPaymentMethod("mtn")}
+                className="flex items-center gap-2"
+              >
+                <Image src="/images/mtn-logo.png" alt="MTN Mobile Money" width={28} height={12} />
+                MTN Mobile Money
+              </Button>
+              <Button
+                type="button"
+                variant={paymentMethod === "airtel" ? "default" : "outline"}
+                onClick={() => setPaymentMethod("airtel")}
+                className="flex items-center gap-2"
+              >
+                <Image src="/images/airtel-logo.png" alt="Airtel Money" width={28} height={12} />
+                Airtel Money
+              </Button>
+              <Button
+                type="button"
+                variant={paymentMethod === "piaxis" ? "default" : "outline"}
+                onClick={() => setPaymentMethod("piaxis")}
+                disabled={!token}
+              >
+                Piaxis balance
+              </Button>
+            </div>
+            {!token ? (
+              <div className="text-xs text-muted-foreground">
+                Piaxis balance requires sign-in. Mobile money can be paid without signing in (if enabled on the API).
+              </div>
+            ) : null}
+          </div>
+
+          {(paymentMethod === "mtn" || paymentMethod === "airtel") && (
+            <div className="grid gap-3">
+              <div className="grid gap-1.5">
+                <Label htmlFor="mm-phone">Phone number</Label>
+                <Input
+                  id="mm-phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="e.g. +256700000000"
+                  inputMode="tel"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="mm-email">Email (optional)</Label>
+                <Input
+                  id="mm-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  inputMode="email"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Button onClick={onPay} disabled={!canPay || paying}>
+              {paying ? "Paying…" : "Pay now"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

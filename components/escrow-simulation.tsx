@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import { Copy, MapPin, Clock, Handshake, KeyRound, PackageCheck, RotateCcw, Star, ListOrdered, Users2 } from "lucide-react";
 import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector";
 
@@ -195,7 +196,14 @@ export function EscrowSimulation() {
                                     />
                                 </div>
                                 <label className="flex flex-col gap-1">
-                                    <span>Payment Method</span>
+                                    <span className="flex items-center gap-2">
+                                        Payment Method
+                                        {paymentMethod.toLowerCase() === "mtn" ? (
+                                            <Image src="/images/mtn-logo.png" alt="MTN Mobile Money" width={38} height={16} />
+                                        ) : paymentMethod.toLowerCase() === "airtel" ? (
+                                            <Image src="/images/airtel-logo.png" alt="Airtel Money" width={38} height={16} />
+                                        ) : null}
+                                    </span>
                                     <input value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="glass-input px-3 py-2 rounded-md" placeholder="mtn" />
                                 </label>
                             </div>

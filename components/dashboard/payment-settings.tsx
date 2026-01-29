@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -110,6 +111,13 @@ export function PaymentSettings() {
         }
     }
 
+    const getMethodLogoSrc = (name: string) => {
+        const n = (name || "").toLowerCase()
+        if (n.includes("mtn")) return "/images/mtn-logo.png"
+        if (n.includes("airtel")) return "/images/airtel-logo.png"
+        return null
+    }
+
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
         // You could add a toast notification here
@@ -182,7 +190,17 @@ export function PaymentSettings() {
                                     <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                                                {getTypeIcon(method.type)}
+                                                {getMethodLogoSrc(method.name) ? (
+                                                    <Image
+                                                        src={getMethodLogoSrc(method.name)!}
+                                                        alt={method.name}
+                                                        width={42}
+                                                        height={18}
+                                                        className="h-auto w-auto"
+                                                    />
+                                                ) : (
+                                                    getTypeIcon(method.type)
+                                                )}
                                             </div>
                                             <div>
                                                 <h4 className="font-semibold">{method.name}</h4>

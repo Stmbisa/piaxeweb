@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth/context";
 import {
   Card,
@@ -203,7 +204,14 @@ export default function AdminBulkEscrowPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium">Payment method</label>
+              <label className="text-xs font-medium flex items-center gap-2">
+                Payment method
+                {paymentMethod.trim().toLowerCase() === "mtn" ? (
+                  <Image src="/images/mtn-logo.png" alt="MTN Mobile Money" width={34} height={14} />
+                ) : paymentMethod.trim().toLowerCase() === "airtel" ? (
+                  <Image src="/images/airtel-logo.png" alt="Airtel Money" width={34} height={14} />
+                ) : null}
+              </label>
               <Input value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} placeholder="piaxis" />
             </div>
 
