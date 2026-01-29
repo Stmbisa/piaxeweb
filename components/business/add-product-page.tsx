@@ -53,7 +53,9 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { API_ENDPOINTS } from "@/lib/config/env";
+import UgxOnlyCurrencySelector, {
+  type CurrencyLike,
+} from "@/components/common/UgxOnlyCurrencySelector";
 
 // Import the new services
 import {
@@ -97,11 +99,12 @@ interface ProductFormData {
   images: string[]; // Array of image URLs
 }
 
-interface Currency {
-  code: string;
-  name: string;
-  symbol: string;
-}
+const CURRENCIES: CurrencyLike[] = [
+  { code: "UGX", name: "Ugandan Shilling", symbol: "USh" },
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "GBP", name: "British Pound", symbol: "£" },
+];
 
 const emptyProduct: ProductFormData = {
   name: "",
@@ -139,7 +142,6 @@ export default function AddProductPage({ storeId }: { storeId: string }) {
   // State for data that would be from React Query
   const [locations, setLocations] = useState<ProductLocation[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load locations
@@ -189,37 +191,6 @@ export default function AddProductPage({ storeId }: { storeId: string }) {
     }
 
     fetchCategories();
-  }, [token, toast]);
-
-  // Load currencies
-  useEffect(() => {
-    async function fetchCurrencies() {
-      if (!token) return;
-
-      try {
-        const response = await fetch(`${API_ENDPOINTS.WALLET.GET_CURRENCIES}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch currencies");
-        }
-
-        const data = await response.json();
-        setCurrencies(data);
-      } catch (error: any) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load currency options",
-          variant: "destructive",
-        });
-      }
-    }
-
-    fetchCurrencies();
   }, [token, toast]);
 
   const handleAddProduct = () => {
@@ -590,24 +561,12 @@ export default function AddProductPage({ storeId }: { storeId: string }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor={`currency-${idx}`}>Currency *</Label>
-                <Select
+                <UgxOnlyCurrencySelector
+                  title="Currency *"
+                  currencies={CURRENCIES}
                   value={product.currency}
-                  onValueChange={(value) =>
-                    handleChange(idx, "currency", value)
-                  }
-                >
-                  <SelectTrigger id={`currency-${idx}`}>
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currencies.map((currency) => (
-                      <SelectItem key={currency.code} value={currency.code}>
-                        {currency.code} ({currency.symbol})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(value) => handleChange(idx, "currency", value)}
+                />
               </div>
 
               <div className="space-y-2">

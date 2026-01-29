@@ -43,7 +43,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { API_ENDPOINTS } from "@/lib/config/env";
+import UgxOnlyCurrencySelector, {
+  type CurrencyLike,
+} from "@/components/common/UgxOnlyCurrencySelector";
 import {
   scanProduct,
   getStoreLocations,
@@ -59,12 +61,12 @@ import {
 } from "@/lib/api/imagekit-service";
 import { useRouter } from "next/navigation";
 
-// Interfaces for currencies and product form
-interface Currency {
-  code: string;
-  name: string;
-  symbol: string;
-}
+const CURRENCIES: CurrencyLike[] = [
+  { code: "UGX", name: "Ugandan Shilling", symbol: "USh" },
+  { code: "USD", name: "US Dollar", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "GBP", name: "British Pound", symbol: "£" },
+];
 
 interface ProductImage {
   localFile?: File;
@@ -129,7 +131,6 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
   // State for data loaded from API
   const [locations, setLocations] = useState<ProductLocation[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [currencies, setCurrencies] = useState<Currency[]>([]);
 
   // Add these imports
   const codeInputRef = useRef<HTMLInputElement>(null);
@@ -273,25 +274,6 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
       // Load categories
       const categoriesData = await getProductCategories(token);
       setCategories(categoriesData);
-
-      // Load currencies
-      const response = await fetch(`${API_ENDPOINTS.WALLET.GET_CURRENCIES}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const currencyData = await response.json();
-        setCurrencies(currencyData);
-      } else {
-        toast({
-          title: "Warning",
-          description: "Failed to load currencies",
-          variant: "destructive",
-        });
-      }
     } catch (error: any) {
       console.error("Failed to load initial data:", error);
       toast({
@@ -643,22 +625,12 @@ export default function ScanProductsPage({ storeId }: { storeId: string }) {
           {/* Currency and Category Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency *</Label>
-              <Select
+              <UgxOnlyCurrencySelector
+                title="Currency *"
+                currencies={CURRENCIES}
                 value={formData.currency}
-                onValueChange={(value) => handleChange("currency", value)}
-              >
-                <SelectTrigger id="currency">
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency.code} value={currency.code}>
-                      {currency.code} ({currency.symbol})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value) => handleChange("currency", value)}
+              />
             </div>
 
             <div className="space-y-2">
