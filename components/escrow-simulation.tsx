@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Copy, MapPin, Clock, Handshake, KeyRound, PackageCheck, RotateCcw, Star, ListOrdered, Users2 } from "lucide-react";
+import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector";
 
 type Term = {
     type: string;
@@ -179,10 +180,20 @@ export function EscrowSimulation() {
                                     <span>Amount</span>
                                     <input value={amount} onChange={(e) => setAmount(e.target.value)} className="glass-input px-3 py-2 rounded-md" placeholder="5000.00" />
                                 </label>
-                                <label className="flex flex-col gap-1">
-                                    <span>Currency</span>
-                                    <input value={currency} onChange={(e) => setCurrency(e.target.value)} className="glass-input px-3 py-2 rounded-md" placeholder="UGX" />
-                                </label>
+                                <div className="flex flex-col gap-1">
+                                    <UgxOnlyCurrencySelector
+                                        title="Currency"
+                                        currencies={[
+                                            { code: "UGX", name: "Ugandan Shilling" },
+                                            { code: "USD", name: "US Dollar" },
+                                            { code: "EUR", name: "Euro" },
+                                            { code: "GBP", name: "British Pound" },
+                                        ]}
+                                        value={currency}
+                                        onChange={setCurrency}
+                                        className="text-primary-foreground"
+                                    />
+                                </div>
                                 <label className="flex flex-col gap-1">
                                     <span>Payment Method</span>
                                     <input value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="glass-input px-3 py-2 rounded-md" placeholder="mtn" />

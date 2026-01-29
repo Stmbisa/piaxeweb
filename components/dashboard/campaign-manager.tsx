@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector"
 import { useToast } from "@/hooks/use-toast"
 import {
   crmAPI,
@@ -60,6 +61,13 @@ type Draft = {
   recordCalls: boolean
   maxDurationSeconds: string
 }
+
+const CURRENCIES = [
+  { code: "UGX", name: "Ugandan Shilling" },
+  { code: "USD", name: "US Dollar" },
+  { code: "EUR", name: "Euro" },
+  { code: "GBP", name: "British Pound" },
+]
 
 const DEFAULT_DRAFT: Draft = {
   name: "",
@@ -489,8 +497,14 @@ export function CampaignManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Currency</Label>
-                  <Input value={draft.currency} onChange={(e) => setDraft((d) => ({ ...d, currency: e.target.value }))} placeholder="UGX" />
+                  <UgxOnlyCurrencySelector
+                    title="Currency"
+                    currencies={CURRENCIES}
+                    value={draft.currency}
+                    onChange={(currencyCode) =>
+                      setDraft((d) => ({ ...d, currency: currencyCode }))
+                    }
+                  />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

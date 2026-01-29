@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -385,11 +386,17 @@ export default function ProductDetails() {
 
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Input
-                id="currency"
+              <UgxOnlyCurrencySelector
+                title=""
+                currencies={[
+                  { code: "UGX", name: "Ugandan Shilling" },
+                  { code: "USD", name: "US Dollar" },
+                  { code: "EUR", name: "Euro" },
+                  { code: "GBP", name: "British Pound" },
+                ]}
                 value={editForm.currency}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, currency: e.target.value })
+                onChange={(currencyCode) =>
+                  setEditForm({ ...editForm, currency: currencyCode })
                 }
               />
             </div>

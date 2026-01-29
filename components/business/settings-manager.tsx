@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth/context";
 import { shoppingInventoryAPI, type Store } from "@/lib/api/shopping-inventory";
@@ -513,27 +514,17 @@ export function SettingsManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Default Currency</Label>
-                  <Select
-                    value={businessSettings.currency}
-                    onValueChange={(value) =>
+                  <UgxOnlyCurrencySelector
+                    title="Default Currency"
+                    currencies={CURRENCIES}
+                    value={businessSettings.currency || "UGX"}
+                    onChange={(value) =>
                       setBusinessSettings((prev) => ({
                         ...prev,
                         currency: value,
                       }))
                     }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map((currency) => (
-                        <SelectItem key={currency.code} value={currency.code}>
-                          {currency.code} - {currency.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div className="space-y-2">

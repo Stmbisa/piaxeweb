@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import UgxOnlyCurrencySelector from "@/components/common/UgxOnlyCurrencySelector";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
@@ -183,7 +184,17 @@ export default function AdminBulkEscrowPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-xs font-medium">Currency</label>
-                <Input value={currencyCode} onChange={(e) => setCurrencyCode(e.target.value)} placeholder="UGX" />
+                <UgxOnlyCurrencySelector
+                  title=""
+                  currencies={[
+                    { code: "UGX", name: "Ugandan Shilling" },
+                    { code: "USD", name: "US Dollar" },
+                    { code: "EUR", name: "Euro" },
+                    { code: "GBP", name: "British Pound" },
+                  ]}
+                  value={currencyCode}
+                  onChange={setCurrencyCode}
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium">Amount per receiver</label>
