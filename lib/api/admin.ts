@@ -254,6 +254,22 @@ export interface DeliveryRequestAdmin {
   updated_at: string;
 }
 
+export interface AnalyticsTopEvent {
+  event_name: string;
+  count: number;
+}
+
+export interface AnalyticsSummary {
+  days: number;
+  range_start: string;
+  range_end: string;
+  total_events: number;
+  unique_users: number;
+  top_events: AnalyticsTopEvent[];
+  daily_counts: { day: string; count: number }[];
+  truncated?: boolean;
+}
+
 // Helper for headers with automatic device ID propagation
 const getHeaders = (
   token: string,
@@ -695,6 +711,19 @@ export const adminAPI = {
       headers: getHeaders(token),
     });
     if (!response.ok) throw new Error("Failed to get support dashboard");
+    return response.json();
+  },
+
+  // Analytics
+  getAnalyticsSummary: async (token: string, days: number = 7): Promise<AnalyticsSummary> => {
+    const qs = new URLSearchParams({ days: String(days) });
+    const response = await fetch(`/api/proxy/admin/analytics/summary?${qs.toString()}`, {
+      headers: getHeaders(token),
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`Failed to load analytics summary: ${response.status} ${text}`);
+    }
     return response.json();
   },
 

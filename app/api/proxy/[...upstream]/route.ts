@@ -17,6 +17,8 @@ const ALLOWED_PREFIXES = [
   "support/", // Support ticketing endpoints
   "admin/crm/", // Admin tools (CRM)
   "admin/public_content/", // Admin public updates/tips CRUD
+  "analytics/", // Self-hosted event ingestion
+  "admin/analytics/", // Admin analytics dashboard
 ];
 
 function isAllowed(path: string) {

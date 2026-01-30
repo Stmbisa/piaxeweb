@@ -16,6 +16,7 @@ import {
   Server,
   Bell,
   FileText,
+  LineChart,
   AlertTriangle,
   MessageSquare,
   CreditCard,
@@ -33,6 +34,11 @@ export function AdminSidebar() {
       name: "Dashboard",
       href: `/admin/dashboard`,
       icon: LayoutDashboard,
+    },
+    {
+      name: "Analytics",
+      href: `/admin/analytics`,
+      icon: LineChart,
     },
     {
       name: "Recent Signups",

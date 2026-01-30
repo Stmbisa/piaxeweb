@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { getSharedCartDetailsByToken, paySharedCart, type SharedCartDetails } from "@/lib/api/shared-carts";
+import { trackEvent } from "@/lib/analytics/client";
 
 type PayMethod = "piaxis" | "mtn" | "airtel";
 
@@ -39,13 +40,26 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
       try {
         setLoading(true);
         const data = await getSharedCartDetailsByToken(token, cartToken);
-        if (!cancelled) setDetails(data);
+        if (!cancelled) {
+          setDetails(data);
+          trackEvent("shared_cart_viewed", {
+            cart_token: cartToken,
+            status: data?.status,
+            cart_type: data?.cart_type,
+            currency: data?.currency,
+            total_amount: data?.total_amount,
+          });
+        }
       } catch (e: any) {
         if (!cancelled) {
           toast({
             title: "Failed to load",
             description: e?.message || "Could not load shared cart",
             variant: "destructive",
+          });
+          trackEvent("shared_cart_view_failed", {
+            cart_token: cartToken,
+            message: e?.message,
           });
         }
       } finally {
@@ -68,6 +82,15 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
   const onPay = async () => {
     if (!details) return;
     const cartType = (details.cart_type || "instore").toLowerCase() === "ecommerce" ? "ecommerce" : "instore";
+
+    trackEvent("shared_cart_pay_clicked", {
+      cart_token: cartToken,
+      cart_type: cartType,
+      payment_method: paymentMethod,
+      has_token: Boolean(token),
+      has_phone: Boolean(phoneNumber.trim()),
+      has_email: Boolean(email.trim()),
+    });
 
     if (paymentMethod === "piaxis" && !token) {
       toast({
@@ -104,6 +127,11 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
 
       await paySharedCart(token, cartToken, cartType, payload);
       toast({ title: "Paid", description: "Payment sent successfully." });
+      trackEvent("shared_cart_paid", {
+        cart_token: cartToken,
+        cart_type: cartType,
+        payment_method: paymentMethod,
+      });
       const refreshed = await getSharedCartDetailsByToken(token, cartToken);
       setDetails(refreshed);
     } catch (e: any) {
@@ -111,6 +139,11 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
         title: "Payment failed",
         description: e?.message || "Could not complete payment",
         variant: "destructive",
+      });
+      trackEvent("shared_cart_payment_failed", {
+        cart_token: cartToken,
+        payment_method: paymentMethod,
+        message: e?.message,
       });
     } finally {
       setPaying(false);
@@ -195,7 +228,13 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
               <Button
                 type="button"
                 variant={paymentMethod === "mtn" ? "default" : "outline"}
-                onClick={() => setPaymentMethod("mtn")}
+                onClick={() => {
+                  setPaymentMethod("mtn");
+                  trackEvent("shared_cart_payment_method_selected", {
+                    cart_token: cartToken,
+                    method: "mtn",
+                  });
+                }}
                 className="flex items-center gap-2"
               >
                 <Image src="/images/mtn-logo.png" alt="MTN Mobile Money" width={28} height={12} />
@@ -204,7 +243,13 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
               <Button
                 type="button"
                 variant={paymentMethod === "airtel" ? "default" : "outline"}
-                onClick={() => setPaymentMethod("airtel")}
+                onClick={() => {
+                  setPaymentMethod("airtel");
+                  trackEvent("shared_cart_payment_method_selected", {
+                    cart_token: cartToken,
+                    method: "airtel",
+                  });
+                }}
                 className="flex items-center gap-2"
               >
                 <Image src="/images/airtel-logo.png" alt="Airtel Money" width={28} height={12} />
@@ -213,10 +258,20 @@ export function SharedCartPay({ cartToken }: { cartToken: string }) {
               <Button
                 type="button"
                 variant={paymentMethod === "piaxis" ? "default" : "outline"}
-                onClick={() => setPaymentMethod("piaxis")}
+                onClick={() => {
+                  setPaymentMethod("piaxis");
+                  trackEvent("shared_cart_payment_method_selected", {
+                    cart_token: cartToken,
+                    method: "piaxis",
+                  });
+                }}
                 disabled={!token}
               >
                 Piaxis balance
+              </Button>
+
+              <Button type="button" variant="outline" disabled>
+                Card (coming soon)
               </Button>
             </div>
             {!token ? (
