@@ -176,6 +176,53 @@ export interface ManualCashSaleResponse {
   chain_settlement?: any;
 }
 
+// Store Reports
+export interface StoreProductPerformanceReport {
+  store_id: string;
+  period: {
+    start_date: string;
+    end_date: string;
+  };
+  overall_metrics: {
+    total_products: number;
+    total_units_sold: number;
+    total_revenue: number;
+    average_stock_turns: number;
+  };
+  products: Array<{
+    product_id: string;
+    product_name: string;
+    sku?: string | null;
+    units_sold: number;
+    revenue: number;
+    current_quantity_available: number;
+    current_quantity_reserved: number;
+    low_stock_threshold: number;
+    is_low_stock: boolean;
+    stock_turns: number;
+  }>;
+}
+
+export interface StoreAccountingAuditReport {
+  store_id: string;
+  period: {
+    start_date: string;
+    end_date: string;
+  };
+  currency: string;
+  totals: {
+    order_revenue: number;
+    crm_income: number;
+    crm_expenses: number;
+    unassigned_crm_entries: number;
+  };
+  mismatch: {
+    income_gap: number;
+    missing_income_entries_count: number;
+    missing_order_ids: string[];
+  };
+}
+
 class ShoppingInventoryAPI {
   private getBase(): string {
     return API_BASE_URL;
@@ -487,6 +534,78 @@ class ShoppingInventoryAPI {
     }
   }
 
+  async getStoreProductPerformanceReport(
+    token: string,
+    storeId: string,
+    params: {
+      start_date: string;
+      end_date: string;
+      limit?: number;
+    }
+  ): Promise<StoreProductPerformanceReport> {
+    const query = new URLSearchParams({
+      start_date: params.start_date,
+      end_date: params.end_date,
+    });
+    if (params.limit) query.set("limit", String(params.limit));
+
+    const url = `/api/proxy/shopping_and_inventory/stores/${storeId}/reports/product-performance?${query.toString()}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to fetch product performance report: ${response.status} - ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
+  async getStoreAccountingAuditReport(
+    token: string,
+    storeId: string,
+    params: {
+      start_date: string;
+      end_date: string;
+      currency?: string;
+    }
+  ): Promise<StoreAccountingAuditReport> {
+    const query = new URLSearchParams({
+      start_date: params.start_date,
+      end_date: params.end_date,
+    });
+    if (params.currency) query.set("currency", params.currency);
+
+    const url = `/api/proxy/shopping_and_inventory/stores/${storeId}/reports/accounting-audit?${query.toString()}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to fetch accounting audit report: ${response.status} - ${errorText}`
+      );
+    }
+
+    return await response.json();
+  }
+
   async createProduct(
     token: string,
     data: CreateProductData
@@ -693,6 +812,56 @@ class ShoppingInventoryAPI {
       return await response.json();
     } catch (error) {
       console.error("Import status fetch error:", error);
+      throw error;
+    }
+  }
+
+  // Import Inventory Deltas (CSV)
+  async importInventoryDeltasCsv(
+    token: string,
+    storeId: string,
+    idempotencyKey: string,
+    file: File
+  ): Promise<{
+    financial_entry_id?: string;
+    reference_number?: string;
+    applied?: any[];
+    conflicts?: any[];
+    server_time?: string;
+  }> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const params = new URLSearchParams({
+        store_id: storeId,
+        idempotency_key: idempotencyKey,
+      });
+
+      const url = `/api/proxy/shopping_and_inventory/integrations/csv/inventory/deltas?${params.toString()}`;
+
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `Failed to import inventory deltas: ${response.status} - ${errorText}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Inventory delta import error:", error);
       throw error;
     }
   }

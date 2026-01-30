@@ -66,7 +66,7 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
       ...(req.method !== "GET" && req.headers.get("content-type")
         ? { "Content-Type": req.headers.get("content-type") as string }
         : {}),
-      Accept: "application/json",
+      Accept: req.headers.get("accept") || "application/json",
     },
     // Forward body for non-GET/HEAD
     body:
@@ -87,6 +87,20 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
 
     // Try to proxy JSON response; fall back to text
     const contentType = upstream.headers.get("content-type") || "";
+    const isBinary =
+      contentType.includes("application/pdf") ||
+      contentType.startsWith("image/") ||
+      contentType.includes("application/octet-stream");
+
+    if (isBinary) {
+      const buf = await upstream.arrayBuffer();
+      const headers = new Headers();
+      headers.set("content-type", contentType || "application/octet-stream");
+      const cd = upstream.headers.get("content-disposition");
+      if (cd) headers.set("content-disposition", cd);
+      return new NextResponse(buf, { status: upstream.status, headers });
+    }
+
     if (contentType.includes("application/json")) {
       const data = await upstream.json().catch((err) => {
         console.error(`Error parsing JSON response: ${err.message}`);

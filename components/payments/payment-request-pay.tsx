@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getPaymentRequestDetails, payPaymentRequest, type PaymentRequestDetail } from "@/lib/api/payments";
+import {
+  downloadPaymentRequestPdf,
+  getPaymentRequestDetails,
+  payPaymentRequest,
+  type PaymentRequestDetail,
+} from "@/lib/api/payments";
 import { StoreBasketPayment } from "@/components/payments/store-basket-payment";
 
 function fmtMoney(currency: string, amount: string | number | null | undefined) {
@@ -23,6 +28,7 @@ export function PaymentRequestPay({ requestId }: { requestId: string }) {
 
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [details, setDetails] = useState<PaymentRequestDetail | null>(null);
 
   useEffect(() => {
@@ -61,6 +67,39 @@ export function PaymentRequestPay({ requestId }: { requestId: string }) {
   }
 
   const canPayWithPiaxis = !!token && details?.status === "pending";
+  const canPrint = !!token && !!details?.is_requester;
+
+  const downloadPdf = async (mode: "download" | "open") => {
+    if (!token) return;
+    try {
+      setPrinting(true);
+      const blob = await downloadPaymentRequestPdf(token, requestId);
+      const url = URL.createObjectURL(blob);
+      const filename = `payment-request-${requestId}.pdf`;
+
+      if (mode === "open") {
+        window.open(url, "_blank", "noopener,noreferrer");
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      toast({
+        title: "PDF unavailable",
+        description: e?.message || "Could not download PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setPrinting(false);
+    }
+  };
 
   const onPay = async () => {
     if (!details) return;
@@ -140,6 +179,17 @@ export function PaymentRequestPay({ requestId }: { requestId: string }) {
           ) : null}
         </CardContent>
       </Card>
+
+      {canPrint ? (
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => downloadPdf("download")} disabled={printing}>
+            {printing ? "Preparing…" : "Download PDF"}
+          </Button>
+          <Button variant="outline" onClick={() => downloadPdf("open")} disabled={printing}>
+            Open/Print PDF
+          </Button>
+        </div>
+      ) : null}
 
       <div className="flex gap-2">
         <Button onClick={onPay} disabled={!canPayWithPiaxis || paying}>

@@ -50,6 +50,9 @@ export function InventoryManager() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedStore, setSelectedStore] = useState<string>("");
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvImporting, setCsvImporting] = useState(false);
+  const [csvResult, setCsvResult] = useState<{ applied: number; conflicts: number } | null>(null);
   const { user, token } = useAuth();
   const { toast } = useToast();
 
@@ -188,6 +191,55 @@ export function InventoryManager() {
     return sum + price * quantity;
   }, 0);
 
+  const handleCsvFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setCsvFile(event.target.files[0]);
+    }
+  };
+
+  const importInventoryDeltasCsv = async () => {
+    if (!token || !selectedStore || !csvFile) return;
+    setCsvImporting(true);
+    setCsvResult(null);
+
+    try {
+      const cryptoObj = globalThis.crypto as
+        | (Crypto & { randomUUID?: () => string })
+        | undefined;
+      const key = cryptoObj?.randomUUID?.() ?? `csv-${Date.now()}`;
+
+      const result = await shoppingInventoryAPI.importInventoryDeltasCsv(
+        token,
+        selectedStore,
+        key,
+        csvFile
+      );
+
+      const appliedCount = Array.isArray(result?.applied) ? result.applied.length : 0;
+      const conflictCount = Array.isArray(result?.conflicts)
+        ? result.conflicts.length
+        : 0;
+
+      setCsvResult({ applied: appliedCount, conflicts: conflictCount });
+      toast({
+        title: "Import finished",
+        description: `Applied: ${appliedCount}, Conflicts: ${conflictCount}`,
+      });
+
+      // Refresh products after applying deltas
+      const productsResponse = await shoppingInventoryAPI.getProducts(token, selectedStore);
+      setProducts(productsResponse.products);
+    } catch (error: any) {
+      toast({
+        title: "Import failed",
+        description: error?.message || "Failed to import inventory deltas",
+        variant: "destructive",
+      });
+    } finally {
+      setCsvImporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Store Selection */}
@@ -219,6 +271,37 @@ export function InventoryManager() {
         </div>
       ) : (
         <>
+          {/* CSV Import */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Import inventory changes (CSV)</CardTitle>
+              <CardDescription>
+                Upload a CSV of inventory deltas (sales/restock/adjustments). Required columns: delta_quantity and one of product_id / sku / barcode.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="inventory-delta-csv">CSV file</Label>
+                <Input
+                  id="inventory-delta-csv"
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCsvFileChange}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Button onClick={importInventoryDeltasCsv} disabled={csvImporting || !csvFile || !selectedStore}>
+                  {csvImporting ? "Importing…" : "Import CSV"}
+                </Button>
+                {csvResult && (
+                  <div className="text-sm text-muted-foreground">
+                    Applied: {csvResult.applied} • Conflicts: {csvResult.conflicts}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Inventory Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>

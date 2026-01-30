@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/lib/auth/context"
-import { shoppingInventoryAPI, type Order, type Store, type Product } from "@/lib/api/shopping-inventory"
+import { shoppingInventoryAPI, type Store } from "@/lib/api/shopping-inventory"
 import {
     Download,
     FileText,
@@ -63,12 +63,23 @@ interface ReportData {
             totalSpent: number
         }>
     }
+
+    accountingAudit: {
+        currency: string
+        orderRevenue: number
+        crmIncome: number
+        crmExpenses: number
+        incomeGap: number
+        missingIncomeEntriesCount: number
+        unassignedCrmEntries: number
+    }
 }
 
 const REPORT_TYPES = [
     { id: 'sales', label: 'Sales Report', icon: DollarSign },
     { id: 'inventory', label: 'Inventory Report', icon: Package },
     { id: 'customers', label: 'Customer Report', icon: Users },
+    { id: 'accounting_audit', label: 'Accounting Audit', icon: FileText },
     { id: 'comprehensive', label: 'Comprehensive Report', icon: FileText }
 ]
 
@@ -121,61 +132,43 @@ export function ReportsManager() {
         try {
             setLoading(true)
 
-            // Load orders and products
-            const [ordersResponse, productsResponse] = await Promise.all([
-                shoppingInventoryAPI.getOrders(token, storeId),
+            const now = new Date()
+            const daysAgo = parseInt(dateRange)
+            const startDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
+
+            // Load store reports + products (inventory)
+            const [productPerformance, accountingAudit, productsResponse] = await Promise.all([
+                shoppingInventoryAPI.getStoreProductPerformanceReport(token, storeId, {
+                    start_date: startDate.toISOString(),
+                    end_date: now.toISOString(),
+                    limit: 50,
+                }),
+                shoppingInventoryAPI.getStoreAccountingAuditReport(token, storeId, {
+                    start_date: startDate.toISOString(),
+                    end_date: now.toISOString(),
+                    currency: "UGX",
+                }),
                 shoppingInventoryAPI.getProducts(token, storeId)
             ])
 
-            const orders = ordersResponse.orders
             const products = productsResponse.products
 
-            // Filter orders by date range
-            const now = new Date()
-            const daysAgo = parseInt(dateRange)
-            const cutoffDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000))
-            const filteredOrders = orders.filter(order =>
-                new Date(order.created_at) >= cutoffDate && order.payment_status === 'paid'
-            )
-
-            // Generate Sales Report
-            const totalRevenue = filteredOrders.reduce((sum, order) => sum + order.total_amount, 0)
-            const totalOrders = filteredOrders.length
-            const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
-
-            // Product sales analysis
-            const productSales = new Map<string, { name: string, quantity: number, revenue: number }>()
-            filteredOrders.forEach(order => {
-                order.items.forEach(item => {
-                    const existing = productSales.get(item.product_id) || {
-                        name: item.product_name,
-                        quantity: 0,
-                        revenue: 0
-                    }
-                    existing.quantity += item.quantity
-                    existing.revenue += item.total_price
-                    productSales.set(item.product_id, existing)
-                })
-            })
-
-            const topSellingProducts = Array.from(productSales.entries())
-                .map(([id, data]) => ({ id, ...data }))
-                .sort((a, b) => b.revenue - a.revenue)
+            // Map store product performance report into the existing "salesReport" shape
+            const totalRevenue = productPerformance.overall_metrics.total_revenue
+            const totalOrders = 0
+            const averageOrderValue = 0
+            const topSellingProducts = productPerformance.products
+                .slice()
+                .sort((a, b) => (b.revenue ?? 0) - (a.revenue ?? 0))
                 .slice(0, 5)
+                .map(p => ({
+                    id: p.product_id,
+                    name: p.product_name,
+                    quantity: p.units_sold,
+                    revenue: p.revenue,
+                }))
 
-            // Daily sales for the period
-            const dailySalesMap = new Map<string, { revenue: number, orders: number }>()
-            filteredOrders.forEach(order => {
-                const date = new Date(order.created_at).toISOString().split('T')[0]
-                const existing = dailySalesMap.get(date) || { revenue: 0, orders: 0 }
-                existing.revenue += order.total_amount
-                existing.orders += 1
-                dailySalesMap.set(date, existing)
-            })
-
-            const dailySales = Array.from(dailySalesMap.entries())
-                .map(([date, data]) => ({ date, ...data }))
-                .sort((a, b) => a.date.localeCompare(b.date))
+            const dailySales: Array<{ date: string; revenue: number; orders: number }> = []
 
             // Generate Inventory Report
             const totalProducts = products.length
@@ -197,28 +190,11 @@ export function ReportsManager() {
                 .map(([name, data]) => ({ name, ...data }))
                 .sort((a, b) => b.value - a.value)
 
-            // Generate Customer Report
-            const customerMap = new Map<string, { name: string, phone: string, orderCount: number, totalSpent: number }>()
-            filteredOrders.forEach(order => {
-                const key = `${order.customer_name}_${order.customer_phone}`
-                const existing = customerMap.get(key) || {
-                    name: order.customer_name,
-                    phone: order.customer_phone,
-                    orderCount: 0,
-                    totalSpent: 0
-                }
-                existing.orderCount += 1
-                existing.totalSpent += order.total_amount
-                customerMap.set(key, existing)
-            })
-
-            const customers = Array.from(customerMap.values())
-            const totalCustomers = customers.length
-            const newCustomers = customers.filter(c => c.orderCount === 1).length
-            const repeatCustomers = customers.filter(c => c.orderCount > 1).length
-            const topCustomers = customers
-                .sort((a, b) => b.totalSpent - a.totalSpent)
-                .slice(0, 5)
+            // Customer report currently requires an orders/customer source.
+            const totalCustomers = 0
+            const newCustomers = 0
+            const repeatCustomers = 0
+            const topCustomers: Array<{ name: string; phone: string; orderCount: number; totalSpent: number }> = []
 
             setReportData({
                 salesReport: {
@@ -240,7 +216,16 @@ export function ReportsManager() {
                     newCustomers,
                     repeatCustomers,
                     topCustomers
-                }
+                },
+                accountingAudit: {
+                    currency: accountingAudit.currency,
+                    orderRevenue: accountingAudit.totals.order_revenue,
+                    crmIncome: accountingAudit.totals.crm_income,
+                    crmExpenses: accountingAudit.totals.crm_expenses,
+                    incomeGap: accountingAudit.mismatch.income_gap,
+                    missingIncomeEntriesCount: accountingAudit.mismatch.missing_income_entries_count,
+                    unassignedCrmEntries: accountingAudit.totals.unassigned_crm_entries,
+                },
             })
 
         } catch (error) {
@@ -313,6 +298,18 @@ export function ReportsManager() {
                 reportData.customerReport.topCustomers.forEach(customer => {
                     csvContent += `${customer.name},${customer.phone},${customer.orderCount},UGX ${customer.totalSpent.toLocaleString()}\n`
                 })
+                break
+
+            case 'accounting_audit':
+                csvContent = "Accounting Audit\n"
+                csvContent += `Generated on: ${timestamp}\n\n`
+                csvContent += `Currency,${reportData.accountingAudit.currency}\n`
+                csvContent += `Order Revenue,${reportData.accountingAudit.orderRevenue}\n`
+                csvContent += `CRM Income,${reportData.accountingAudit.crmIncome}\n`
+                csvContent += `CRM Expenses,${reportData.accountingAudit.crmExpenses}\n`
+                csvContent += `Income Gap (Orders - CRM),${reportData.accountingAudit.incomeGap}\n`
+                csvContent += `Missing Income Entries (count),${reportData.accountingAudit.missingIncomeEntriesCount}\n`
+                csvContent += `Unassigned CRM Entries (count),${reportData.accountingAudit.unassignedCrmEntries}\n`
                 break
 
             default:
@@ -641,6 +638,70 @@ export function ReportsManager() {
                                                 </p>
                                             </div>
                                         ))}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Accounting Audit */}
+                    {(selectedReport === 'accounting_audit' || selectedReport === 'comprehensive') && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <FileText className="w-5 h-5" />
+                                    Accounting Audit
+                                </CardTitle>
+                                <CardDescription>
+                                    Compare store order revenue vs CRM bookkeeping entries
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <p className="text-sm font-medium text-green-800">Order Revenue</p>
+                                        <p className="text-2xl font-bold text-green-900">
+                                            {reportData.accountingAudit.currency} {Math.round(reportData.accountingAudit.orderRevenue).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                        <p className="text-sm font-medium text-blue-800">CRM Income</p>
+                                        <p className="text-2xl font-bold text-blue-900">
+                                            {reportData.accountingAudit.currency} {Math.round(reportData.accountingAudit.crmIncome).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                        <p className="text-sm font-medium text-purple-800">CRM Expenses</p>
+                                        <p className="text-2xl font-bold text-purple-900">
+                                            {reportData.accountingAudit.currency} {Math.round(reportData.accountingAudit.crmExpenses).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                                        <p className="text-sm font-medium text-amber-800">Income Gap</p>
+                                        <p className="text-2xl font-bold text-amber-900">
+                                            {reportData.accountingAudit.currency} {Math.round(reportData.accountingAudit.incomeGap).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-4 bg-muted/50 rounded border">
+                                        <p className="text-sm font-medium">Missing income postings</p>
+                                        <p className="text-lg font-semibold">
+                                            {reportData.accountingAudit.missingIncomeEntriesCount}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Paid orders for this store without a matching CRM income entry
+                                        </p>
+                                    </div>
+                                    <div className="p-4 bg-muted/50 rounded border">
+                                        <p className="text-sm font-medium">Unassigned CRM entries</p>
+                                        <p className="text-lg font-semibold">
+                                            {reportData.accountingAudit.unassignedCrmEntries}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Entries created in the period that are missing a store tag
+                                        </p>
                                     </div>
                                 </div>
                             </CardContent>
