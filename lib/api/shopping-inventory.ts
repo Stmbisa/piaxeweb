@@ -866,6 +866,90 @@ class ShoppingInventoryAPI {
     }
   }
 
+  // Download Inventory Reconciliation Template (CSV)
+  async downloadInventoryReconciliationTemplate(
+    token: string,
+    storeId: string
+  ): Promise<{ blob: Blob; filename: string }> {
+    try {
+      const params = new URLSearchParams({ store_id: storeId });
+      const url = `/api/proxy/shopping_and_inventory/integrations/csv/inventory/reconciliation-template?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "text/csv",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `Failed to download reconciliation template: ${response.status} - ${errorText}`
+        );
+      }
+
+      const blob = await response.blob();
+      const cd = response.headers.get("content-disposition") || "";
+      const match = cd.match(/filename="?([^";]+)"?/i);
+      const filename = match?.[1] || "inventory-reconciliation-template.csv";
+
+      return { blob, filename };
+    } catch (error) {
+      console.error("Reconciliation template download error:", error);
+      throw error;
+    }
+  }
+
+  // Reconcile Inventory From Stock-Take (CSV)
+  async reconcileInventoryFromCsv(
+    token: string,
+    storeId: string,
+    idempotencyKey: string,
+    file: File
+  ): Promise<{
+    applied?: any[];
+    conflicts?: any[];
+    server_time?: string;
+  }> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const params = new URLSearchParams({
+        store_id: storeId,
+        idempotency_key: idempotencyKey,
+      });
+
+      const url = `/api/proxy/shopping_and_inventory/integrations/csv/inventory/reconcile?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `Failed to reconcile inventory: ${response.status} - ${errorText}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Inventory reconciliation import error:", error);
+      throw error;
+    }
+  }
+
   // Scan Products
   async scanProduct(
     token: string,

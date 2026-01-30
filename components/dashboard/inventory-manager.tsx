@@ -54,6 +54,11 @@ export function InventoryManager() {
   const [csvIdempotencyKey, setCsvIdempotencyKey] = useState<string>("");
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<{ applied: number; conflicts: number } | null>(null);
+
+  const [reconcileFile, setReconcileFile] = useState<File | null>(null);
+  const [reconcileIdempotencyKey, setReconcileIdempotencyKey] = useState<string>("");
+  const [reconcileImporting, setReconcileImporting] = useState(false);
+  const [reconcileResult, setReconcileResult] = useState<{ applied: number; conflicts: number } | null>(null);
   const { user, token } = useAuth();
   const { toast } = useToast();
 
@@ -203,6 +208,17 @@ export function InventoryManager() {
     }
   };
 
+  const handleReconcileFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setReconcileFile(event.target.files[0]);
+      const cryptoObj = globalThis.crypto as
+        | (Crypto & { randomUUID?: () => string })
+        | undefined;
+      const key = cryptoObj?.randomUUID?.() ?? `csv-reconcile-${Date.now()}`;
+      setReconcileIdempotencyKey(key);
+    }
+  };
+
   const downloadInventoryDeltaTemplate = () => {
     const csv = [
       "product_id,sku,barcode,delta_quantity,store_location_id,reason,occurred_at,external_ref",
@@ -220,6 +236,30 @@ export function InventoryManager() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const downloadReconciliationTemplate = async () => {
+    if (!token || !selectedStore) return;
+    try {
+      const { blob, filename } = await shoppingInventoryAPI.downloadInventoryReconciliationTemplate(
+        token,
+        selectedStore
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      toast({
+        title: "Download failed",
+        description: error?.message || "Failed to download reconciliation template",
+        variant: "destructive",
+      });
+    }
   };
 
   const importInventoryDeltasCsv = async () => {
@@ -263,6 +303,57 @@ export function InventoryManager() {
       });
     } finally {
       setCsvImporting(false);
+    }
+  };
+
+  const reconcileInventoryFromCsv = async () => {
+    if (!token || !selectedStore || !reconcileFile) return;
+    setReconcileImporting(true);
+    setReconcileResult(null);
+
+    try {
+      const cryptoObj = globalThis.crypto as
+        | (Crypto & { randomUUID?: () => string })
+        | undefined;
+      const key =
+        (reconcileIdempotencyKey || "").trim() ||
+        cryptoObj?.randomUUID?.() ||
+        `csv-reconcile-${Date.now()}`;
+      setReconcileIdempotencyKey(key);
+
+      const result = await shoppingInventoryAPI.reconcileInventoryFromCsv(
+        token,
+        selectedStore,
+        key,
+        reconcileFile
+      );
+
+      const appliedCount = Array.isArray(result?.applied)
+        ? result.applied.length
+        : 0;
+      const conflictCount = Array.isArray(result?.conflicts)
+        ? result.conflicts.length
+        : 0;
+
+      setReconcileResult({ applied: appliedCount, conflicts: conflictCount });
+      toast({
+        title: "Reconciliation finished",
+        description: `Applied: ${appliedCount}, Conflicts: ${conflictCount}`,
+      });
+
+      const productsResponse = await shoppingInventoryAPI.getProducts(
+        token,
+        selectedStore
+      );
+      setProducts(productsResponse.products);
+    } catch (error: any) {
+      toast({
+        title: "Reconciliation failed",
+        description: error?.message || "Failed to reconcile inventory",
+        variant: "destructive",
+      });
+    } finally {
+      setReconcileImporting(false);
     }
   };
 
@@ -342,6 +433,62 @@ export function InventoryManager() {
                 {csvResult && (
                   <div className="text-sm text-muted-foreground">
                     Applied: {csvResult.applied} • Conflicts: {csvResult.conflicts}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stock Take Reconciliation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Reconcile inventory (stock take CSV)</CardTitle>
+              <CardDescription>
+                Download your current inventory, fill in <span className="font-mono">counted_on_hand</span>, then import. The system computes and applies the deltas automatically.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={downloadReconciliationTemplate}
+                  disabled={!selectedStore || !token}
+                >
+                  Download stock-take template
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="inventory-reconcile-csv">Completed stock-take CSV</Label>
+                <Input
+                  id="inventory-reconcile-csv"
+                  type="file"
+                  accept=".csv"
+                  onChange={handleReconcileFileChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="inventory-reconcile-idempotency">Idempotency key</Label>
+                <Input
+                  id="inventory-reconcile-idempotency"
+                  value={reconcileIdempotencyKey}
+                  onChange={(e) => setReconcileIdempotencyKey(e.target.value)}
+                  placeholder="csv-reconcile-... (use same key if you retry the same file)"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={reconcileInventoryFromCsv}
+                  disabled={reconcileImporting || !reconcileFile || !selectedStore}
+                >
+                  {reconcileImporting ? "Reconciling…" : "Reconcile from CSV"}
+                </Button>
+                {reconcileResult && (
+                  <div className="text-sm text-muted-foreground">
+                    Applied: {reconcileResult.applied} • Conflicts: {reconcileResult.conflicts}
                   </div>
                 )}
               </div>

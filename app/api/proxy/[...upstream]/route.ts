@@ -112,9 +112,13 @@ async function handle(req: NextRequest, upstreamParts: string[]) {
       console.log(
         `Non-JSON response (${contentType}): ${text.substring(0, 100)}...`
       );
+      const headers = new Headers();
+      headers.set("content-type", contentType || "text/plain");
+      const cd = upstream.headers.get("content-disposition");
+      if (cd) headers.set("content-disposition", cd);
       return new NextResponse(text, {
         status: upstream.status,
-        headers: { "content-type": contentType || "text/plain" },
+        headers,
       });
     }
   } catch (error) {
