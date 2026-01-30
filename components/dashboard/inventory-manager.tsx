@@ -51,6 +51,7 @@ export function InventoryManager() {
   const [loading, setLoading] = useState(true);
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvIdempotencyKey, setCsvIdempotencyKey] = useState<string>("");
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<{ applied: number; conflicts: number } | null>(null);
   const { user, token } = useAuth();
@@ -194,7 +195,31 @@ export function InventoryManager() {
   const handleCsvFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setCsvFile(event.target.files[0]);
+      const cryptoObj = globalThis.crypto as
+        | (Crypto & { randomUUID?: () => string })
+        | undefined;
+      const key = cryptoObj?.randomUUID?.() ?? `csv-${Date.now()}`;
+      setCsvIdempotencyKey(key);
     }
+  };
+
+  const downloadInventoryDeltaTemplate = () => {
+    const csv = [
+      "product_id,sku,barcode,delta_quantity,store_location_id,reason,occurred_at,external_ref",
+      ",SKU-123,,10,,restock,2026-01-30T10:00:00Z,PO-001",
+      ",SKU-123,,-2,,sale,2026-01-30T12:00:00Z,SALE-001",
+      ",SKU-999,,-1,,adjustment,2026-01-30T18:30:00Z,SHRINK-001",
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "inventory-deltas-template.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const importInventoryDeltasCsv = async () => {
@@ -206,7 +231,8 @@ export function InventoryManager() {
       const cryptoObj = globalThis.crypto as
         | (Crypto & { randomUUID?: () => string })
         | undefined;
-      const key = cryptoObj?.randomUUID?.() ?? `csv-${Date.now()}`;
+      const key = (csvIdempotencyKey || "").trim() || cryptoObj?.randomUUID?.() || `csv-${Date.now()}`;
+      setCsvIdempotencyKey(key);
 
       const result = await shoppingInventoryAPI.importInventoryDeltasCsv(
         token,
@@ -280,6 +306,14 @@ export function InventoryManager() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div>
+                  A “delta” is the change to apply: restock is positive (e.g. <span className="font-mono">10</span>), sale/consumption is negative (e.g. <span className="font-mono">-2</span>).
+                </div>
+                <div>
+                  Extra CSV columns are ignored. Unknown products or negative stock results show up as conflicts.
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="inventory-delta-csv">CSV file</Label>
                 <Input
@@ -289,9 +323,21 @@ export function InventoryManager() {
                   onChange={handleCsvFileChange}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="inventory-delta-idempotency">Idempotency key</Label>
+                <Input
+                  id="inventory-delta-idempotency"
+                  value={csvIdempotencyKey}
+                  onChange={(e) => setCsvIdempotencyKey(e.target.value)}
+                  placeholder="csv-... (use the same key if you retry the same file)"
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <Button onClick={importInventoryDeltasCsv} disabled={csvImporting || !csvFile || !selectedStore}>
                   {csvImporting ? "Importing…" : "Import CSV"}
+                </Button>
+                <Button type="button" variant="secondary" onClick={downloadInventoryDeltaTemplate}>
+                  Download template
                 </Button>
                 {csvResult && (
                   <div className="text-sm text-muted-foreground">
